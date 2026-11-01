@@ -2,3 +2,59 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
 }
+
+.app-shell.text-large :is(
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  summary,
+  th,
+  td,
+  small,
+  strong
+) {
+  font-size: calc(1em + 2px);
+}
+
+.app-shell.theme-dark .choice-button:hover:not(:disabled),
+.app-shell.theme-dark .choice-button.selected {
+  background: var(--blue);
+  color: var(--navy);
+}
+
+.app-shell.high-contrast .choice-button,
+.app-shell.high-contrast .contrast-control,
+.app-shell.high-contrast .field input,
+.app-shell.high-contrast .field select {
+  border-width: 2px;
+}
+
+.app-shell.high-contrast .choice-button:hover:not(:disabled),
+.app-shell.high-contrast .choice-button.selected {
+  border-color: var(--navy);
+  background: var(--blue);
+  color: var(--navy);
+}
+
+.app-shell.theme-dark.high-contrast {
+  --navy: #ffffff;
+  --slate: #ffffff;
+  --line: #ffffff;
+  --bg: #000000;
+  --white: #000000;
+  --blue: #333333;
+  --shadow: 0 0 0 2px #ffffff;
+}
+
+.app-shell.theme-dark.high-contrast .sidebar,
+.app-shell.theme-dark.high-contrast .header-avatar {
+  background: #000000;
+  color: #ffffff;
+}
