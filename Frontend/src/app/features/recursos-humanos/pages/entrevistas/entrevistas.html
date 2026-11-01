@@ -1,0 +1,280 @@
+<div class="interviews-page">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Agenda del equipo</span>
+
+      <h1>
+        {{ isRrhh ? 'Entrevistas' : 'Mis entrevistas' }}
+      </h1>
+
+      <p class="page-description">
+        Consulta las citas y organiza las entrevistas del proceso.
+      </p>
+    </div>
+
+    <div class="date-tabs" role="group" aria-label="Filtrar entrevistas por fecha">
+      <button type="button" [class.active]="filter === 'all' && !date" [attr.aria-pressed]="filter === 'all' && !date"
+        (click)="changeFilter('all')">
+        Todas
+      </button>
+
+      <button type="button" [class.active]="filter === 'today'" [attr.aria-pressed]="filter === 'today'"
+        (click)="changeFilter('today')">
+        Hoy
+      </button>
+
+      <button type="button" [class.active]="filter === 'tomorrow'" [attr.aria-pressed]="filter === 'tomorrow'"
+        (click)="changeFilter('tomorrow')">
+        Mañana
+      </button>
+    </div>
+  </header>
+
+  @if (error) {
+  <div class="feedback error" role="alert">
+    <app-icon name="help" [size]="19" />
+    <span>{{ error }}</span>
+  </div>
+  }
+
+  @if (notice) {
+  <div class="feedback success" role="status">
+    <app-icon name="check" [size]="19" />
+
+    <span>{{ notice }}</span>
+
+    <button type="button" class="dismiss-button" aria-label="Cerrar mensaje" (click)="notice = ''">
+      <app-icon name="close" [size]="18" />
+    </button>
+  </div>
+  }
+
+  <div class="agenda-layout">
+    <aside class="card calendar-card" aria-label="Calendario de entrevistas">
+      <div class="calendar-heading">
+        <button type="button" class="icon-button" aria-label="Mes anterior" (click)="changeMonth(-1)">
+          <app-icon name="back" [size]="19" />
+        </button>
+
+        <h2 aria-live="polite">{{ monthLabel }}</h2>
+
+        <button type="button" class="icon-button" aria-label="Mes siguiente" (click)="changeMonth(1)">
+          <app-icon name="arrow" [size]="19" />
+        </button>
+      </div>
+
+      <div class="calendar-weekdays" aria-hidden="true">
+        @for (day of weekdays; track $index) {
+        <span>{{ day }}</span>
+        }
+      </div>
+
+      <div class="calendar-days">
+        @for (day of calendarDays; track day.key) {
+        <button type="button" class="calendar-day" [class.outside]="!day.currentMonth"
+          [class.selected]="date === day.key" [class.today]="isToday(day.key)"
+          [class.has-interviews]="appointmentDates.has(day.key)" [attr.aria-pressed]="date === day.key"
+          [attr.aria-current]="isToday(day.key) ? 'date' : null" [attr.aria-label]="
+              formatDate(day.key) +
+              (appointmentDates.has(day.key) ? ', con entrevistas' : '')
+            " (click)="selectDay(day)">
+          {{ day.day }}
+        </button>
+        }
+      </div>
+
+      <div class="calendar-legend">
+        <span class="legend-dot" aria-hidden="true"></span>
+        <span>Día con entrevistas</span>
+      </div>
+
+      @if (date) {
+      <button type="button" class="show-all-button" (click)="changeFilter('all')">
+        Ver todas las fechas
+      </button>
+      }
+    </aside>
+
+    <div class="agenda-content">
+      <section class="card search-card">
+        <label class="search-field" for="interview-search">
+          <span>Buscar entrevista</span>
+
+          <div class="search-control">
+            <app-icon name="search" [size]="20" />
+
+            <input id="interview-search" type="search" [(ngModel)]="query" placeholder="Nombre, puesto o lugar…"
+              autocomplete="off" />
+          </div>
+        </label>
+
+        <button type="button" class="btn btn-secondary clear-button" [disabled]="!query && !date"
+          (click)="clearFilters()">
+          Limpiar filtros
+        </button>
+      </section>
+
+      <section class="card table-card" [attr.aria-busy]="loading">
+        <header class="agenda-heading">
+          <div>
+            <h2>Agenda de entrevistas</h2>
+            <p>{{ agendaLabel }}</p>
+          </div>
+
+          @if (!loading) {
+          <span class="results-count">
+            {{ rows.length }}
+            {{ rows.length === 1 ? 'entrevista' : 'entrevistas' }}
+          </span>
+          }
+        </header>
+
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de entrevistas">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Postulante</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Hora</th>
+                <th scope="col">Lugar o enlace</th>
+                <th scope="col" class="actions-column">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @if (loading) {
+              <tr>
+                <td colspan="5" class="loading-cell">
+                  Cargando entrevistas…
+                </td>
+              </tr>
+              } @else {
+              @for (appointment of rows; track appointment.id) {
+              <tr>
+                <td>
+                  <div class="candidate-cell">
+                    <span class="avatar" aria-hidden="true">
+                      {{ initials(appointment.applicationId) }}
+                    </span>
+
+                    <div class="candidate-info">
+                      <strong>
+                        {{ name(appointment.applicationId) }}
+                      </strong>
+
+                      <small>
+                        {{ role(appointment.applicationId) }}
+                      </small>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="date-cell">
+                  {{ formatDate(appointment.date) }}
+                </td>
+
+                <td>
+                  <span class="time-chip">
+                    {{ appointment.time }}
+                  </span>
+                </td>
+
+                <td class="place-cell">
+                  {{ appointment.place || 'Por confirmar' }}
+                </td>
+
+                <td>
+                  @if (isRrhh) {
+                  <div class="row-actions">
+                    <a class="btn btn-profile" [routerLink]="[
+                              '/recursos-humanos/postulantes',
+                              appointment.applicationId
+                            ]" [attr.aria-label]="
+                              'Ver perfil de ' +
+                              name(appointment.applicationId)
+                            ">
+                      Ver perfil
+                    </a>
+
+                    <button type="button" class="btn btn-primary" [attr.aria-label]="
+                              'Reprogramar entrevista de ' +
+                              name(appointment.applicationId)
+                            " (click)="openSchedule(appointment.applicationId)">
+                      Reprogramar
+                    </button>
+
+                    <button type="button" class="reminder-button" [class.reminded]="wasReminded(appointment)"
+                      [disabled]="wasReminded(appointment)" [attr.aria-label]="
+    (wasReminded(appointment)
+      ? 'Recordatorio registrado para '
+      : 'Registrar recordatorio para ') +
+    name(appointment.applicationId)
+  " [title]="
+    wasReminded(appointment)
+      ? 'Recordatorio registrado'
+      : 'Registrar recordatorio'
+  " (click)="remind(appointment)">
+                      <app-icon [name]="wasReminded(appointment) ? 'check' : 'bell'" [size]="19" />
+                    </button>
+                  </div>
+                  } @else {
+                  <span class="scheduled-label">
+                    Programada
+                  </span>
+                  }
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="empty-icon" aria-hidden="true">
+                      <app-icon name="calendar" [size]="27" />
+                    </span>
+
+                    <strong>
+                      No hay entrevistas para estos filtros
+                    </strong>
+
+                    <p>
+                      Selecciona otra fecha o modifica la búsqueda.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+              }
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      @if (isRrhh) {
+      <div class="agenda-note">
+        <app-icon name="calendar" [size]="20" />
+
+        <p>
+          Para programar una nueva entrevista, abre el perfil de un
+          postulante preseleccionado.
+        </p>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (selected) {
+<app-schedule-form [id]="selected" [name]="name(selected)" (close)="selected = 0" (saved)="onRescheduled()" />
+}
+
+<!-- Confirmación flotante del recordatorio -->
+<div class="reminder-toast-region" role="status" aria-live="polite" aria-atomic="true">
+  @if (reminderMessage()) {
+  <div class="reminder-toast">
+    <app-icon name="check" [size]="20" />
+    <span>{{ reminderMessage() }}</span>
+  </div>
+  }
+</div>

@@ -1,0 +1,115 @@
+<div class="results-page">
+    <header class="page-heading">
+        <div>
+            <span class="eyebrow">Selección de talento</span>
+            <h1>Resultados</h1>
+        </div>
+
+        <button type="button" class="btn btn-secondary" [disabled]="loading || !rows.length" (click)="download()">
+            <app-icon name="file" [size]="18" />
+            Exportar CSV
+        </button>
+    </header>
+
+    <section class="card filters">
+        <label class="field search-field">
+            Buscar candidato
+
+            <div class="search-control">
+                <app-icon name="search" [size]="19" />
+
+                <input type="search" [(ngModel)]="query" placeholder="Nombre o puesto…" />
+            </div>
+        </label>
+
+        <label class="field">
+            Estado
+
+            <select [(ngModel)]="status">
+                <option>Todos</option>
+                <option>Evaluado</option>
+                <option>Contratado</option>
+                <option>Rechazado</option>
+            </select>
+        </label>
+
+        <button type="button" class="btn btn-secondary clear-button" [disabled]="!hasFilters" (click)="clearFilters()">
+            Limpiar filtros
+        </button>
+    </section>
+
+    @if (error) {
+    <p class="error" role="alert">{{ error }}</p>
+    }
+
+    <section class="card table-card" [attr.aria-busy]="loading">
+        <div class="table-heading">
+            <h2>Resultados de postulantes</h2>
+
+            @if (!loading) {
+            <span>{{ rows.length }} registro(s)</span>
+            }
+        </div>
+
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Resultados de postulantes">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Postulante</th>
+                        <th scope="col">Puesto</th>
+                        <th scope="col" class="center">Estado</th>
+                        <th scope="col" class="center">Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (loading) {
+                    <tr>
+                        <td colspan="4" class="empty">
+                            Cargando resultados…
+                        </td>
+                    </tr>
+                    } @else {
+                    @for (candidate of rows; track candidate.id) {
+                    <tr>
+                        <td>
+                            <div class="person">
+                                <span class="avatar" aria-hidden="true">
+                                    {{ initials(candidate.name) }}
+                                </span>
+
+                                <div>
+                                    <strong>{{ candidate.name }}</strong>
+                                    <small>{{ candidate.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>{{ candidate.role }}</td>
+
+                        <td class="center">
+                            <app-badge [status]="candidate.status" />
+                        </td>
+
+                        <td class="center">
+                            <a class="btn btn-profile" [routerLink]="[
+                      '/recursos-humanos/resultados',
+                      candidate.id
+                    ]">
+                                Ver resultado
+                            </a>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="4" class="empty">
+                            No hay resultados para estos filtros.
+                        </td>
+                    </tr>
+                    }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>

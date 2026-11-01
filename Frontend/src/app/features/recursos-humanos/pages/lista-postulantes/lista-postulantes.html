@@ -1,0 +1,310 @@
+<div class="page-stack">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Gestión de talento</span>
+      <h1>Postulantes</h1>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="loading"
+      (click)="openCreate()"
+    >
+      <app-icon name="plus" />
+      Nuevo postulante
+    </button>
+  </header>
+
+  @if (error) {
+    <p class="form-error" role="alert">{{ error }}</p>
+  }
+
+  @if (notice) {
+    <p class="notice" role="status">{{ notice }}</p>
+  }
+
+  <section class="card filter-card" aria-label="Filtros de postulantes">
+    <label class="field" for="buscar-postulante">
+      Buscar
+      <input
+        id="buscar-postulante"
+        type="search"
+        [(ngModel)]="search"
+        (ngModelChange)="page = 1"
+        placeholder="Nombre, correo o DNI"
+      />
+    </label>
+
+    <label class="field" for="filtrar-puesto">
+      Puesto
+      <select
+        id="filtrar-puesto"
+        [(ngModel)]="position"
+        (ngModelChange)="page = 1"
+      >
+        <option>Todos</option>
+        @for (role of positions; track role) {
+          <option>{{ role }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field" for="filtrar-estado">
+      Estado
+      <select
+        id="filtrar-estado"
+        [(ngModel)]="status"
+        (ngModelChange)="page = 1"
+      >
+        <option>Todos</option>
+        @for (item of statuses; track item) {
+          <option>{{ item }}</option>
+        }
+      </select>
+    </label>
+  </section>
+
+  @if (loading) {
+    <p class="card empty" role="status">Cargando postulantes…</p>
+  } @else {
+    <section class="card table-card">
+      <div class="table-scroll">
+        <table>
+          <caption class="sr-only">Listado de postulantes</caption>
+
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Puesto</th>
+              <th scope="col">Fecha</th>
+              <th scope="col" class="status-column">Estado</th>
+              <th scope="col" class="action-column">Acción</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (candidate of rows; track candidate.id) {
+              <tr>
+                <td data-label="Nombre">
+                  <div class="person-cell">
+                    <span class="person-avatar" aria-hidden="true">
+                      {{ candidate.name.slice(0, 2).toUpperCase() }}
+                    </span>
+
+                    <div>
+                      <strong>{{ candidate.name }}</strong>
+                      <small>{{ candidate.email }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <td data-label="Puesto">{{ candidate.role }}</td>
+                <td data-label="Fecha">{{ candidate.date }}</td>
+
+                <td data-label="Estado" class="status-column">
+                  <div class="status-wrapper">
+                    <app-badge [status]="candidate.status" />
+                  </div>
+                </td>
+
+                <td data-label="Acción" class="action-column">
+                  <a
+                    class="btn btn-profile"
+                    [routerLink]="[
+                      '/recursos-humanos/postulantes',
+                      candidate.id
+                    ]"
+                    [attr.aria-label]="'Ver perfil de ' + candidate.name"
+                  >
+                    Ver perfil
+                  </a>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty">
+                  No encontramos candidatos. Prueba con otros filtros.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <nav class="pagination" aria-label="Paginación de postulantes">
+        <button
+          type="button"
+          [disabled]="currentPage === 1"
+          (click)="changePage(currentPage - 1)"
+          aria-label="Página anterior"
+        >
+          ‹
+        </button>
+
+        <span aria-live="polite">
+          Página {{ currentPage }} de {{ pages }}
+          · {{ filtered.length }} registros
+        </span>
+
+        <button
+          type="button"
+          [disabled]="currentPage >= pages"
+          (click)="changePage(currentPage + 1)"
+          aria-label="Página siguiente"
+        >
+          ›
+        </button>
+      </nav>
+    </section>
+  }
+</div>
+
+@if (open) {
+  <app-modal
+    title="Nuevo postulante"
+    [wide]="true"
+    (close)="closeCreate()"
+  >
+    <form
+      #form="ngForm"
+      class="modal-form"
+      (ngSubmit)="create(form)"
+    >
+      <div class="form-grid">
+        <label class="field" for="postulante-nombre">
+          Nombre completo *
+          <input
+            id="postulante-nombre"
+            name="name"
+            [(ngModel)]="draft.name"
+            required
+            minlength="3"
+            maxlength="120"
+            autocomplete="name"
+            [disabled]="busy"
+          />
+        </label>
+
+        <label class="field" for="postulante-correo">
+          Correo *
+          <input
+            id="postulante-correo"
+            name="email"
+            type="email"
+            [(ngModel)]="draft.email"
+            required
+            email
+            autocomplete="email"
+            [disabled]="busy"
+          />
+        </label>
+
+        <label class="field" for="postulante-dni">
+          DNI *
+          <input
+            id="postulante-dni"
+            name="dni"
+            [(ngModel)]="draft.dni"
+            required
+            pattern="[0-9]{8}"
+            maxlength="8"
+            inputmode="numeric"
+            [disabled]="busy"
+          />
+        </label>
+
+        <label class="field" for="postulante-telefono">
+          Teléfono *
+          <input
+            id="postulante-telefono"
+            name="phone"
+            type="tel"
+            [(ngModel)]="draft.phone"
+            required
+            pattern="[+0-9 ()-]{9,16}"
+            autocomplete="tel"
+            [disabled]="busy"
+          />
+        </label>
+
+        <label class="field" for="postulante-vacante">
+          Vacante *
+          <select
+            id="postulante-vacante"
+            name="vacancy"
+            [(ngModel)]="draft.vacancyId"
+            [disabled]="busy"
+          >
+            <option [ngValue]="0" disabled>
+              Selecciona una vacante
+            </option>
+
+            @for (vacancy of publishedVacancies; track vacancy.id) {
+              <option [ngValue]="vacancy.id">
+                {{ vacancy.title }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label class="field" for="postulante-experiencia">
+          Experiencia
+          <input
+            id="postulante-experiencia"
+            name="experience"
+            [(ngModel)]="draft.experience"
+            placeholder="Ej. 3 años"
+            [disabled]="busy"
+          />
+        </label>
+
+        <label class="field" for="postulante-ubicacion">
+          Ubicación
+          <input
+            id="postulante-ubicacion"
+            name="location"
+            [(ngModel)]="draft.location"
+            [disabled]="busy"
+          />
+        </label>
+      </div>
+
+      @if (!publishedVacancies.length) {
+        <p class="form-error">
+          No hay vacantes publicadas disponibles.
+        </p>
+      }
+
+      @if (formError) {
+        <p class="form-error" role="alert">{{ formError }}</p>
+      }
+
+      @if (form.submitted && form.invalid) {
+        <p class="form-error">
+          Completa los campos. El DNI debe tener 8 dígitos
+          y el correo debe ser válido.
+        </p>
+      }
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="busy"
+          (click)="closeCreate()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="busy || !draft.vacancyId"
+        >
+          {{ busy ? 'Guardando…' : 'Guardar postulante' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}

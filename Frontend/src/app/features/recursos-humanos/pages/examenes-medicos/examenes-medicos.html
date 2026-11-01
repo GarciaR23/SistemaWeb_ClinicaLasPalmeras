@@ -1,0 +1,378 @@
+<div class="medical-page">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Salud ocupacional</span>
+      <h1>Exámenes médicos</h1>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="loading"
+      (click)="openSchedule()"
+    >
+      <app-icon name="plus" [size]="19" />
+      Programar examen
+    </button>
+  </header>
+
+  @if (error) {
+    <p class="feedback error" role="alert">{{ error }}</p>
+  }
+
+  @if (notice) {
+    <div class="feedback success" role="status">
+      <app-icon name="check" [size]="19" />
+
+      <span>{{ notice }}</span>
+
+      <button
+        type="button"
+        class="dismiss"
+        aria-label="Cerrar mensaje"
+        (click)="notice = ''"
+      >
+        <app-icon name="close" [size]="18" />
+      </button>
+    </div>
+  }
+
+  <section aria-label="Disponibilidad por sede">
+    <div class="sites-grid">
+      @for (site of service.sites; track site.name) {
+        <article class="card site-card">
+          <span class="site-icon" aria-hidden="true">
+            <app-icon name="pin" [size]="22" />
+          </span>
+
+          <div class="site-info">
+            <h2>Sede {{ site.name }}</h2>
+            <p>{{ site.opening }} – {{ site.closing }}</p>
+          </div>
+
+          <span
+            class="site-capacity"
+            [class.unavailable]="!loading && slots(site.name) === 0"
+          >
+            @if (loading) {
+              Cargando…
+            } @else {
+              {{ slots(site.name) }}
+              {{ slots(site.name) === 1 ? 'cupo' : 'cupos' }}
+            }
+          </span>
+        </article>
+      }
+    </div>
+
+    <p class="availability-note">
+      Cupos para {{ capacityLabel }} 
+    </p>
+  </section>
+
+  <section class="card filters-card">
+    <label class="field search-field">
+      Buscar postulante o sede
+
+      <div class="search-control">
+        <app-icon name="search" [size]="19" />
+
+        <input
+          type="search"
+          [(ngModel)]="query"
+          placeholder="Nombre, puesto o sede…"
+          autocomplete="off"
+        />
+      </div>
+    </label>
+
+    <label class="field date-field">
+      Fecha de evaluación
+
+      <input type="date" [(ngModel)]="selectedDate" />
+    </label>
+
+    <button
+      type="button"
+      class="btn btn-secondary clear-button"
+      [disabled]="!hasFilters || loading"
+      (click)="clearFilters()"
+    >
+      <app-icon name="close" [size]="17" />
+      Limpiar filtros
+    </button>
+  </section>
+
+  <section class="card table-card" [attr.aria-busy]="loading">
+    <header class="section-heading">
+      <div>
+        <h2>Próximas evaluaciones</h2>
+        <p>Disponibilidad y programación por sede</p>
+      </div>
+
+      @if (!loading) {
+        <span class="record-count">
+          {{ rows.length }} registro(s)
+        </span>
+      }
+    </header>
+
+    <div
+      class="table-scroll"
+      tabindex="0"
+      role="region"
+      aria-label="Evaluaciones médicas registradas"
+    >
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Candidato</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Hora</th>
+            <th scope="col">Sede</th>
+            <th scope="col" class="status-cell">Estado</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @if (loading) {
+            <tr>
+              <td colspan="5" class="empty-cell">
+                Cargando evaluaciones…
+              </td>
+            </tr>
+          } @else {
+            @for (appointment of rows; track appointment.id) {
+              <tr>
+                <td>
+                  <div class="person-cell">
+                    <span class="avatar" aria-hidden="true">
+                      {{ initials(appointment.applicationId) }}
+                    </span>
+
+                    <div>
+                      <strong>
+                        {{ name(appointment.applicationId) }}
+                      </strong>
+
+                      <small>
+                        {{ role(appointment.applicationId) }}
+                      </small>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="date-cell">
+                  {{ formatDate(appointment.date) }}
+                </td>
+
+                <td>
+                  <span class="time-chip">
+                    {{ appointment.time }}
+                  </span>
+                </td>
+
+                <td>{{ appointment.site || 'Sin sede' }}</td>
+
+                <td class="status-cell">
+                  @if (status(appointment.applicationId)) {
+                    <app-badge
+                      [status]="status(appointment.applicationId)"
+                    />
+                  } @else {
+                    <span class="muted">Sin información</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state">
+                    <app-icon name="medical" [size]="30" />
+
+                    <strong>
+                      No hay evaluaciones para estos filtros
+                    </strong>
+
+                    <p>
+                      Modifica la búsqueda o limpia los filtros.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Conserva la consulta de resultados cuando existan. -->
+  @if (!loading && service.fitness().length > 0) {
+    <section class="card">
+      <header class="section-heading">
+        <div>
+          <h2>Resultados de aptitud</h2>
+          <p>Conclusiones registradas por Salud Ocupacional</p>
+        </div>
+      </header>
+
+      @for (fitness of filteredFitness; track fitness.id) {
+        <div class="fitness-row">
+          <div class="person-cell">
+            <span class="avatar" aria-hidden="true">
+              {{ initials(fitness.applicationId) }}
+            </span>
+
+            <div>
+              <strong>{{ name(fitness.applicationId) }}</strong>
+              <small>{{ role(fitness.applicationId) }}</small>
+            </div>
+          </div>
+
+          <span class="fitness-conclusion">
+            {{ fitness.conclusion }}
+          </span>
+        </div>
+      } @empty {
+        <p class="empty-cell">
+          No hay resultados para esta búsqueda.
+        </p>
+      }
+    </section>
+  }
+</div>
+
+@if (open) {
+  <app-modal
+    title="Programar examen médico"
+    (close)="closeSchedule()"
+  >
+    <form
+      #form="ngForm"
+      class="schedule-form"
+      (ngSubmit)="create(form)"
+    >
+      <p class="form-description">
+        Selecciona un postulante, una sede y un horario disponible.
+      </p>
+
+      <label class="field">
+        Postulante *
+
+        <select
+          name="applicationId"
+          [(ngModel)]="draft.applicationId"
+          [disabled]="busy"
+          required
+        >
+          <option [ngValue]="0" disabled>
+            Selecciona un postulante
+          </option>
+
+          @for (candidate of eligibleCandidates; track candidate.id) {
+            <option [ngValue]="candidate.id">
+              {{ candidate.name }} · {{ candidate.role }}
+            </option>
+          }
+        </select>
+      </label>
+
+      @if (!eligibleCandidates.length) {
+        <p class="form-hint">
+          No hay postulantes disponibles. Deben estar en Entrevista
+          o Solicitud médica y no tener otra cita pendiente.
+        </p>
+      }
+
+      <div class="form-grid">
+        <label class="field">
+          Fecha *
+
+          <input
+            type="date"
+            name="date"
+            [(ngModel)]="draft.date"
+            [min]="minimumDate"
+            [disabled]="busy"
+            required
+            (ngModelChange)="resetTime()"
+          />
+        </label>
+
+        <label class="field">
+          Sede *
+
+          <select
+            name="site"
+            [(ngModel)]="draft.site"
+            [disabled]="busy"
+            required
+            (ngModelChange)="resetTime()"
+          >
+            <option value="" disabled>Selecciona una sede</option>
+
+            @for (site of service.sites; track site.name) {
+              <option [value]="site.name">
+                {{ site.name }}
+              </option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <label class="field">
+        Hora *
+
+        <select
+          name="time"
+          [(ngModel)]="draft.time"
+          [disabled]="busy || !draft.site || !draft.date"
+          required
+        >
+          <option value="" disabled>Selecciona un horario</option>
+
+          @for (time of availableTimes; track time) {
+            <option [value]="time">{{ time }}</option>
+          }
+        </select>
+      </label>
+
+      @if (draft.site && draft.date && !availableTimes.length) {
+        <p class="form-hint">
+          No hay horarios disponibles para esta sede y fecha.
+        </p>
+      }
+
+      @if (formError) {
+        <p class="feedback error" role="alert">
+          {{ formError }}
+        </p>
+      }
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="busy"
+          (click)="closeSchedule()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="
+            busy ||
+            form.invalid ||
+            !draft.applicationId ||
+            !availableTimes.length
+          "
+        >
+          {{ busy ? 'Guardando…' : 'Programar examen' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}

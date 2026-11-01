@@ -1,0 +1,341 @@
+<div class="account-page">
+  <header class="page-heading">
+    <span class="eyebrow">
+      {{ mode === 'settings' ? 'Preferencias personales' : 'Perfil personal' }}
+    </span>
+
+    <h1>
+      {{ mode === 'settings' ? 'Configuración' : 'Mi cuenta' }}
+    </h1>
+  </header>
+
+  @if (error) {
+    <p class="feedback error" role="alert">
+      {{ error }}
+    </p>
+  }
+
+  @if (notice) {
+    <div class="feedback success" role="status">
+      <app-icon name="check" [size]="19" />
+      <span>{{ notice }}</span>
+    </div>
+  }
+
+  @if (loading) {
+    <p class="loading-message">Cargando información…</p>
+  } @else {
+    <form
+      #form="ngForm"
+      (ngSubmit)="save(form)"
+    >
+      @if (mode === 'settings') {
+        <div class="settings-stack">
+          <section class="card settings-card">
+            <header class="card-heading">
+              <h2>Apariencia</h2>
+              <p>Personaliza tu experiencia en el portal</p>
+            </header>
+
+            <div class="form-grid">
+              <label class="field">
+                Tema
+
+                <select
+                  name="theme"
+                  [(ngModel)]="appearance.theme"
+                  [disabled]="busy"
+                >
+                  <option value="light">Claro</option>
+                  <option value="dark">Oscuro</option>
+                </select>
+              </label>
+
+              <label class="field">
+                Tamaño del texto
+
+                <select
+                  name="size"
+                  [(ngModel)]="appearance.textSize"
+                  [disabled]="busy"
+                >
+                  <option value="normal">Normal</option>
+                  <option value="large">Grande</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="checkbox-field">
+              <input
+                name="contrast"
+                type="checkbox"
+                [(ngModel)]="appearance.highContrast"
+                [disabled]="busy"
+              />
+
+              <span>Alto contraste</span>
+            </label>
+          </section>
+
+          <section class="card settings-card">
+            <header class="card-heading">
+              <h2>Notificaciones</h2>
+              <p>Preferencias de alertas para la futura integración</p>
+            </header>
+
+            <div class="checkbox-list">
+              <label class="checkbox-field">
+                <input
+                  name="interview"
+                  type="checkbox"
+                  [(ngModel)]="appearance.interview"
+                  [disabled]="busy"
+                />
+
+                <span>Recordatorios de entrevistas</span>
+              </label>
+
+              <label class="checkbox-field">
+                <input
+                  name="exam"
+                  type="checkbox"
+                  [(ngModel)]="appearance.exam"
+                  [disabled]="busy"
+                />
+
+                <span>Exámenes médicos</span>
+              </label>
+
+              <label class="checkbox-field">
+                <input
+                  name="candidate"
+                  type="checkbox"
+                  [(ngModel)]="appearance.candidate"
+                  [disabled]="busy"
+                />
+
+                <span>Nuevos postulantes</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="card settings-card">
+            <header class="card-heading">
+              <h2>Datos de la institución</h2>
+              <p>Información de referencia</p>
+            </header>
+
+            <div class="form-grid">
+              <label class="field">
+                Nombre
+                <input value="Clínica Las Palmeras" readonly />
+              </label>
+
+              <label class="field">
+                Correo de RR. HH.
+                <input value="rrhh@clinicapalmeras.com" readonly />
+              </label>
+
+              <label class="field">
+                Zona horaria
+                <input value="Lima (GMT-5)" readonly />
+              </label>
+            </div>
+          </section>
+
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="busy || form.invalid"
+            >
+              {{ busy ? 'Guardando…' : 'Guardar cambios' }}
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="account-grid">
+          <aside class="card profile-card">
+            <span class="profile-avatar" aria-hidden="true">
+              {{ initials }}
+            </span>
+
+            <h2>{{ session.user()?.name }}</h2>
+
+            <p class="profile-role">{{ roleLabel }}</p>
+
+            <span class="authorization-label">
+              {{
+                session.role() === 'applicant'
+                  ? 'Postulante'
+                  : 'Personal autorizado'
+              }}
+            </span>
+
+            <div class="profile-footer">
+              <button
+                type="button"
+                class="btn btn-secondary logout-button"
+                [disabled]="busy"
+                (click)="logout()"
+              >
+                <app-icon name="logout" [size]="18" />
+                Cerrar sesión
+              </button>
+            </div>
+          </aside>
+
+          <section class="card personal-card">
+            <header class="card-heading">
+              <h2>Información personal</h2>
+              <p>Actualiza tus datos de contacto</p>
+            </header>
+
+            <div class="form-grid">
+              <label class="field">
+                Nombre
+
+                <input
+                  name="firstName"
+                  [(ngModel)]="firstName"
+                  #firstNameControl="ngModel"
+                  required
+                  maxlength="80"
+                  pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+([ '-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*"
+                  autocomplete="given-name"
+                  [disabled]="busy"
+                />
+
+                @if (
+                  firstNameControl.invalid &&
+                  (firstNameControl.touched || form.submitted)
+                ) {
+                  <small class="field-error">
+                    Ingresa un nombre válido.
+                  </small>
+                }
+              </label>
+
+              <label class="field">
+                Apellidos
+
+                <input
+                  name="lastName"
+                  [(ngModel)]="lastName"
+                  #lastNameControl="ngModel"
+                  required
+                  maxlength="100"
+                  pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+([ '-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*"
+                  autocomplete="family-name"
+                  [disabled]="busy"
+                />
+
+                @if (
+                  lastNameControl.invalid &&
+                  (lastNameControl.touched || form.submitted)
+                ) {
+                  <small class="field-error">
+                    Ingresa apellidos válidos.
+                  </small>
+                }
+              </label>
+
+              <label class="field">
+                Correo
+
+                <input
+                  type="email"
+                  [value]="session.user()?.email || ''"
+                  autocomplete="email"
+                  readonly
+                />
+              </label>
+
+              <label class="field">
+                Teléfono
+
+                <input
+                  name="phone"
+                  type="tel"
+                  [(ngModel)]="draft.phone"
+                  #phoneControl="ngModel"
+                  pattern="[+0-9 ()-]{9,16}"
+                  maxlength="16"
+                  autocomplete="tel"
+                  placeholder="+51 987 654 321"
+                  [disabled]="busy"
+                />
+
+                @if (
+                  phoneControl.invalid &&
+                  (phoneControl.touched || form.submitted)
+                ) {
+                  <small class="field-error">
+                    Ingresa un teléfono válido de 9 a 16 caracteres.
+                  </small>
+                }
+              </label>
+
+              @if (session.role() === 'applicant') {
+                <label class="field">
+                  Ubicación
+
+                  <input
+                    name="location"
+                    [(ngModel)]="draft.location"
+                    maxlength="120"
+                    [disabled]="busy"
+                  />
+                </label>
+
+                <label class="field">
+                  DNI
+
+                  <input
+                    name="dni"
+                    [(ngModel)]="draft.dni"
+                    #dniControl="ngModel"
+                    pattern="[0-9]{8}"
+                    maxlength="8"
+                    inputmode="numeric"
+                    [disabled]="busy"
+                  />
+
+                  @if (
+                    dniControl.invalid &&
+                    (dniControl.touched || form.submitted)
+                  ) {
+                    <small class="field-error">
+                      El DNI debe contener 8 números.
+                    </small>
+                  }
+                </label>
+
+                <label class="field full-width">
+                  Experiencia
+
+                  <input
+                    name="experience"
+                    [(ngModel)]="draft.experience"
+                    maxlength="150"
+                    [disabled]="busy"
+                  />
+                </label>
+              }
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="busy || form.invalid"
+              >
+                {{ busy ? 'Guardando…' : 'Guardar cambios' }}
+              </button>
+            </div>
+          </section>
+        </div>
+      }
+    </form>
+  }
+</div>

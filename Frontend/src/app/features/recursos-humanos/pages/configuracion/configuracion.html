@@ -1,0 +1,310 @@
+<div class="settings-page">
+  <header class="page-heading">
+    <span class="eyebrow">Administración</span>
+    <h1>Configuración</h1>
+  </header>
+
+  @if (error) {
+    <p class="feedback error" role="alert">
+      {{ error }}
+    </p>
+  }
+
+  @if (notice) {
+    <div class="feedback success" role="status">
+      <app-icon name="check" [size]="19" />
+      <span>{{ notice }}</span>
+    </div>
+  }
+
+  @if (loading) {
+    <p class="loading-message">
+      Cargando configuración…
+    </p>
+  } @else {
+    <form
+      #form="ngForm"
+      class="settings-form"
+      (ngSubmit)="save(form)"
+    >
+      <section class="card appearance-card">
+        <header class="card-heading">
+          <h2>Apariencia y accesibilidad</h2>
+          <p>
+            Personaliza cómo se muestra el portal en este dispositivo
+          </p>
+        </header>
+
+        <div class="appearance-grid">
+          <div class="appearance-option">
+            <h3>Tema de la interfaz</h3>
+            <p>Elige la apariencia general del portal</p>
+
+            <div
+              class="choice-group"
+              role="group"
+              aria-label="Tema de la interfaz"
+            >
+              <button
+                type="button"
+                class="choice-button"
+                [class.selected]="appearance.theme === 'light'"
+                [attr.aria-pressed]="appearance.theme === 'light'"
+                [disabled]="busy"
+                (click)="setTheme('light')"
+              >
+                <span class="theme-sample light" aria-hidden="true"></span>
+                Claro
+              </button>
+
+              <button
+                type="button"
+                class="choice-button"
+                [class.selected]="appearance.theme === 'dark'"
+                [attr.aria-pressed]="appearance.theme === 'dark'"
+                [disabled]="busy"
+                (click)="setTheme('dark')"
+              >
+                <span class="theme-sample dark" aria-hidden="true"></span>
+                Oscuro
+              </button>
+            </div>
+          </div>
+
+          <div class="appearance-option">
+            <h3>Tamaño del texto</h3>
+            <p>
+              Aumenta la legibilidad de títulos, campos y controles
+            </p>
+
+            <div
+              class="choice-group"
+              role="group"
+              aria-label="Tamaño del texto"
+            >
+              <button
+                type="button"
+                class="choice-button"
+                [class.selected]="appearance.textSize === 'normal'"
+                [attr.aria-pressed]="appearance.textSize === 'normal'"
+                [disabled]="busy"
+                (click)="setTextSize('normal')"
+              >
+                <span class="text-sample" aria-hidden="true">A</span>
+                Normal
+              </button>
+
+              <button
+                type="button"
+                class="choice-button"
+                [class.selected]="appearance.textSize === 'large'"
+                [attr.aria-pressed]="appearance.textSize === 'large'"
+                [disabled]="busy"
+                (click)="setTextSize('large')"
+              >
+                <span class="text-sample large" aria-hidden="true">A</span>
+                Grande
+              </button>
+            </div>
+          </div>
+
+          <div class="appearance-option">
+            <h3>Alto contraste</h3>
+            <p>
+              Refuerza colores, bordes y controles para distinguirlos mejor
+            </p>
+
+            <label class="contrast-control">
+              <input
+                class="switch-input"
+                type="checkbox"
+                role="switch"
+                name="highContrast"
+                [(ngModel)]="appearance.highContrast"
+                (ngModelChange)="previewAppearance()"
+                [disabled]="busy"
+                aria-label="Alto contraste"
+              />
+
+              <span class="contrast-label">
+                {{
+                  appearance.highContrast
+                    ? 'Activado'
+                    : 'Desactivado'
+                }}
+              </span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <div class="bottom-grid">
+        <section class="card institution-card">
+          <header class="card-heading">
+            <h2>Datos de la institución</h2>
+            <p>Información visible en comunicaciones</p>
+          </header>
+
+          <div class="form-grid">
+            <label class="field">
+              Nombre
+
+              <input
+                name="institutionName"
+                [(ngModel)]="institution.name"
+                #institutionName="ngModel"
+                required
+                maxlength="120"
+                [readonly]="!demoMode"
+                [disabled]="busy"
+              />
+
+              @if (
+                institutionName.invalid &&
+                (institutionName.touched || form.submitted)
+              ) {
+                <small class="field-error">
+                  Ingresa el nombre de la institución.
+                </small>
+              }
+            </label>
+
+            <label class="field">
+              Correo de RR. HH.
+
+              <input
+                name="institutionEmail"
+                type="email"
+                email
+                [(ngModel)]="institution.email"
+                #institutionEmail="ngModel"
+                required
+                maxlength="150"
+                [readonly]="!demoMode"
+                [disabled]="busy"
+              />
+
+              @if (
+                institutionEmail.invalid &&
+                (institutionEmail.touched || form.submitted)
+              ) {
+                <small class="field-error">
+                  Ingresa un correo válido.
+                </small>
+              }
+            </label>
+
+            <label class="field">
+              Teléfono
+
+              <input
+                name="institutionPhone"
+                type="tel"
+                [(ngModel)]="institution.phone"
+                #institutionPhone="ngModel"
+                pattern="[+0-9 ()-]{9,16}"
+                maxlength="16"
+                placeholder="Ingresa el teléfono"
+                [readonly]="!demoMode"
+                [disabled]="busy"
+              />
+
+              @if (
+                institutionPhone.invalid &&
+                (institutionPhone.touched || form.submitted)
+              ) {
+                <small class="field-error">
+                  Ingresa un teléfono válido.
+                </small>
+              }
+            </label>
+
+            <label class="field">
+              Zona horaria
+
+              <select
+                name="timezone"
+                [(ngModel)]="institution.timezone"
+                [disabled]="busy || !demoMode"
+              >
+                <option value="America/Lima">
+                  Lima (GMT-5)
+                </option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="card notifications-card">
+          <header class="card-heading">
+            <h2>Notificaciones</h2>
+            <p>Elige qué alertas deseas recibir</p>
+          </header>
+
+          <div class="notification-list">
+            <label class="notification-row">
+              <span class="notification-copy">
+                <strong>Recordatorios de entrevistas</strong>
+                <small>Preferencia para recordatorios de entrevistas</small>
+              </span>
+
+              <input
+                class="switch-input"
+                type="checkbox"
+                role="switch"
+                name="interviewNotifications"
+                [(ngModel)]="appearance.interview"
+                [disabled]="busy"
+                aria-label="Recordatorios de entrevistas"
+              />
+            </label>
+
+            <label class="notification-row">
+              <span class="notification-copy">
+                <strong>Exámenes médicos</strong>
+                <small>Al confirmar o cambiar una cita</small>
+              </span>
+
+              <input
+                class="switch-input"
+                type="checkbox"
+                role="switch"
+                name="examNotifications"
+                [(ngModel)]="appearance.exam"
+                [disabled]="busy"
+                aria-label="Notificaciones de exámenes médicos"
+              />
+            </label>
+
+            <label class="notification-row">
+              <span class="notification-copy">
+                <strong>Nuevos postulantes</strong>
+                <small>Cuando ingrese una nueva postulación</small>
+              </span>
+
+              <input
+                class="switch-input"
+                type="checkbox"
+                role="switch"
+                name="candidateNotifications"
+                [(ngModel)]="appearance.candidate"
+                [disabled]="busy"
+                aria-label="Notificaciones de nuevos postulantes"
+              />
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="busy || form.invalid"
+        >
+          {{ busy ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>
