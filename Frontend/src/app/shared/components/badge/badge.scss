@@ -1,0 +1,60 @@
+:host {
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  min-width: 120px;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.badge-default,
+.badge-interview,
+.badge-request,
+.badge-exam {
+  background: #e5f3fb;
+  color: #122c47;
+}
+
+.badge-review {
+  background: #fff0c2;
+  color: #805500;
+}
+
+.badge-preselected,
+.badge-hired {
+  background: #dcf4e5;
+  color: #236c42;
+}
+
+.badge-evaluated {
+  background: #eee7fa;
+  color: #6941a5;
+}
+
+.badge-rejected {
+  background: #fee4e2;
+  color: #b42318;
+}
+
+@media (max-width: 600px) {
+  .badge {
+    min-width: 105px;
+    font-size: 11px;
+  }
+}

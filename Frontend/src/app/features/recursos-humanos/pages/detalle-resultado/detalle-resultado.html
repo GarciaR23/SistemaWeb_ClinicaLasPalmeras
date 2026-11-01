@@ -1,0 +1,219 @@
+<div class="detail-page">
+  <a
+    class="back-link"
+    routerLink="/recursos-humanos/resultados"
+  >
+    <app-icon name="back" [size]="17" />
+    Volver a resultados
+  </a>
+
+  @if (loading) {
+    <p class="message">Cargando evaluación…</p>
+  } @else {
+    @if (error) {
+      <p class="message error" role="alert">
+        {{ error }}
+      </p>
+    }
+
+    @if (notice) {
+      <p class="message success" role="status">
+        {{ notice }}
+      </p>
+    }
+
+    @if (candidate; as person) {
+      @if (person.status === 'Rechazado') {
+        <div class="rejection-message" role="status">
+          <app-icon name="close" [size]="21" />
+
+          <div>
+            <strong>Postulación rechazada</strong>
+
+            <p>
+              Este postulante no continúa en el proceso de selección.
+            </p>
+
+            @if (person.rejectionReason) {
+              <p class="rejection-reason">
+                <strong>Motivo:</strong>
+                {{ person.rejectionReason }}
+              </p>
+            }
+          </div>
+        </div>
+      }
+
+      <header class="page-heading">
+        <div>
+          <span class="eyebrow">Evaluaciones</span>
+          <h1>Resultados de Evaluación</h1>
+        </div>
+
+        @if (person.status === 'Evaluado') {
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="busy || !canSubmit"
+            [title]="submitHint"
+            (click)="submitReview()"
+          >
+            {{
+              submittedAt
+                ? 'Enviado a revisión final'
+                : busy
+                  ? 'Guardando…'
+                  : 'Enviar a revisión final'
+            }}
+          </button>
+        }
+      </header>
+
+      <div class="detail-grid">
+        <aside class="card candidate-card">
+          <span class="avatar" aria-hidden="true">
+            {{ initials }}
+          </span>
+
+          <h2>{{ person.name }}</h2>
+
+          <p class="candidate-role">
+            {{ person.role }}
+          </p>
+
+          <dl class="contact-list">
+            <div>
+              <dt>DNI</dt>
+              <dd>{{ person.dni }}</dd>
+            </div>
+
+            <div>
+              <dt>Teléfono</dt>
+              <dd>{{ person.phone }}</dd>
+            </div>
+
+            <div>
+              <dt>Email</dt>
+              <dd>{{ person.email }}</dd>
+            </div>
+          </dl>
+
+          <ul class="process-list">
+            @for (step of steps; track step.label) {
+              <li [class.done]="step.done">
+                <span
+                  class="step-icon"
+                  aria-hidden="true"
+                >
+                  <app-icon
+                    [name]="step.done ? 'check' : 'clock'"
+                    [size]="13"
+                  />
+                </span>
+
+                <span>
+                  {{ step.label }}
+
+                  <span class="sr-only">
+                    {{ step.done ? ': registrado' : ': pendiente' }}
+                  </span>
+                </span>
+              </li>
+            }
+          </ul>
+        </aside>
+
+        <div class="evaluation-stack">
+          <section class="card evaluation-card">
+            <h2>Entrevista laboral</h2>
+
+            <label class="field">
+              Resultado
+
+              <select
+                [(ngModel)]="result"
+                [disabled]="busy || !editable"
+                (ngModelChange)="onResultChange()"
+              >
+                <option value="" disabled>
+                  Selecciona un resultado
+                </option>
+
+                <option value="APROBADO">
+                  Aprobado
+                </option>
+
+                <option value="DESAPROBADO">
+                  Desaprobado
+                </option>
+              </select>
+            </label>
+
+            <label class="field">
+              Comentarios
+
+              <textarea
+                [(ngModel)]="notes"
+                [disabled]="busy || !editable"
+                placeholder="Escribe los comentarios de la entrevista"
+                rows="1"
+              ></textarea>
+            </label>
+          </section>
+
+          <section class="card evaluation-card">
+            <h2>Examen médico ocupacional</h2>
+
+            <label class="field">
+              Resultado
+
+              <select
+                [(ngModel)]="medicalResult"
+                [disabled]="busy || !editable"
+                (ngModelChange)="onResultChange()"
+              >
+                <option value="" disabled>
+                  Selecciona un resultado
+                </option>
+
+                <option value="Apto">
+                  Apto
+                </option>
+
+                <option value="Apto con restricciones">
+                  Apto con restricciones
+                </option>
+
+                <option value="No apto">
+                  No apto
+                </option>
+
+                @if (
+                  medicalResult &&
+                  medicalResult !== 'Apto' &&
+                  medicalResult !== 'Apto con restricciones' &&
+                  medicalResult !== 'No apto'
+                ) {
+                  <option [value]="medicalResult">
+                    {{ medicalResult }}
+                  </option>
+                }
+              </select>
+            </label>
+
+            <label class="field">
+              Comentarios
+
+              <textarea
+                [(ngModel)]="medicalNotes"
+                [disabled]="busy || !editable"
+                placeholder="Escribe los comentarios del examen médico"
+                rows="1"
+              ></textarea>
+            </label>
+          </section>
+        </div>
+      </div>
+    }
+  }
+</div>

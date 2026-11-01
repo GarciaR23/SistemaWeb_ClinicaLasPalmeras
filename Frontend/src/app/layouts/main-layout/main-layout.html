@@ -1,1 +1,232 @@
-<router-outlet />
+<div
+  class="app-shell"
+  [class.theme-dark]="
+    isRrhh && preferences.preferences().theme === 'dark'
+  "
+  [class.text-large]="
+    isRrhh && preferences.preferences().textSize === 'large'
+  "
+  [class.high-contrast]="
+    isRrhh && preferences.preferences().highContrast
+  "
+>
+  @if (sidebarOpen) {
+    <button
+      type="button"
+      class="mobile-overlay"
+      aria-label="Cerrar menú lateral"
+      (click)="closeSidebar(true)"
+    ></button>
+  }
+
+  <aside
+    id="menu-lateral"
+    class="sidebar"
+    [class.sidebar-open]="sidebarOpen"
+  >
+    <div class="sidebar-brand">
+      <div class="logo">
+        <span class="logo-mark">
+          <app-icon name="cross" [size]="27" />
+        </span>
+
+        <div class="logo-text">
+          <span>CLÍNICA</span>
+          <strong>LAS PALMERAS</strong>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="sidebar-close"
+        aria-label="Cerrar menú"
+        (click)="closeSidebar(true)"
+      >
+        <app-icon name="close" />
+      </button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Menú principal">
+      @for (item of items; track item.page) {
+        <a
+          [routerLink]="'/' + item.page"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{
+            exact: item.page === 'recursos-humanos'
+          }"
+          ariaCurrentWhenActive="page"
+          (click)="closeSidebar()"
+        >
+          <app-icon [name]="item.icon" />
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    @if (isRrhh) {
+      <a
+        class="profile-card"
+        routerLink="/recursos-humanos/cuenta"
+        (click)="closeSidebar()"
+      >
+        <span class="avatar">{{ initials }}</span>
+
+        <span class="profile-information">
+          <strong>{{ session.user()?.name }}</strong>
+          <small>{{ roleLabel }}</small>
+        </span>
+
+        <app-icon name="arrow" [size]="17" />
+      </a>
+    } @else {
+      <div class="profile-card">
+        <span class="avatar">{{ initials }}</span>
+
+        <span class="profile-information">
+          <strong>{{ session.user()?.name }}</strong>
+          <small>{{ roleLabel }}</small>
+        </span>
+      </div>
+    }
+  </aside>
+
+  <div class="app-main">
+    <header class="topbar">
+      <button
+        #menuButton
+        type="button"
+        class="icon-btn menu-toggle"
+        aria-label="Abrir menú"
+        aria-controls="menu-lateral"
+        [attr.aria-expanded]="sidebarOpen"
+        (click)="openSidebar()"
+      >
+        <app-icon name="menu" [size]="23" />
+      </button>
+
+      <strong class="topbar-title">
+        Clínica Las Palmeras
+      </strong>
+
+      <div class="top-actions">
+
+        @if (isRrhh) {
+          <button
+            #notificationsButton
+            type="button"
+            class="icon-btn"
+            aria-label="Notificaciones"
+            aria-controls="panel-notificaciones"
+            [attr.aria-expanded]="notificationsOpen"
+            (click)="toggleNotifications()"
+          >
+            <app-icon name="bell" [size]="22" />
+          </button>
+        }
+
+        <button
+          #profileButton
+          type="button"
+          class="header-avatar"
+          aria-label="Abrir menú de perfil"
+          aria-controls="panel-perfil"
+          [attr.aria-expanded]="profileOpen"
+          (click)="toggleProfile()"
+        >
+          {{ initials }}
+        </button>
+      </div>
+
+      @if (profileOpen || notificationsOpen) {
+        <button
+          type="button"
+          class="panel-overlay"
+          aria-label="Cerrar panel"
+          (click)="closePanels()"
+        ></button>
+      }
+
+      @if (profileOpen) {
+        <section
+          id="panel-perfil"
+          class="header-panel profile-dropdown"
+          aria-label="Opciones de la cuenta"
+        >
+          <div class="dropdown-user">
+            <strong>{{ session.user()?.name }}</strong>
+            <small>{{ roleLabel }}</small>
+          </div>
+
+          @if (isRrhh) {
+            <a
+              routerLink="/recursos-humanos/cuenta"
+              (click)="closePanels()"
+            >
+              <app-icon name="user" [size]="18" />
+
+              <span>
+                <strong>Mi cuenta</strong>
+                <small>Información personal</small>
+              </span>
+            </a>
+
+            <a
+              routerLink="/recursos-humanos/configuracion"
+              (click)="closePanels()"
+            >
+              <app-icon name="settings" [size]="18" />
+
+              <span>
+                <strong>Configuración</strong>
+                <small>Preferencias del sistema</small>
+              </span>
+            </a>
+
+            <a
+              routerLink="/recursos-humanos/ayuda"
+              (click)="closePanels()"
+            >
+              <app-icon name="help" [size]="18" />
+
+              <span>
+                <strong>Ayuda</strong>
+                <small>Guías y preguntas frecuentes</small>
+              </span>
+            </a>
+          }
+
+          <button
+            type="button"
+            class="logout-button"
+            (click)="logout()"
+          >
+            <app-icon name="logout" [size]="18" />
+            Cerrar sesión
+          </button>
+        </section>
+      }
+
+      @if (notificationsOpen) {
+        <section
+          id="panel-notificaciones"
+          class="header-panel notifications-panel"
+          aria-label="Notificaciones"
+        >
+          <h2>Notificaciones</h2>
+          <p>
+            Aquí se mostrarán las alertas cuando conectemos
+            el servicio de notificaciones.
+          </p>
+        </section>
+      }
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+
+    @if (isRrhh) {
+        <app-asistente/>
+    }
+  </div>
+</div>

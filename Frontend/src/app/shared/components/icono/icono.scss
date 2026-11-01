@@ -1,0 +1,152 @@
+:host {
+    display: inline-flex;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+h1,
+h2,
+h3,
+p {
+    margin: 0;
+}
+
+a {
+    color: inherit;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+}
+
+th {
+    font-size: 12px;
+    color: var(--slate);
+}
+
+td {
+    font-size: 13px;
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid #5c91b5;
+    outline-offset: 3px;
+}
+
+.icon {
+    flex: none;
+}
+
+.modal-wide {
+    width: min(100%, 650px);
+}
+
+.vacancy-status-pausada {
+    background: var(--yellow-bg);
+    color: #7a5610;
+}
+
+.vacancy-status-cerrada {
+    background: #e9eef2;
+    color: var(--slate);
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes pop {
+    from {
+        transform: translateY(8px) scale(0.98);
+        opacity: 0.7;
+    }
+}
+
+@keyframes slide {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+}
+
+@keyframes chatIn {
+    from {
+        transform: translateY(12px) scale(0.96);
+        opacity: 0;
+    }
+}
+
+@keyframes typing {
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.45;
+    }
+
+    30% {
+        transform: translateY(-3px);
+        opacity: 1;
+    }
+}
+
+.badge-review {
+    background: var(--yellow-bg);
+    color: var(--yellow);
+}
+
+.badge-preselected,
+.badge-hired {
+    background: var(--green-bg);
+    color: var(--green);
+}
+
+.badge-interview,
+.badge-request,
+.badge-exam {
+    background: var(--blue);
+    color: var(--navy);
+}
+
+.badge-evaluated {
+    background: #eee7fa;
+    color: #6941a5;
+}
+
+.badge-rejected {
+    background: var(--red-bg);
+    color: var(--red);
+}

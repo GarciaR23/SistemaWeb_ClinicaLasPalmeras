@@ -1,0 +1,262 @@
+<div class="page-stack">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Gestión de talento</span>
+      <h1>Vacantes</h1>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="busy"
+      (click)="open = true; error = ''"
+    >
+      <app-icon name="plus" />
+      Nueva vacante
+    </button>
+  </header>
+
+  @if (error && !open) {
+    <p class="form-error" role="alert">{{ error }}</p>
+  }
+
+  @if (notice) {
+    <p class="notice" role="status">{{ notice }}</p>
+  }
+
+  <section class="card search-card">
+    <label class="field" for="buscar-vacante">
+      Buscar vacante
+
+      <div class="search-control">
+        <app-icon name="search" [size]="20" />
+
+        <input
+          id="buscar-vacante"
+          type="search"
+          [(ngModel)]="query"
+          placeholder="Buscar por nombre del puesto o área…"
+          autocomplete="off"
+        />
+      </div>
+    </label>
+  </section>
+
+  <div class="vacancy-grid">
+    @for (v of filtered; track v.id) {
+      <article class="card vacancy-card">
+        <div class="vacancy-top">
+          <span class="job-icon">
+            <app-icon name="briefcase" />
+          </span>
+
+          <span
+            class="vacancy-status"
+            [class.vacancy-status-publicada]="v.status === 'Publicada'"
+            [class.vacancy-status-pausada]="v.status === 'Pausada'"
+            [class.vacancy-status-cerrada]="v.status === 'Cerrada'"
+          >
+            {{ v.status }}
+          </span>
+        </div>
+
+        <div class="vacancy-heading">
+          <h2>{{ v.title }}</h2>
+          <p>{{ v.area }}</p>
+        </div>
+
+        <div class="job-meta">
+          <span>
+            <app-icon name="pin" [size]="16" />
+            {{ v.location }}
+          </span>
+
+          <span>
+            <app-icon name="user" [size]="16" />
+            {{ v.openings }} puesto(s)
+          </span>
+
+          <span>{{ v.modality }}</span>
+        </div>
+
+        <p class="vacancy-description">
+          {{ v.description }}
+        </p>
+
+        <div class="vacancy-actions">
+          @if (v.status !== 'Cerrada') {
+            <button
+              type="button"
+              class="btn"
+              [class.btn-pause]="v.status === 'Publicada'"
+              [class.btn-publish]="v.status === 'Pausada'"
+              [disabled]="busy"
+              [attr.aria-label]="
+                (v.status === 'Publicada' ? 'Pausar ' : 'Publicar ') +
+                v.title
+              "
+              (click)="
+                status(
+                  v,
+                  v.status === 'Publicada' ? 'Pausada' : 'Publicada'
+                )
+              "
+            >
+              {{ v.status === 'Publicada' ? 'Pausar' : 'Publicar' }}
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-close"
+              [disabled]="busy"
+              [attr.aria-label]="'Cerrar vacante ' + v.title"
+              (click)="status(v, 'Cerrada')"
+            >
+              Cerrar
+            </button>
+          } @else {
+            <span class="closed-message">
+              Esta convocatoria está cerrada.
+            </span>
+          }
+        </div>
+      </article>
+    } @empty {
+      <section class="card empty">
+        <app-icon name="search" [size]="30" />
+        <h2>No encontramos vacantes</h2>
+        <p>Prueba con otro puesto o área.</p>
+      </section>
+    }
+  </div>
+</div>
+
+@if (open) {
+  <app-modal
+    title="Nueva vacante"
+    [wide]="true"
+    (close)="busy ? null : open = false"
+  >
+    <form
+      #form="ngForm"
+      class="vacancy-form"
+      (ngSubmit)="!busy && form.valid && create()"
+    >
+      <div class="form-grid">
+        <label class="field" for="vacante-puesto">
+          Nombre del puesto *
+          <input
+            id="vacante-puesto"
+            name="title"
+            [(ngModel)]="draft.title"
+            required
+            minlength="3"
+            [disabled]="busy"
+          />
+        </label>
+
+        <label class="field" for="vacante-area">
+          Área *
+          <select
+            id="vacante-area"
+            name="area"
+            [(ngModel)]="draft.area"
+            required
+            [disabled]="busy"
+          >
+            <option>Enfermería</option>
+            <option>Medicina</option>
+            <option>Laboratorio</option>
+            <option>Administración</option>
+            <option>Psicología</option>
+          </select>
+        </label>
+
+        <label class="field" for="vacante-sede">
+          Sede *
+          <input
+            id="vacante-sede"
+            name="location"
+            [(ngModel)]="draft.location"
+            required
+            [disabled]="busy"
+          />
+        </label>
+
+        <label class="field" for="vacante-modalidad">
+          Modalidad
+          <select
+            id="vacante-modalidad"
+            name="modality"
+            [(ngModel)]="draft.modality"
+            [disabled]="busy"
+          >
+            <option>Presencial</option>
+            <option>Híbrida</option>
+            <option>Remota</option>
+          </select>
+        </label>
+
+        <label class="field" for="vacante-puestos">
+          Número de puestos *
+          <input
+            id="vacante-puestos"
+            name="openings"
+            type="number"
+            [(ngModel)]="draft.openings"
+            min="1"
+            max="100"
+            step="1"
+            required
+            [disabled]="busy"
+          />
+        </label>
+      </div>
+
+      <label class="field" for="vacante-descripcion">
+        Descripción *
+        <textarea
+          id="vacante-descripcion"
+          name="description"
+          [(ngModel)]="draft.description"
+          required
+          [disabled]="busy"
+        ></textarea>
+      </label>
+
+      <label class="field" for="vacante-requisitos">
+        Requisitos (uno por línea)
+        <textarea
+          id="vacante-requisitos"
+          name="requirements"
+          [(ngModel)]="requirements"
+          required
+          [disabled]="busy"
+        ></textarea>
+      </label>
+
+      @if (error) {
+        <p class="form-error" role="alert">{{ error }}</p>
+      }
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="busy"
+          (click)="open = false"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="busy || form.invalid"
+        >
+          {{ busy ? 'Publicando…' : 'Publicar vacante' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}

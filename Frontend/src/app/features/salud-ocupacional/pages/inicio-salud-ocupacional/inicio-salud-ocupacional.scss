@@ -1,0 +1,18 @@
+:host {
+  display: block;
+}
+.espacio-trabajo {
+  padding: 32px;
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--navy);
+}
+h1 {
+  margin: 0 0 14px;
+  font-size: 28px;
+}
+p {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--slate);
+}

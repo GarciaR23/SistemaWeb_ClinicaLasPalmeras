@@ -1,0 +1,566 @@
+<div class="page-stack">
+  <a
+    class="back-link"
+    routerLink="/recursos-humanos/postulantes"
+  >
+    <app-icon name="back" [size]="17" />
+    Volver a postulantes
+  </a>
+
+  @if (error && !modal) {
+    <p class="form-error" role="alert">{{ error }}</p>
+  }
+
+  @if (notice) {
+    <p class="notice" role="status">{{ notice }}</p>
+  }
+
+  @if (loading) {
+    <section class="card empty" role="status">
+      Cargando perfil…
+    </section>
+  } @else if (candidate; as c) {
+    <header class="page-heading">
+      <div>
+        <span class="eyebrow">Perfil del candidato</span>
+        <h1>{{ c.name }}</h1>
+      </div>
+
+      <app-badge [status]="c.status" />
+    </header>
+
+    <div class="detail-grid">
+      <section class="card candidate-summary">
+        <div class="large-avatar" aria-hidden="true">
+          {{ initials }}
+        </div>
+
+        <h2>{{ c.name }}</h2>
+        <p class="candidate-position">{{ c.role }}</p>
+
+        <div class="summary-status">
+          <app-badge [status]="c.status" />
+        </div>
+
+        <hr />
+
+        <dl>
+          <div>
+            <dt>DNI</dt>
+            <dd>{{ c.dni || 'Sin registrar' }}</dd>
+          </div>
+
+          <div>
+            <dt>Teléfono</dt>
+            <dd>{{ c.phone || 'Sin registrar' }}</dd>
+          </div>
+
+          <div>
+            <dt>Correo</dt>
+            <dd>{{ c.email }}</dd>
+          </div>
+
+          <div>
+            <dt>Ubicación</dt>
+            <dd>{{ c.location || 'Sin registrar' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <div class="detail-main">
+        <section class="card">
+          <div class="card-title">
+            <h2>Información profesional</h2>
+            <p>Datos y documentos del postulante</p>
+          </div>
+
+          <div class="info-grid">
+            <div>
+              <span>Puesto solicitado</span>
+              <strong>{{ c.role }}</strong>
+            </div>
+
+            <div>
+              <span>Experiencia</span>
+              <strong>
+                {{ c.experience || 'Sin registrar' }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Disponibilidad</span>
+              <strong>
+                {{ c.availability || 'Sin registrar' }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Modalidad</span>
+              <strong>
+                {{ c.workMode || 'Sin registrar' }}
+              </strong>
+            </div>
+          </div>
+
+          <div class="document-row">
+            <span class="document-icon">
+              <app-icon name="file" [size]="22" />
+            </span>
+
+            <div class="document-information">
+              <strong>
+                {{ c.cv?.name || 'CV no adjuntado' }}
+              </strong>
+
+              <small>
+                {{
+                  c.cv
+                    ? documentDescription(c.cv)
+                    : 'No hay un archivo disponible para descargar'
+                }}
+              </small>
+            </div>
+
+            @if (c.cv; as document) {
+              <a
+                class="btn btn-secondary"
+                [href]="document.url"
+                [download]="document.name"
+              >
+                Descargar
+              </a>
+            } @else {
+              <button
+                type="button"
+                class="btn btn-secondary"
+                disabled
+              >
+                Descargar
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-title">
+            <h2>Progreso del proceso</h2>
+            <p>Etapas de selección</p>
+          </div>
+
+          @if (rejectionPhaseUnknown) {
+            <p class="progress-note">
+              No se registró la etapa alcanzada antes del rechazo.
+            </p>
+          }
+
+          <div
+            class="timeline-scroll"
+            tabindex="0"
+            role="region"
+            aria-label="Progreso del proceso de selección"
+          >
+            <ol class="timeline">
+              @for (stage of stages; track stage) {
+                <li
+                  class="timeline-step"
+                  [class.done]="$index < reachedPhase"
+                  [attr.aria-current]="
+                    c.status !== 'Rechazado' &&
+                    $index === reachedPhase - 1
+                      ? 'step'
+                      : null
+                  "
+                >
+                  <span class="step-circle" aria-hidden="true">
+                    @if ($index < reachedPhase) {
+                      <app-icon name="check" [size]="16" />
+                    } @else {
+                      {{ $index + 1 }}
+                    }
+                  </span>
+
+                  <strong>{{ stage }}</strong>
+
+                  <span class="sr-only">
+                    {{
+                      rejectionPhaseUnknown
+                        ? 'Avance no registrado'
+                        : $index < reachedPhase
+                          ? 'Fase alcanzada'
+                          : 'Fase pendiente'
+                    }}
+                  </span>
+                </li>
+              }
+            </ol>
+          </div>
+        </section>
+
+        @if (evaluation || fitness) {
+          <section class="card">
+            <div class="card-title">
+              <h2>Evaluaciones registradas</h2>
+              <p>Resultados del proceso de selección</p>
+            </div>
+
+            <div class="review-list">
+              <div>
+                <span>Entrevista laboral</span>
+                <strong>
+                  {{
+                    evaluation
+                      ? evaluation.result +
+                        ' · ' +
+                        evaluation.score +
+                        '/100'
+                      : 'Sin evaluación registrada'
+                  }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Aptitud ocupacional</span>
+                <strong>
+                  {{
+                    fitness?.conclusion ||
+                    'Sin resultado registrado'
+                  }}
+                </strong>
+              </div>
+            </div>
+
+            @if (evaluation?.notes) {
+              <p class="evaluation-notes">
+                {{ evaluation?.notes }}
+              </p>
+            }
+          </section>
+        }
+
+        <div class="action-bar">
+          @switch (c.status) {
+            @case ('En revisión') {
+              <button
+                type="button"
+                class="btn btn-secondary"
+                [disabled]="busy"
+                (click)="openModal('reject')"
+              >
+                Rechazar
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="busy"
+                (click)="openModal('preselect')"
+              >
+                Preseleccionar candidato
+              </button>
+            }
+
+            @case ('Preseleccionado') {
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="busy"
+                (click)="openModal('schedule')"
+              >
+                Programar entrevista
+              </button>
+            }
+
+            @case ('Entrevista') {
+              <button
+                type="button"
+                class="btn btn-secondary"
+                [disabled]="busy"
+                (click)="openModal('evaluate')"
+              >
+                Registrar resultado de entrevista
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="busy"
+                (click)="update('Solicitud médica')"
+              >
+                Solicitar evaluación ocupacional
+              </button>
+            }
+
+            @case ('Solicitud médica') {
+              <p class="pending-banner">
+                Solicitud enviada a Salud Ocupacional.
+              </p>
+            }
+
+            @case ('Examen médico') {
+              <button
+                type="button"
+                class="btn btn-pending"
+                disabled
+              >
+                Pendiente de resultado ocupacional
+              </button>
+            }
+
+            @case ('Evaluado') {
+              <button
+                type="button"
+                class="btn btn-secondary"
+                [disabled]="busy"
+                (click)="openModal('reject')"
+              >
+                Rechazar
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="busy"
+                (click)="openModal('hire')"
+              >
+                Revisión final
+              </button>
+            }
+
+            @case ('Contratado') {
+              <p class="hired-banner">
+                <app-icon name="check" [size]="19" />
+                Candidato contratado correctamente
+              </p>
+            }
+
+            @case ('Rechazado') {
+              <div class="rejected-banner">
+                <p>La postulación fue rechazada.</p>
+
+                @if (c.rejectionReason) {
+                  <small>{{ c.rejectionReason }}</small>
+                }
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (modal === 'schedule') {
+      <app-schedule-form
+        [id]="c.id"
+        [name]="c.name"
+        (close)="closeModal()"
+        (saved)="modal = ''; notice = 'Entrevista programada.'"
+      />
+    }
+
+    @if (modal === 'preselect') {
+      <app-modal
+        title="Preseleccionar candidato"
+        (close)="closeModal()"
+      >
+        <div class="modal-content">
+          <p>
+            Confirma que {{ c.name }} cumple los requisitos
+            mínimos del puesto.
+          </p>
+
+          @if (error) {
+            <p class="form-error" role="alert">{{ error }}</p>
+          }
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              [disabled]="busy"
+              (click)="closeModal()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="busy"
+              (click)="update('Preseleccionado')"
+            >
+              {{ busy ? 'Guardando…' : 'Confirmar preselección' }}
+            </button>
+          </div>
+        </div>
+      </app-modal>
+    }
+
+    @if (modal === 'reject') {
+      <app-modal
+        title="Rechazar candidato"
+        (close)="closeModal()"
+      >
+        <div class="modal-content">
+          <label class="field" for="motivo-rechazo">
+            Motivo
+
+            <textarea
+              id="motivo-rechazo"
+              [(ngModel)]="reason"
+              required
+              [disabled]="busy"
+            ></textarea>
+          </label>
+
+          @if (error) {
+            <p class="form-error" role="alert">{{ error }}</p>
+          }
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              [disabled]="busy"
+              (click)="closeModal()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-danger"
+              [disabled]="busy || !reason.trim()"
+              (click)="update('Rechazado')"
+            >
+              Confirmar rechazo
+            </button>
+          </div>
+        </div>
+      </app-modal>
+    }
+
+    @if (modal === 'hire') {
+      <app-modal
+        title="Revisión final de RR. HH."
+        (close)="closeModal()"
+      >
+        <div class="modal-content">
+          <p>{{ c.name }} · {{ c.role }}</p>
+
+          <div class="review-list">
+            <div>
+              <span>Entrevista</span>
+              <strong>
+                {{ evaluation?.result || 'Sin registrar' }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Salud ocupacional</span>
+              <strong>
+                {{ fitness?.conclusion || 'Sin registrar' }}
+              </strong>
+            </div>
+          </div>
+
+          <p>Confirma la decisión final del proceso.</p>
+
+          @if (error) {
+            <p class="form-error" role="alert">{{ error }}</p>
+          }
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              [disabled]="busy"
+              (click)="closeModal()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="busy"
+              (click)="update('Contratado')"
+            >
+              Confirmar contratación
+            </button>
+          </div>
+        </div>
+      </app-modal>
+    }
+
+    @if (modal === 'evaluate') {
+      <app-modal
+        title="Resultado de entrevista laboral"
+        (close)="closeModal()"
+      >
+        <form
+          #form="ngForm"
+          class="modal-content"
+          (ngSubmit)="form.valid && evaluate()"
+        >
+          <label class="field" for="resultado-entrevista">
+            Resultado
+
+            <select
+              id="resultado-entrevista"
+              name="result"
+              [(ngModel)]="result"
+              [disabled]="busy"
+            >
+              <option value="APROBADO">Aprobado</option>
+              <option value="EN_OBSERVACION">
+                En observación
+              </option>
+              <option value="DESAPROBADO">Desaprobado</option>
+            </select>
+          </label>
+
+          <label class="field" for="puntaje-entrevista">
+            Puntaje (0-100)
+
+            <input
+              id="puntaje-entrevista"
+              name="score"
+              type="number"
+              [(ngModel)]="score"
+              required
+              min="0"
+              max="100"
+              [disabled]="busy"
+            />
+          </label>
+
+          <label class="field" for="notas-entrevista">
+            Observaciones
+
+            <textarea
+              id="notas-entrevista"
+              name="notes"
+              [(ngModel)]="notes"
+              [disabled]="busy"
+            ></textarea>
+          </label>
+
+          @if (error) {
+            <p class="form-error" role="alert">{{ error }}</p>
+          }
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="busy || form.invalid"
+          >
+            {{ busy ? 'Guardando…' : 'Guardar evaluación' }}
+          </button>
+        </form>
+      </app-modal>
+    }
+  } @else {
+    <section class="card empty">
+      No se encontró el postulante.
+    </section>
+  }
+</div>

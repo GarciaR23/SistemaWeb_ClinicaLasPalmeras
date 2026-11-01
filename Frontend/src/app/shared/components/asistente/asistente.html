@@ -1,0 +1,108 @@
+<div class="asistente">
+  @if (abierto) {
+    <section
+      id="panel-asistente"
+      class="chat-panel"
+      role="region"
+      aria-labelledby="chat-titulo"
+    >
+      <header class="chat-header">
+        <span class="chat-avatar">
+          <app-icon name="chat" [size]="22" />
+        </span>
+
+        <div class="chat-identidad">
+          <h2 id="chat-titulo">Asistente Las Palmeras</h2>
+          <p>Ayuda del portal</p>
+        </div>
+      </header>
+
+      <div
+        #historial
+        class="chat-mensajes"
+        role="log"
+        aria-label="Conversación"
+        aria-live="polite"
+        aria-relevant="additions"
+        tabindex="0"
+      >
+        @for (mensaje of mensajes; track mensaje.id) {
+          <article
+            class="chat-mensaje"
+            [class.chat-mensaje--usuario]="
+              mensaje.autor === 'usuario'
+            "
+          >
+            <span class="chat-autor">
+              {{ mensaje.autor === 'usuario' ? 'Tú' : 'Asistente' }}
+            </span>
+
+            <p>{{ mensaje.texto }}</p>
+          </article>
+        }
+
+        @if (mensajes.length === 1) {
+          <div class="chat-sugerencias">
+            <p>Puedes comenzar con una pregunta:</p>
+
+            @for (sugerencia of sugerencias; track sugerencia) {
+              <button
+                type="button"
+                (click)="enviar(sugerencia)"
+              >
+                <span>{{ sugerencia }}</span>
+                <app-icon name="arrow" [size]="14" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <footer class="chat-footer">
+        <form
+          class="chat-formulario"
+          (ngSubmit)="enviar()"
+        >
+          <label class="solo-lectores" for="consulta-asistente">
+            Escribe tu consulta
+          </label>
+
+          <input
+            #campoConsulta
+            id="consulta-asistente"
+            name="consulta"
+            [(ngModel)]="consulta"
+            maxlength="500"
+            autocomplete="off"
+            placeholder="Escribe tu consulta"
+          />
+
+          <button
+            type="submit"
+            class="chat-enviar"
+            [disabled]="!consulta.trim()"
+          >
+            Enviar
+          </button>
+        </form>
+      </footer>
+    </section>
+  }
+
+  <button
+    #botonAbrir
+    type="button"
+    class="chat-lanzador"
+    [attr.aria-label]="
+      abierto ? 'Cerrar asistente' : 'Abrir asistente'
+    "
+    [attr.aria-expanded]="abierto"
+    aria-controls="panel-asistente"
+    (click)="alternar()"
+  >
+    <app-icon
+      [name]="abierto ? 'close' : 'chat'"
+      [size]="23"
+    />
+  </button>
+</div>

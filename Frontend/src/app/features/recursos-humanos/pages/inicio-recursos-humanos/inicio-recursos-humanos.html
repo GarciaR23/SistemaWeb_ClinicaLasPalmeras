@@ -1,0 +1,162 @@
+<div class="dashboard">
+  <header class="dashboard-heading">
+    <div>
+      <span class="dashboard-eyebrow">Resumen general</span>
+      <h1>Dashboard</h1>
+    </div>
+
+    <a
+      class="dashboard-button"
+      routerLink="/recursos-humanos/postulantes"
+      [queryParams]="{ nuevo: '1' }"
+    >
+      <app-icon name="plus" [size]="18" />
+      Nuevo postulante
+    </a>
+  </header>
+
+  <section
+    class="indicators-grid"
+    aria-label="Indicadores de Recursos Humanos"
+  >
+    @for (indicador of resumen.indicadores; track indicador.titulo) {
+      <article class="dashboard-card indicator-card">
+        <span
+          class="indicator-icon"
+          [class.indicator-icon--blue]="indicador.color === 'azul'"
+          [class.indicator-icon--yellow]="indicador.color === 'amarillo'"
+          [class.indicator-icon--purple]="indicador.color === 'morado'"
+          [class.indicator-icon--green]="indicador.color === 'verde'"
+        >
+          <app-icon [name]="indicador.icono" [size]="21" />
+        </span>
+
+        <div class="indicator-content">
+          <span class="indicator-title">
+            {{ indicador.titulo }}
+          </span>
+
+          <strong class="indicator-value">
+            {{ indicador.cantidad }}
+          </strong>
+
+          <small class="indicator-description">
+            {{ indicador.descripcion }}
+          </small>
+        </div>
+      </article>
+    }
+  </section>
+
+  <div class="dashboard-panels">
+    <section
+      class="dashboard-card selection-card"
+      aria-labelledby="titulo-seleccion"
+    >
+      <header class="card-heading">
+        <div>
+          <h2 id="titulo-seleccion">Proceso de selección</h2>
+          <p>Distribución de candidatos por etapa</p>
+        </div>
+
+        <a
+          class="section-link"
+          routerLink="/recursos-humanos/postulantes"
+        >
+          Ver todos
+          <app-icon name="arrow" [size]="14" />
+        </a>
+      </header>
+
+      <div class="selection-list">
+        @for (etapa of resumen.etapas; track etapa.nombre) {
+          <div class="selection-item">
+            <div class="selection-label">
+              <span>{{ etapa.nombre }}</span>
+              <strong>{{ etapa.cantidad }}</strong>
+            </div>
+
+            <div class="selection-track" aria-hidden="true">
+              <span
+                class="selection-fill"
+                [style.width.%]="anchoBarra(etapa.cantidad)"
+              ></span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section
+      class="dashboard-card interviews-card"
+      aria-labelledby="titulo-entrevistas"
+    >
+      <header class="card-heading">
+        <div>
+          <h2 id="titulo-entrevistas">Próximas entrevistas</h2>
+          <p>Agenda de hoy</p>
+        </div>
+
+        <a
+          class="section-link"
+          routerLink="/recursos-humanos/entrevistas"
+        >
+          Agenda
+          <app-icon name="arrow" [size]="14" />
+        </a>
+      </header>
+
+      <div class="interview-list">
+        @for (entrevista of resumen.entrevistas; track entrevista.id) {
+          <article class="interview-item">
+            <span class="interview-time">{{ entrevista.hora }}</span>
+
+            <span class="interview-avatar" aria-hidden="true">
+              {{ entrevista.iniciales }}
+            </span>
+
+            <div class="interview-person">
+              <strong>{{ entrevista.nombre }}</strong>
+              <small>{{ entrevista.puesto }}</small>
+            </div>
+          </article>
+        } @empty {
+          <p class="empty-message">
+            No hay entrevistas programadas.
+          </p>
+        }
+      </div>
+    </section>
+  </div>
+
+  <section
+    class="dashboard-card activity-card"
+    aria-labelledby="titulo-actividad"
+  >
+    <header class="card-heading">
+      <div>
+        <h2 id="titulo-actividad">Actividad reciente</h2>
+        <p>Últimas actualizaciones del equipo</p>
+      </div>
+    </header>
+
+    <div class="activity-list">
+      @for (actividad of resumen.actividades; track actividad.id) {
+        <article class="activity-item">
+          <span class="activity-icon">
+            <app-icon [name]="actividad.icono" [size]="18" />
+          </span>
+
+          <div class="activity-information">
+            <strong>{{ actividad.descripcion }}</strong>
+            <small>{{ actividad.tiempo }}</small>
+          </div>
+        </article>
+      } @empty {
+        <p class="empty-message">
+          No hay actividad reciente.
+        </p>
+      }
+    </div>
+  </section>
+</div>
