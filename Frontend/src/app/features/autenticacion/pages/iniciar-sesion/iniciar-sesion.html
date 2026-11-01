@@ -1,0 +1,195 @@
+<main class="auth-shell">
+  <section class="auth-visual">
+    <div class="auth-overlay"></div>
+
+    <div class="auth-brand">
+      <div class="logo logo-compact">
+        <div class="logo-mark">
+          <app-icon name="cross" [size]="48" />
+        </div>
+      </div>
+
+      <div class="auth-clinic">
+        CLÍNICA
+        <br />
+        <strong>LAS PALMERAS</strong>
+      </div>
+
+      <p>Bienvenidos al Portal de RR. HH.</p>
+    </div>
+  </section>
+
+  <section class="auth-panel">
+    <form
+      #form="ngForm"
+      class="auth-form"
+      (ngSubmit)="submit(form)"
+    >
+      @if (pantalla !== 'login') {
+        <button
+          type="button"
+          class="back-link"
+          [disabled]="busy"
+          (click)="cambiarPantalla('login', form)"
+        >
+          <app-icon name="back" [size]="16" />
+          Volver
+        </button>
+      }
+
+      <div class="auth-title">
+        <h1>{{ titulo }}</h1>
+        <p>{{ descripcion }}</p>
+      </div>
+
+      @if (pantalla === 'registro') {
+        <label class="field" for="nombre">
+          Nombre completo
+
+          <input
+            id="nombre"
+            name="name"
+            type="text"
+            [(ngModel)]="name"
+            required
+            minlength="3"
+            maxlength="120"
+            pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+([ '-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$"
+            autocomplete="name"
+            placeholder="Ingresa tu nombre completo"
+            [disabled]="busy"
+          />
+        </label>
+      }
+
+      <label class="field" for="correo">
+        Correo electrónico
+
+        <input
+          id="correo"
+          name="email"
+          type="email"
+          [(ngModel)]="email"
+          required
+          email
+          pattern="^[^\s]+$"
+          autocomplete="email"
+          placeholder="correo@clinicapalmeras.com"
+          [disabled]="busy"
+          (keydown)="bloquearEspacio($event)"
+        />
+      </label>
+
+      @if (pantalla !== 'recuperar') {
+        <label class="field" for="contrasena">
+          Contraseña
+
+          <div class="password-input">
+            <input
+              id="contrasena"
+              name="password"
+              [type]="mostrarContrasena ? 'text' : 'password'"
+              [(ngModel)]="password"
+              required
+              [minlength]="pantalla === 'registro' ? 6 : 1"
+              pattern="^[^\s]+$"
+              [attr.autocomplete]="
+                pantalla === 'registro'
+                  ? 'new-password'
+                  : 'current-password'
+              "
+              placeholder="••••••••"
+              [disabled]="busy"
+              (keydown)="bloquearEspacio($event)"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              [attr.aria-label]="
+                mostrarContrasena ? 'Ocultar contraseña' : 'Mostrar contraseña'
+              "
+              [attr.aria-pressed]="mostrarContrasena"
+              [disabled]="busy"
+              (click)="mostrarContrasena = !mostrarContrasena"
+            >
+              <app-icon
+                [name]="mostrarContrasena ? 'eye-off' : 'eye'"
+                [size]="20"
+              />
+            </button>
+          </div>
+
+          @if (pantalla === 'registro' && seguridadContrasena; as seguridad) {
+            <div [class]="'password-strength ' + seguridad.clase">
+              <div
+                class="password-strength-track"
+                role="meter"
+                aria-label="Nivel de seguridad de la contraseña"
+                [attr.aria-valuenow]="seguridad.puntaje"
+                aria-valuemin="0"
+                aria-valuemax="5"
+              >
+                <span [style.width.%]="seguridad.puntaje * 20"></span>
+              </div>
+              <small aria-live="polite">
+                Seguridad: {{ seguridad.nivel }}
+                @if (password.length < 6) {
+                  · Usa al menos 6 caracteres
+                }
+              </small>
+            </div>
+          }
+        </label>
+      }
+
+      @if (form.submitted && form.invalid) {
+        <p class="form-error" role="alert">
+          Revisa los campos obligatorios y el formato del correo.
+
+          @if (pantalla === 'registro') {
+            El nombre debe tener al menos 3 caracteres
+            y la contraseña al menos 6.
+          }
+        </p>
+      }
+
+      @if (error) {
+        <p class="form-error" role="alert">
+          {{ error }}
+        </p>
+      }
+
+      @if (mensaje) {
+        <p class="auth-notice" role="status">
+          {{ mensaje }}
+        </p>
+      }
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-full"
+        [disabled]="busy"
+      >
+        {{ textoBoton }}
+      </button>
+
+      @if (pantalla === 'login') {
+        <div class="auth-links">
+          <button
+            type="button"
+            (click)="cambiarPantalla('recuperar', form)"
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
+
+          <button
+            type="button"
+            (click)="cambiarPantalla('registro', form)"
+          >
+            Crear cuenta de postulante
+          </button>
+        </div>
+      }
+    </form>
+  </section>
+</main>
