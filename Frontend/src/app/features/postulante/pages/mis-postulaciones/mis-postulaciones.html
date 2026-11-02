@@ -1,0 +1,22 @@
+<div class="pagina">
+  <p class="pagina__eyebrow">Seguimiento personal</p>
+  <h1 class="pagina__titulo">Mis postulaciones</h1>
+
+  @for (p of postulaciones(); track p.id) {
+    <article class="tarjeta postulacion">
+      <header class="postulacion__cabecera">
+        <div>
+          <p class="postulacion__area">{{ p.area }}</p>
+          <h2 class="postulacion__puesto">{{ p.puesto }}</h2>
+          <p class="postulacion__fecha">Postulación enviada el {{ p.fechaEnvio | date: 'dd/MM/yyyy' }}</p>
+        </div>
+        <span class="postulacion__estado">{{ etapas[p.etapaActual] }}</span>
+      </header>
+      <app-linea-progreso [etapas]="etapas" [etapaActual]="p.etapaActual" />
+    </article>
+  } @empty {
+    <app-estado-vacio icono="grafico" titulo="Aún no te has postulado a ninguna vacante"
+                      descripcion="Cuando te postules, verás aquí el avance de cada proceso." />
+    <a class="enlace" routerLink="/postulante/vacantes">Ver vacantes disponibles</a>
+  }
+</div>

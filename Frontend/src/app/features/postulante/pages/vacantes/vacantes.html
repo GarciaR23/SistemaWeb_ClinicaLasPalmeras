@@ -1,0 +1,21 @@
+<div class="pagina">
+  <p class="pagina__eyebrow">Oportunidades laborales</p>
+  <h1 class="pagina__titulo">Vacantes disponibles</h1>
+
+  <label class="buscador">
+    <app-icono nombre="buscar" [tamano]="18" />
+    <input type="search" placeholder="Buscar por puesto o área…" aria-label="Buscar vacantes"
+           [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+  </label>
+
+  @if (vacantes().length) {
+    <div class="rejilla">
+      @for (v of vacantes(); track v.id) {
+        <app-tarjeta-vacante [vacante]="v" [yaPostulado]="yaPostulo(v.id)" (postular)="postular($event)" />
+      }
+    </div>
+  } @else {
+    <app-estado-vacio icono="buscar" titulo="No encontramos vacantes"
+                      descripcion="Prueba con otro puesto o área." />
+  }
+</div>

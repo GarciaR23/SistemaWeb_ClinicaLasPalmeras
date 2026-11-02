@@ -46,11 +46,12 @@ export const ROLE_NAV: Record<
   ],
 
   applicant: [
-    {
-      page: 'postulante',
-      label: 'Postulante',
-      icon: 'grid',
-    },
+    { page: 'postulante', label: 'Inicio', icon: 'grid' },
+    { page: 'postulante/vacantes', label: 'Vacantes', icon: 'briefcase' },
+    { page: 'postulante/mis-postulaciones', label: 'Mis postulaciones', icon: 'chart' },
+    { page: 'postulante/mis-entrevistas', label: 'Mis entrevistas', icon: 'calendar' },
+    { page: 'postulante/mis-evaluaciones', label: 'Mis evaluaciones', icon: 'medical' },
+    { page: 'postulante/mis-documentos', label: 'Mis documentos', icon: 'file' },
   ],
 
   health: [

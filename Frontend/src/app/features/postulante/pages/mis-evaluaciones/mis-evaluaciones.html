@@ -1,0 +1,19 @@
+<div class="pagina">
+  <p class="pagina__eyebrow">Información administrativa</p>
+  <h1 class="pagina__titulo">Mis evaluaciones ocupacionales</h1>
+
+  @for (ev of evaluaciones(); track ev.id) {
+    <article class="tarjeta evaluacion">
+      <h2>{{ ev.tipo }}</h2>
+      <p>{{ ev.fecha | date: 'dd/MM/yyyy' }} · {{ ev.hora }} · {{ ev.sede }}</p>
+      <p>{{ ev.indicaciones }}</p>
+    </article>
+  } @empty {
+    <app-estado-vacio icono="estetoscopio" titulo="No tienes evaluaciones programadas" />
+  }
+
+  <aside class="aviso">
+    <app-icono nombre="estetoscopio" [tamano]="18" />
+    <span>Este portal muestra únicamente programación e indicaciones administrativas autorizadas.</span>
+  </aside>
+</div>

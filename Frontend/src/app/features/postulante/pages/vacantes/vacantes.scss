@@ -1,0 +1,10 @@
+@use '../estilos' as e;
+@include e.pagina-base;
+
+.buscador {
+  display: flex; align-items: center; gap: 10px; width: min(620px, 100%); height: 46px; margin-bottom: 20px; padding: 0 16px;
+  border: 1px solid e.$borde; border-radius: 8px; background: e.$blanco; color: e.$texto-suave;
+  &:focus-within { border-color: e.$azul; }
+  input { flex: 1; border: 0; outline: 0; background: transparent; font: inherit; font-size: 14px; color: e.$azul-oscuro; }
+}
+.rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }

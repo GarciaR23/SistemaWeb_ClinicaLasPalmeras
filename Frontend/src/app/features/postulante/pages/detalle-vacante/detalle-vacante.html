@@ -1,0 +1,33 @@
+<div class="pagina">
+  <a class="volver" routerLink="/postulante/vacantes">
+    <span class="volver__icono"><app-icono nombre="chevron" [tamano]="16" /></span> Volver a vacantes
+  </a>
+
+  @if (vacante(); as v) {
+    <p class="pagina__eyebrow">{{ v.area }}</p>
+    <h1 class="pagina__titulo">{{ v.titulo }}</h1>
+
+    <article class="tarjeta detalle">
+      <p class="detalle__meta">
+        <span><app-icono nombre="ubicacion" [tamano]="16" /> {{ v.sede }}</span>
+        <span><app-icono nombre="calendario" [tamano]="16" /> Publicada el {{ v.fechaPublicacion | date: 'dd/MM/yyyy' }}</span>
+        <span class="detalle__modalidad">{{ v.modalidad }}</span>
+      </p>
+
+      <h2>Descripción</h2>
+      <p>{{ v.descripcion }}</p>
+
+      <h2>Requisitos</h2>
+      <ul>
+        @for (r of v.requisitos; track r) { <li>{{ r }}</li> }
+      </ul>
+
+      <button type="button" class="boton boton--primario" [disabled]="yaPostulado()" (click)="postular()">
+        {{ yaPostulado() ? 'Ya postulaste' : 'Postular' }}
+      </button>
+    </article>
+  } @else {
+    <app-estado-vacio icono="maletin" titulo="Esta vacante ya no está disponible"
+                      descripcion="Vuelve al listado para ver las vacantes abiertas." />
+  }
+</div>

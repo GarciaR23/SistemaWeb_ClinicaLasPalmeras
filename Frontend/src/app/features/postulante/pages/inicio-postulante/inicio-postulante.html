@@ -1,4 +1,77 @@
-<section class="espacio-trabajo">
-  <h1>Postulante</h1>
-  <p>Espacio de trabajo reservado para el equipo responsable de este módulo.</p>
-</section>
+<div class="pagina">
+  <section class="hero">
+    <div>
+      <p class="hero__eyebrow">Portal del postulante</p>
+      <h1 class="hero__titulo">Hola, {{ nombre }}</h1>
+      <p class="hero__texto">Revisa tus procesos y descubre nuevas oportunidades en Clínica Las Palmeras.</p>
+    </div>
+    <span class="hero__icono"><app-icono nombre="cruz" [tamano]="34" /></span>
+  </section>
+
+  <section class="resumen">
+    @for (t of tarjetas(); track t.etiqueta) {
+      <article class="tarjeta resumen__item">
+        <span class="resumen__icono"><app-icono [nombre]="t.icono" /></span>
+        <div>
+          <p class="resumen__etiqueta">{{ t.etiqueta }}</p>
+          <p class="resumen__valor">{{ t.valor }}</p>
+          <a class="resumen__enlace" [routerLink]="t.ruta">Ver información</a>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="paneles">
+    <article class="tarjeta">
+      <header class="panel__cabecera">
+        <div>
+          <h2 class="panel__titulo">Tu proceso actual</h2>
+          @if (proceso(); as p) { <p class="panel__subtitulo">{{ p.puesto }}</p> }
+        </div>
+        <a class="panel__enlace" routerLink="/postulante/mis-postulaciones">
+          Ver progreso <app-icono nombre="chevron" [tamano]="16" />
+        </a>
+      </header>
+
+      @if (proceso(); as p) {
+        <div class="estado">
+          <span class="estado__icono"><app-icono nombre="grafico" /></span>
+          <div>
+            <p class="estado__etiqueta">Estado actual</p>
+            <p class="estado__valor">{{ etapas[p.etapaActual] }}</p>
+            <p class="estado__nota">Te notificaremos cuando haya una actualización.</p>
+          </div>
+        </div>
+      } @else {
+        <p class="panel__vacio">Aún no tienes postulaciones. Explora las vacantes disponibles.</p>
+      }
+    </article>
+
+    <article class="tarjeta">
+      <header class="panel__cabecera">
+        <div>
+          <h2 class="panel__titulo">Vacantes recomendadas</h2>
+          <p class="panel__subtitulo">Según tu perfil profesional</p>
+        </div>
+        <a class="panel__enlace" routerLink="/postulante/vacantes">
+          Ver todas <app-icono nombre="chevron" [tamano]="16" />
+        </a>
+      </header>
+
+      <ul class="lista">
+        @for (v of recomendadas(); track v.id) {
+          <li>
+            <a class="lista__item" [routerLink]="['/postulante/vacantes', v.id]">
+              <span class="lista__icono"><app-icono nombre="maletin" [tamano]="18" /></span>
+              <span class="lista__texto">
+                <strong>{{ v.titulo }}</strong>
+                <small>{{ v.sede }} · {{ v.modalidad }}</small>
+              </span>
+              <app-icono nombre="chevron" [tamano]="18" />
+            </a>
+          </li>
+        }
+      </ul>
+    </article>
+  </section>
+</div>

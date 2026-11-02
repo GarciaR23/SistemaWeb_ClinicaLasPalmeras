@@ -1,0 +1,14 @@
+@use '../../pages/estilos' as e;
+@include e.botones;
+
+:host { display: block; }
+.vacante { @include e.tarjeta; display: flex; flex-direction: column; height: 100%; padding: 20px; color: e.$azul-oscuro; }
+.vacante__cabecera { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.vacante__icono { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 8px; background: e.$azul-claro; color: e.$azul-oscuro; }
+.vacante__modalidad { padding: 3px 10px; border-radius: 999px; background: e.$azul-claro; font-size: 11px; }
+.vacante__titulo { margin: 0; font-size: 17px; font-weight: 500; }
+.vacante__area { margin: 4px 0 14px; font-size: 13px; color: e.$texto-suave; }
+.vacante__meta { display: flex; gap: 16px; margin: 0 0 14px; font-size: 12px; color: e.$texto-suave;
+  span { display: inline-flex; align-items: center; gap: 6px; } }
+.vacante__descripcion { flex: 1; margin: 0 0 20px; font-size: 13px; line-height: 1.5; }
+.vacante__acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

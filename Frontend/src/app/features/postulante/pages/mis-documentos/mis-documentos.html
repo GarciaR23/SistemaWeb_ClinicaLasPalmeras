@@ -1,0 +1,26 @@
+<div class="pagina">
+  <p class="pagina__eyebrow">Perfil profesional</p>
+  <h1 class="pagina__titulo">Mis documentos</h1>
+
+  <div class="tarjeta panel">
+    <div class="zona" [class.zona--activa]="arrastrando()"
+         (dragover)="alArrastrar($event)" (dragleave)="arrastrando.set(false)" (drop)="alSoltar($event)">
+      <app-icono nombre="documento" [tamano]="30" />
+      <p class="zona__titulo">Adjunta tus documentos</p>
+      <p class="zona__ayuda">CV, certificados y constancias en formato PDF</p>
+      <input #selector type="file" accept="application/pdf" multiple hidden (change)="alSeleccionar($event)" />
+      <button type="button" class="boton boton--primario" (click)="selector.click()">Seleccionar archivo</button>
+      @if (error()) { <p class="zona__error" role="alert">{{ error() }}</p> }
+    </div>
+
+    <ul class="archivos">
+      @for (d of documentos(); track d.id) {
+        <li class="archivo">
+          <span class="archivo__icono"><app-icono nombre="documento" [tamano]="18" /></span>
+          <span class="archivo__texto"><strong>{{ d.nombre }}</strong><small>Documento disponible</small></span>
+          <span class="archivo__ok"><app-icono nombre="check" [tamano]="18" /></span>
+        </li>
+      }
+    </ul>
+  </div>
+</div>
