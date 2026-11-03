@@ -40,8 +40,13 @@ export const ROLE_NAV: Record<
   admin: [
     {
       page: 'administrador',
-      label: 'Administrador',
+      label: 'Dashboard',
       icon: 'grid',
+    },
+    {
+      page: 'administrador/usuarios',
+      label: 'Gestión de usuarios',
+      icon: 'user',
     },
   ],
 

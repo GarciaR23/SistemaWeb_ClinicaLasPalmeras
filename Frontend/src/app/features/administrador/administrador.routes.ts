@@ -8,6 +8,13 @@ export const RUTAS: Routes = [
       ),
   },
   {
+    path: 'usuarios',
+    loadComponent: () =>
+      import('./pages/gestion-usuarios/gestion-usuarios').then(
+        (m) => m.GestionUsuarios,
+      ),
+  },
+  {
     path: 'cuenta',
     data: { mode: 'account' },
     loadComponent: () =>
