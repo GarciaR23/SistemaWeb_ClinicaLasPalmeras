@@ -15,6 +15,7 @@ import {
 } from '@angular/router';
 
 import { Session, ROLE_LABELS } from '../../core/services/sesion';
+import { ROLE_HOME, UserRole } from '../../core/services/modelos-sesion';
 import { PreferencesService } from '../../features/recursos-humanos/services/servicio-preferencias';
 import { Icon } from '../../shared/components/icono/icono';
 import { Asistente } from '../../shared/components/asistente/asistente';
@@ -55,8 +56,28 @@ export class LayoutPrincipal implements OnInit {
   profileOpen = false;
   notificationsOpen = false;
 
+  /** Perfiles que cuentan con cuenta, configuración, notificaciones y asistente. */
+  private readonly perfilesConHerramientas: UserRole[] = ['rrhh', 'admin'];
+
   get isRrhh(): boolean {
     return this.session.role() === 'rrhh';
+  }
+
+  get hasPortalTools(): boolean {
+    const role = this.session.role();
+
+    return !!role && this.perfilesConHerramientas.includes(role);
+  }
+
+  /** Ruta base del perfil, usada por Mi cuenta y Configuración. */
+  get accountBase(): string {
+    const role = this.session.role();
+
+    return role ? ROLE_HOME[role] : '';
+  }
+
+  get assistantProfile(): 'rrhh' | 'admin' {
+    return this.session.role() === 'admin' ? 'admin' : 'rrhh';
   }
 
   get items() {
@@ -85,7 +106,7 @@ export class LayoutPrincipal implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    if (!this.isRrhh) return;
+    if (!this.hasPortalTools) return;
 
     try {
       await this.preferences.load();

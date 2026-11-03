@@ -12,8 +12,8 @@
         </span>
 
         <div class="chat-identidad">
-          <h2 id="chat-titulo">Asistente Las Palmeras</h2>
-          <p>Ayuda del portal</p>
+          <h2 id="chat-titulo">{{ configuracion().titulo }}</h2>
+          <p>{{ configuracion().subtitulo }}</p>
         </div>
       </header>
 
@@ -45,7 +45,7 @@
           <div class="chat-sugerencias">
             <p>Puedes comenzar con una pregunta:</p>
 
-            @for (sugerencia of sugerencias; track sugerencia) {
+            @for (sugerencia of configuracion().sugerencias; track sugerencia) {
               <button
                 type="button"
                 (click)="enviar(sugerencia)"
@@ -85,6 +85,10 @@
             Enviar
           </button>
         </form>
+
+        @if (configuracion().nota) {
+          <p class="chat-nota">{{ configuracion().nota }}</p>
+        }
       </footer>
     </section>
   }

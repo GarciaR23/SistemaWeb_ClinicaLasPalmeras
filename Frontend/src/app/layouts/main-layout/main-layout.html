@@ -1,13 +1,13 @@
 <div
   class="app-shell"
   [class.theme-dark]="
-    isRrhh && preferences.preferences().theme === 'dark'
+    hasPortalTools && preferences.preferences().theme === 'dark'
   "
   [class.text-large]="
-    isRrhh && preferences.preferences().textSize === 'large'
+    hasPortalTools && preferences.preferences().textSize === 'large'
   "
   [class.high-contrast]="
-    isRrhh && preferences.preferences().highContrast
+    hasPortalTools && preferences.preferences().highContrast
   "
 >
   @if (sidebarOpen) {
@@ -52,7 +52,7 @@
           [routerLink]="'/' + item.page"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{
-            exact: item.page === 'recursos-humanos'
+            exact: !item.page.includes('/')
           }"
           ariaCurrentWhenActive="page"
           (click)="closeSidebar()"
@@ -63,10 +63,10 @@
       }
     </nav>
 
-    @if (isRrhh) {
+    @if (hasPortalTools) {
       <a
         class="profile-card"
-        routerLink="/recursos-humanos/cuenta"
+        [routerLink]="accountBase + '/cuenta'"
         (click)="closeSidebar()"
       >
         <span class="avatar">{{ initials }}</span>
@@ -110,7 +110,7 @@
 
       <div class="top-actions">
 
-        @if (isRrhh) {
+        @if (hasPortalTools) {
           <button
             #notificationsButton
             type="button"
@@ -157,9 +157,9 @@
             <small>{{ roleLabel }}</small>
           </div>
 
-          @if (isRrhh) {
+          @if (hasPortalTools) {
             <a
-              routerLink="/recursos-humanos/cuenta"
+              [routerLink]="accountBase + '/cuenta'"
               (click)="closePanels()"
             >
               <app-icon name="user" [size]="18" />
@@ -171,7 +171,7 @@
             </a>
 
             <a
-              routerLink="/recursos-humanos/configuracion"
+              [routerLink]="accountBase + '/configuracion'"
               (click)="closePanels()"
             >
               <app-icon name="settings" [size]="18" />
@@ -181,7 +181,9 @@
                 <small>Preferencias del sistema</small>
               </span>
             </a>
+          }
 
+          @if (isRrhh) {
             <a
               routerLink="/recursos-humanos/ayuda"
               (click)="closePanels()"
@@ -225,8 +227,8 @@
       <router-outlet />
     </main>
 
-    @if (isRrhh) {
-        <app-asistente/>
+    @if (hasPortalTools) {
+      <app-asistente [perfil]="assistantProfile" />
     }
   </div>
 </div>

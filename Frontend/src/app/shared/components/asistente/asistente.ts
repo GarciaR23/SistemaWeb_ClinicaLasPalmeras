@@ -2,10 +2,18 @@ import {
   Component,
   ElementRef,
   HostListener,
+  OnInit,
+  computed,
+  input,
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../icono/icono';
+import {
+  ASISTENTE_ADMINISTRADOR,
+  ConfiguracionAsistente,
+  responderAdministrador,
+} from './asistente-administrador';
 
 
 interface Mensaje {
@@ -21,7 +29,8 @@ interface Mensaje {
   templateUrl: './asistente.html',
   styleUrl: './asistente.scss',
 })
-export class Asistente {
+export class Asistente implements OnInit {
+  readonly perfil = input<'rrhh' | 'admin'>('rrhh');
   readonly botonAbrir =
     viewChild<ElementRef<HTMLButtonElement>>('botonAbrir');
 
@@ -34,22 +43,31 @@ export class Asistente {
   abierto = false;
   consulta = '';
 
-  readonly sugerencias = [
-    '¿Cómo registro un postulante?',
-    '¿Cómo programo una entrevista?',
-    '¿Cómo solicito un examen médico?',
-  ];
+  private readonly configuracionRrhh: ConfiguracionAsistente = {
+    titulo: 'Asistente Las Palmeras',
+    subtitulo: 'Ayuda del portal',
+    bienvenida:
+      'Hola. Soy el asistente del portal. ' +
+      'Puedo orientarte sobre postulantes, vacantes, ' +
+      'entrevistas y resultados.',
+    sugerencias: [
+      '¿Cómo registro un postulante?',
+      '¿Cómo programo una entrevista?',
+      '¿Cómo solicito un examen médico?',
+    ],
+  };
 
-  mensajes: Mensaje[] = [
-    {
-      id: 1,
-      autor: 'asistente',
-      texto:
-        'Hola. Soy el asistente del portal. ' +
-        'Puedo orientarte sobre postulantes, vacantes, ' +
-        'entrevistas y resultados.',
-    },
-  ];
+  readonly configuracion = computed(() =>
+    this.perfil() === 'admin' ? ASISTENTE_ADMINISTRADOR : this.configuracionRrhh,
+  );
+
+  mensajes: Mensaje[] = [];
+
+  ngOnInit(): void {
+    this.mensajes = [
+      { id: 1, autor: 'asistente', texto: this.configuracion().bienvenida },
+    ];
+  }
 
   private siguienteId = 2;
 
@@ -118,6 +136,8 @@ export class Asistente {
   }
 
   private obtenerRespuesta(pregunta: string): string {
+    if (this.perfil() === 'admin') return responderAdministrador(pregunta);
+
     const texto = pregunta
       .toLowerCase()
       .normalize('NFD')
