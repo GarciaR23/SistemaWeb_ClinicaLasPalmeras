@@ -48,6 +48,11 @@ export const ROLE_NAV: Record<
       label: 'Gestión de usuarios',
       icon: 'user',
     },
+    {
+      page: 'administrador/auditoria',
+      label: 'Auditoría',
+      icon: 'file',
+    },
   ],
 
   applicant: [

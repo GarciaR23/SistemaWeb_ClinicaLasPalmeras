@@ -15,6 +15,11 @@ export const RUTAS: Routes = [
       ),
   },
   {
+    path: 'auditoria',
+    loadComponent: () =>
+      import('./pages/auditoria/auditoria').then((m) => m.Auditoria),
+  },
+  {
     path: 'cuenta',
     data: { mode: 'account' },
     loadComponent: () =>
