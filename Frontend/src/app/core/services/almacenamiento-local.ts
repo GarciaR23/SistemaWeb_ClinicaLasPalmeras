@@ -4,6 +4,9 @@ export interface LocalAudit {
     action: string;
     email: string;
     createdAt: string;
+    name?: string;
+    module?: string;
+    timestamp?: number;
 }
 @Injectable({ providedIn: 'root' })
 export class LocalStore {
@@ -17,44 +20,55 @@ export class LocalStore {
     }
     write<T>(key: string, value: T): void {
         localStorage.setItem('palmeras.login-rrhh.' + key, JSON.stringify(value));
-        const names: Record<string, string> = {
-            accounts: 'Actualización de usuarios',
-            candidates: 'Actualización de postulaciones',
-            vacancies: 'Actualización de vacantes',
-            interviews: 'Programación de entrevistas',
-            evaluations: 'Evaluación laboral',
-            medical: 'Programación de exámenes',
-            fitness: 'Resultado de aptitud',
+        const names: Record<string, { action: string; module: string }> = {
+            accounts: { action: 'Actualización de usuarios', module: 'Seguridad' },
+            candidates: { action: 'Actualización de postulaciones', module: 'Postulaciones' },
+            vacancies: { action: 'Actualización de vacantes', module: 'Vacantes' },
+            interviews: { action: 'Programación de entrevistas', module: 'Entrevistas' },
+            evaluations: { action: 'Evaluación laboral', module: 'Entrevistas' },
+            medical: { action: 'Programación de exámenes', module: 'Salud Ocupacional' },
+            fitness: { action: 'Resultado de aptitud', module: 'Salud Ocupacional' },
         };
-        const action = key.startsWith('preferences.') ? 'Actualización de preferencias' : names[key];
-        if (action) {
-            let email = 'Demostración';
-            try {
-                email =
-                    (
-                        JSON.parse(sessionStorage.getItem('palmeras.login-rrhh.session') || '{}') as {
-                            email?: string;
-                        }
-                    ).email || email;
-            } catch {
-                /* A session is optional for the demo log. */
-            }
-            const entries = this.read<LocalAudit[]>('audit', []);
-            localStorage.setItem(
-                'palmeras.login-rrhh.audit',
-                JSON.stringify(
-                    [
-                        {
-                            id: nextId(entries),
-                            action,
-                            email,
-                            createdAt: new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' }),
-                        },
-                        ...entries,
-                    ].slice(0, 200),
-                ),
-            );
+        if (key.startsWith('preferences.')) {
+            this.audit('Actualización de preferencias', 'Configuración');
+            return;
         }
+        const entry = names[key];
+        if (entry) this.audit(entry.action, entry.module);
+    }
+
+    /** Registra un evento en la auditoría local de la demostración. */
+    audit(action: string, module: string): void {
+        let email = 'Demostración';
+        let name: string | undefined;
+        try {
+            const session = JSON.parse(
+                sessionStorage.getItem('palmeras.login-rrhh.sesion') || '{}',
+            ) as { email?: string; name?: string };
+            email = session.email || email;
+            name = session.name;
+        } catch {
+            /* A session is optional for the demo log. */
+        }
+        const entries = this.read<LocalAudit[]>('audit', []);
+        const now = new Date();
+        localStorage.setItem(
+            'palmeras.login-rrhh.audit',
+            JSON.stringify(
+                [
+                    {
+                        id: nextId(entries),
+                        action,
+                        email,
+                        name,
+                        module,
+                        timestamp: now.getTime(),
+                        createdAt: now.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
+                    },
+                    ...entries,
+                ].slice(0, 200),
+            ),
+        );
     }
 }
 export function nextId(items: { id: number }[]): number {
