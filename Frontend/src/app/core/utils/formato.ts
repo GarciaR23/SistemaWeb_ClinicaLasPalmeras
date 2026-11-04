@@ -57,3 +57,19 @@ export function iniciales(nombre: string): string {
     .join('')
     .toUpperCase();
 }
+
+/** Fecha local en formato AAAA-MM-DD, como la usan los campos de fecha. */
+export function claveFecha(fecha: Date): string {
+  const anio = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+
+  return `${anio}-${mes}-${dia}`;
+}
+
+/** "2026-08-26" → "26/08/2026". */
+export function fechaCorta(clave: string): string {
+  const [anio, mes, dia] = clave.split('-');
+
+  return anio && mes && dia ? `${dia}/${mes}/${anio}` : clave;
+}

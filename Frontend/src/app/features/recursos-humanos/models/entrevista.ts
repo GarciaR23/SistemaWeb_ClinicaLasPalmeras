@@ -5,6 +5,7 @@ export interface Appointment {
   time: string;
   place?: string;
   site?: string;
+  type?: string;
 }
 export interface InterviewEvaluation {
   id: number;

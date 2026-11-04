@@ -1,0 +1,176 @@
+<div class="page-stack">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Coordinación ocupacional</span>
+      <h1>Solicitudes recibidas</h1>
+    </div>
+  </header>
+
+  @if (error) {
+    <p class="feedback error" role="alert">{{ error }}</p>
+  }
+
+  @if (notice) {
+    <div class="feedback success" role="status">
+      <app-icon name="check" [size]="19" />
+      <span>{{ notice }}</span>
+    </div>
+  }
+
+  <section class="card notice-card" aria-label="Aviso de privacidad">
+    <app-icon name="medical" [size]="24" />
+    <p>
+      Solo se muestran los datos necesarios para gestionar la evaluación.
+      La información clínica permanece restringida.
+    </p>
+  </section>
+
+  @if (loading) {
+    <p class="card empty" role="status">Cargando solicitudes…</p>
+  } @else {
+    <section class="card table-card">
+      <div class="table-scroll">
+        <table>
+          <caption class="sr-only">Solicitudes de evaluación ocupacional</caption>
+
+          <thead>
+            <tr>
+              <th scope="col">Candidato</th>
+              <th scope="col">Puesto</th>
+              <th scope="col">Solicitud</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acción</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (solicitud of servicio.solicitudes(); track solicitud.id) {
+              <tr>
+                <td data-label="Candidato">
+                  <div class="person-cell">
+                    <span class="person-avatar" aria-hidden="true">
+                      {{ iniciales(solicitud.nombre) }}
+                    </span>
+
+                    <div>
+                      <strong>{{ solicitud.nombre }}</strong>
+                      <small>DNI {{ solicitud.dni }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <td data-label="Puesto">{{ solicitud.puesto }}</td>
+                <td data-label="Solicitud">{{ solicitud.fecha }}</td>
+
+                <td data-label="Estado">
+                  <app-badge [status]="solicitud.estado" />
+                </td>
+
+                <td data-label="Acción">
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    [attr.aria-label]="'Programar evaluación de ' + solicitud.nombre"
+                    (click)="abrir(solicitud)"
+                  >
+                    Programar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty-row">
+                  No hay solicitudes pendientes de programación.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</div>
+
+@if (seleccion) {
+  <app-modal title="Programar evaluación ocupacional" (close)="cerrar()">
+    <form #formulario="ngForm" class="schedule-form" (ngSubmit)="confirmar(formulario)" novalidate>
+      @if (formError) {
+        <p class="feedback error" role="alert">{{ formError }}</p>
+      }
+
+      <div class="candidate-summary">
+        <span class="person-avatar" aria-hidden="true">
+          {{ iniciales(seleccion.nombre) }}
+        </span>
+
+        <div>
+          <strong>{{ seleccion.nombre }}</strong>
+          <small>{{ seleccion.puesto }}</small>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label class="field">
+          Sede
+
+          <select
+            name="sede"
+            [(ngModel)]="form.sede"
+            (ngModelChange)="cambioSede()"
+            [disabled]="saving"
+          >
+            @for (sede of servicio.sedes; track sede.name) {
+              <option [value]="sede.name">{{ sede.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          Fecha
+
+          <input
+            name="fecha"
+            type="date"
+            [min]="hoy"
+            required
+            [(ngModel)]="form.fecha"
+            (ngModelChange)="ajustarHora()"
+            [disabled]="saving"
+          />
+        </label>
+
+        <label class="field">
+          Hora
+
+          <select name="hora" [(ngModel)]="form.hora" [disabled]="saving || !horarios.length">
+            @for (hora of horarios; track hora) {
+              <option [value]="hora">{{ hora }}</option>
+            } @empty {
+              <option value="">Sin horarios disponibles</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          Tipo
+
+          <select name="tipo" [(ngModel)]="form.tipo" [disabled]="saving">
+            @for (tipo of tipos; track tipo) {
+              <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" [disabled]="saving" (click)="cerrar()">
+          Cancelar
+        </button>
+
+        <button type="submit" class="btn btn-primary" [disabled]="saving || !form.hora">
+          {{ saving ? 'Programando…' : 'Confirmar programación' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}

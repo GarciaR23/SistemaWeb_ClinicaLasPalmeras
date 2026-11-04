@@ -70,5 +70,10 @@ export const ROLE_NAV: Record<
       label: 'Dashboard',
       icon: 'grid',
     },
+    {
+      page: 'salud-ocupacional/solicitudes',
+      label: 'Solicitudes recibidas',
+      icon: 'file',
+    },
   ],
 };

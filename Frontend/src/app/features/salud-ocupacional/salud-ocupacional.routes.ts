@@ -8,6 +8,13 @@ export const RUTAS: Routes = [
       ),
   },
   {
+    path: 'solicitudes',
+    loadComponent: () =>
+      import('./pages/solicitudes-recibidas/solicitudes-recibidas').then(
+        (m) => m.SolicitudesRecibidas,
+      ),
+  },
+  {
     path: 'cuenta',
     data: { mode: 'account' },
     loadComponent: () =>
