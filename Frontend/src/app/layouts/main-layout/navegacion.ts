@@ -67,7 +67,7 @@ export const ROLE_NAV: Record<
   health: [
     {
       page: 'salud-ocupacional',
-      label: 'Salud Ocupacional',
+      label: 'Dashboard',
       icon: 'grid',
     },
   ],

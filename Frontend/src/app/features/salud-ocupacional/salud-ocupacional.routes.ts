@@ -7,4 +7,17 @@ export const RUTAS: Routes = [
         (m) => m.InicioSaludOcupacional,
       ),
   },
+  {
+    path: 'cuenta',
+    data: { mode: 'account' },
+    loadComponent: () =>
+      import('../recursos-humanos/pages/cuenta/cuenta').then((m) => m.AccountPage),
+  },
+  {
+    path: 'configuracion',
+    loadComponent: () =>
+      import('../recursos-humanos/pages/configuracion/configuracion').then(
+        (m) => m.Configuracion,
+      ),
+  },
 ];

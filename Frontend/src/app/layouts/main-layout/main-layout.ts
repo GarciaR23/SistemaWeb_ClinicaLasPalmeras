@@ -58,7 +58,7 @@ export class LayoutPrincipal implements OnInit {
   notificationsOpen = false;
 
   /** Perfiles que cuentan con cuenta, configuración, notificaciones y asistente. */
-  private readonly perfilesConHerramientas: UserRole[] = ['rrhh', 'admin'];
+  private readonly perfilesConHerramientas: UserRole[] = ['rrhh', 'admin', 'health'];
 
   get isRrhh(): boolean {
     return this.session.role() === 'rrhh';
@@ -77,8 +77,12 @@ export class LayoutPrincipal implements OnInit {
     return role ? ROLE_HOME[role] : '';
   }
 
-  get assistantProfile(): 'rrhh' | 'admin' {
-    return this.session.role() === 'admin' ? 'admin' : 'rrhh';
+  get assistantProfile(): 'rrhh' | 'admin' | 'salud' {
+    const role = this.session.role();
+
+    if (role === 'admin') return 'admin';
+
+    return role === 'health' ? 'salud' : 'rrhh';
   }
 
   get items() {

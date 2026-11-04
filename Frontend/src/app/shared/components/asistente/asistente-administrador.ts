@@ -1,7 +1,7 @@
 export interface ConfiguracionAsistente {
   titulo: string;
   subtitulo: string;
-  bienvenida: string;
+  bienvenida: (nombre: string) => string;
   sugerencias: string[];
   nota?: string;
 }
@@ -9,8 +9,8 @@ export interface ConfiguracionAsistente {
 export const ASISTENTE_ADMINISTRADOR: ConfiguracionAsistente = {
   titulo: 'Palma · Asistente de administración',
   subtitulo: 'En línea',
-  bienvenida:
-    'Hola. Puedo ayudarte con usuarios, permisos, auditoría y configuración de la plataforma.',
+  bienvenida: (nombre) =>
+    `${nombre ? `Hola, ${nombre}.` : 'Hola.'} Puedo ayudarte con usuarios, permisos, auditoría y configuración de la plataforma.`,
   sugerencias: ['Usuarios inactivos', 'Auditoría reciente', 'Configurar permisos'],
   nota: 'Respuestas simuladas para esta demostración',
 };

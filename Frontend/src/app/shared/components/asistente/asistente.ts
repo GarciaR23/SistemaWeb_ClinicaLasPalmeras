@@ -4,16 +4,20 @@ import {
   HostListener,
   OnInit,
   computed,
+  inject,
   input,
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Session } from '../../../core/services/sesion';
+import { primerNombre } from '../../../core/utils/formato';
 import { Icon } from '../icono/icono';
 import {
   ASISTENTE_ADMINISTRADOR,
   ConfiguracionAsistente,
   responderAdministrador,
 } from './asistente-administrador';
+import { ASISTENTE_SALUD, responderSalud } from './asistente-salud';
 
 
 interface Mensaje {
@@ -30,7 +34,9 @@ interface Mensaje {
   styleUrl: './asistente.scss',
 })
 export class Asistente implements OnInit {
-  readonly perfil = input<'rrhh' | 'admin'>('rrhh');
+  private readonly session = inject(Session);
+
+  readonly perfil = input<'rrhh' | 'admin' | 'salud'>('rrhh');
   readonly botonAbrir =
     viewChild<ElementRef<HTMLButtonElement>>('botonAbrir');
 
@@ -46,7 +52,7 @@ export class Asistente implements OnInit {
   private readonly configuracionRrhh: ConfiguracionAsistente = {
     titulo: 'Asistente Las Palmeras',
     subtitulo: 'Ayuda del portal',
-    bienvenida:
+    bienvenida: () =>
       'Hola. Soy el asistente del portal. ' +
       'Puedo orientarte sobre postulantes, vacantes, ' +
       'entrevistas y resultados.',
@@ -57,15 +63,25 @@ export class Asistente implements OnInit {
     ],
   };
 
-  readonly configuracion = computed(() =>
-    this.perfil() === 'admin' ? ASISTENTE_ADMINISTRADOR : this.configuracionRrhh,
-  );
+  readonly configuracion = computed(() => {
+    switch (this.perfil()) {
+      case 'admin':
+        return ASISTENTE_ADMINISTRADOR;
+      case 'salud':
+        return ASISTENTE_SALUD;
+      default:
+        return this.configuracionRrhh;
+    }
+  });
 
   mensajes: Mensaje[] = [];
 
   ngOnInit(): void {
     this.mensajes = [
-      { id: 1, autor: 'asistente', texto: this.configuracion().bienvenida },
+      { id: 1, autor: 'asistente', texto: this.configuracion().bienvenida(
+          primerNombre(this.session.user()?.name ?? ''),
+        ),
+      },
     ];
   }
 
@@ -137,6 +153,7 @@ export class Asistente implements OnInit {
 
   private obtenerRespuesta(pregunta: string): string {
     if (this.perfil() === 'admin') return responderAdministrador(pregunta);
+    if (this.perfil() === 'salud') return responderSalud(pregunta);
 
     const texto = pregunta
       .toLowerCase()
