@@ -1,4 +1,83 @@
-<section class="espacio-trabajo">
-  <h1>Administrador</h1>
-  <p>Espacio de trabajo reservado para el equipo responsable de este módulo.</p>
-</section>
+<div class="dashboard">
+  <header class="dashboard-heading">
+    <span class="eyebrow">Control de plataforma</span>
+    <h1>Dashboard administrativo</h1>
+  </header>
+
+  @if (error) {
+    <p class="feedback error" role="alert">{{ error }}</p>
+  }
+
+  @if (loading) {
+    <p class="card empty" role="status">Cargando resumen…</p>
+  } @else if (resumen) {
+    <section class="indicators-grid" aria-label="Indicadores de la plataforma">
+      @for (indicador of resumen.indicadores; track indicador.titulo) {
+        <article class="card indicator-card">
+          <span class="indicator-icon" aria-hidden="true">
+            <app-icon [name]="indicador.icono" [size]="21" />
+          </span>
+
+          <div class="indicator-content">
+            <span class="indicator-title">{{ indicador.titulo }}</span>
+            <strong class="indicator-value">{{ indicador.valor }}</strong>
+            <small class="indicator-note">Actualizado ahora</small>
+          </div>
+        </article>
+      }
+    </section>
+
+    <div class="dashboard-panels">
+      <section class="card" aria-labelledby="titulo-accesos">
+        <header class="card-heading">
+          <h2 id="titulo-accesos">Administración rápida</h2>
+          <p>Accesos de gestión y control</p>
+        </header>
+
+        <nav class="quick-list" aria-label="Accesos rápidos">
+          @for (acceso of accesos; track acceso.ruta) {
+            <a class="quick-link" [routerLink]="acceso.ruta">
+              <app-icon [name]="acceso.icono" [size]="22" />
+
+              <span class="quick-copy">
+                <strong>{{ acceso.titulo }}</strong>
+                <small>{{ acceso.descripcion }}</small>
+              </span>
+
+              <app-icon name="arrow" [size]="18" />
+            </a>
+          }
+        </nav>
+      </section>
+
+      <section class="card" aria-labelledby="titulo-estado">
+        <header class="card-heading">
+          <h2 id="titulo-estado">Estado del sistema</h2>
+          <p>{{ origenServicios }}</p>
+        </header>
+
+        <ul class="service-list">
+          @for (servicio of resumen.servicios; track servicio.nombre) {
+            <li>
+              <span class="service-name">
+                <span
+                  class="dot"
+                  [class.dot--fail]="servicio.estado !== 'Operativo'"
+                  aria-hidden="true"
+                ></span>
+                {{ servicio.nombre }}
+              </span>
+
+              <strong
+                class="service-status"
+                [class.service-status--fail]="servicio.estado !== 'Operativo'"
+              >
+                {{ servicio.estado }}
+              </strong>
+            </li>
+          }
+        </ul>
+      </section>
+    </div>
+  }
+</div>

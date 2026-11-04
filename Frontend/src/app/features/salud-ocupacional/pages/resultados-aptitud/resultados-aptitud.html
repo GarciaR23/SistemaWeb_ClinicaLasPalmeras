@@ -1,0 +1,158 @@
+<div class="page-stack">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Conclusión autorizada</span>
+      <h1>Resultados de aptitud</h1>
+    </div>
+  </header>
+
+  @if (error) {
+    <p class="feedback error" role="alert">{{ error }}</p>
+  }
+
+  @if (notice) {
+    <div class="feedback success" role="status">
+      <app-icon name="check" [size]="19" />
+      <span>{{ notice }}</span>
+    </div>
+  }
+
+  @if (loading) {
+    <p class="card empty" role="status">Cargando resultados…</p>
+  } @else {
+    <section class="card table-card">
+      <div class="table-scroll">
+        <table>
+          <caption class="sr-only">Resultados de aptitud ocupacional</caption>
+
+          <thead>
+            <tr>
+              <th scope="col">Evaluado</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Sede</th>
+              <th scope="col">Conclusión</th>
+              <th scope="col">Acción</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (fila of servicio.resultados(); track fila.applicationId) {
+              <tr>
+                <td data-label="Evaluado">
+                  <div class="person-cell">
+                    <span class="person-avatar" aria-hidden="true">
+                      {{ iniciales(fila.nombre) }}
+                    </span>
+
+                    <div>
+                      <strong>{{ fila.nombre }}</strong>
+                      <small>{{ fila.puesto }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <td data-label="Fecha">{{ fecha(fila) }}</td>
+                <td data-label="Sede">{{ fila.sede }}</td>
+
+                <td data-label="Conclusión">
+                  @if (fila.conclusion) {
+                    <span class="conclusion" [class]="'conclusion conclusion--' + tono(fila.conclusion)">
+                      {{ fila.conclusion }}
+                    </span>
+                  } @else {
+                    <span class="conclusion conclusion--pending">Pendiente</span>
+                  }
+                </td>
+
+                <td data-label="Acción">
+                  @if (fila.conclusion) {
+                    <button type="button" class="btn btn-registered" disabled>
+                      Registrado
+                    </button>
+                  } @else if (fila.puedeRegistrar) {
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      [attr.aria-label]="'Registrar aptitud de ' + fila.nombre"
+                      (click)="abrir(fila)"
+                    >
+                      Registrar
+                    </button>
+                  } @else {
+                    <button type="button" class="btn btn-secondary" disabled>
+                      Programado
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty-row">
+                  Aún no hay evaluaciones programadas ni resultados registrados.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</div>
+
+@if (seleccion) {
+  <app-modal title="Registrar resultado de aptitud" (close)="cerrar()">
+    <form #formulario="ngForm" class="schedule-form" (ngSubmit)="guardar(formulario)" novalidate>
+      @if (formError) {
+        <p class="feedback error" role="alert">{{ formError }}</p>
+      }
+
+      <div class="candidate-summary">
+        <span class="person-avatar" aria-hidden="true">
+          {{ iniciales(seleccion.nombre) }}
+        </span>
+
+        <div>
+          <strong>{{ seleccion.nombre }}</strong>
+          <small>{{ seleccion.puesto }} · {{ seleccion.sede }}</small>
+        </div>
+      </div>
+
+      <p class="modal-note">
+        Registra solo la conclusión de aptitud. No ingreses diagnósticos ni datos clínicos.
+      </p>
+
+      <label class="field">
+        Conclusión
+
+        <select name="conclusion" [(ngModel)]="form.conclusion" [disabled]="saving">
+          @for (conclusion of conclusiones; track conclusion) {
+            <option [value]="conclusion">{{ conclusion }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        Observación administrativa (opcional)
+
+        <textarea
+          name="note"
+          rows="3"
+          maxlength="200"
+          [(ngModel)]="form.note"
+          [disabled]="saving"
+          placeholder="Indicaciones administrativas, sin información clínica"
+        ></textarea>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" [disabled]="saving" (click)="cerrar()">
+          Cancelar
+        </button>
+
+        <button type="submit" class="btn btn-primary" [disabled]="saving">
+          {{ saving ? 'Registrando…' : 'Registrar resultado' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}

@@ -1,0 +1,201 @@
+<div class="page-stack">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Administración del sistema</span>
+      <h1>Gestión de usuarios</h1>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="loading"
+      (click)="openCreate()"
+    >
+      <app-icon name="plus" />
+      Crear usuario
+    </button>
+  </header>
+
+  @if (error) {
+    <p class="feedback error" role="alert">{{ error }}</p>
+  }
+
+  @if (notice) {
+    <div class="feedback success" role="status">
+      <app-icon name="check" [size]="19" />
+      <span>{{ notice }}</span>
+    </div>
+  }
+
+  <section class="card filter-card" aria-label="Filtros de usuarios">
+    <label class="field" for="buscar-usuario">
+      Buscar
+      <span class="search-control">
+        <app-icon name="search" [size]="19" />
+        <input
+          id="buscar-usuario"
+          type="search"
+          [(ngModel)]="search"
+          placeholder="Nombre o correo..."
+          autocomplete="off"
+        />
+      </span>
+    </label>
+
+    <label class="field" for="filtrar-rol">
+      Rol
+      <select id="filtrar-rol" [(ngModel)]="roleFilter">
+        <option value="todos">Todos</option>
+        @for (rol of roles; track rol[0]) {
+          <option [value]="rol[0]">{{ rol[1] }}</option>
+        }
+      </select>
+    </label>
+
+    <p class="result-count" role="status">
+      <strong>{{ filtrados.length }}</strong>
+      {{ filtrados.length === 1 ? 'usuario encontrado' : 'usuarios encontrados' }}
+    </p>
+  </section>
+
+  @if (loading) {
+    <p class="card empty" role="status">Cargando usuarios…</p>
+  } @else {
+    <section class="card table-card">
+      <div class="table-scroll">
+        <table>
+          <caption class="sr-only">Listado de usuarios</caption>
+
+          <thead>
+            <tr>
+              <th scope="col">Usuario</th>
+              <th scope="col">Rol</th>
+              <th scope="col">Último acceso</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acción</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (usuario of filtrados; track usuario.id) {
+              <tr>
+                <td data-label="Usuario">
+                  <div class="person-cell">
+                    <span class="person-avatar" aria-hidden="true">
+                      {{ iniciales(usuario.name) }}
+                    </span>
+
+                    <div>
+                      <strong>{{ usuario.name }}</strong>
+                      <small>{{ usuario.email }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <td data-label="Rol">{{ etiquetaRol(usuario.role) }}</td>
+                <td data-label="Último acceso">{{ ultimoAcceso(usuario) }}</td>
+
+                <td data-label="Estado">
+                  <span
+                    class="status"
+                    [class.status--inactive]="!usuario.active"
+                  >
+                    {{ usuario.active ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+
+                <td data-label="Acción">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    [disabled]="busyId !== null || esCuentaPropia(usuario)"
+                    [attr.title]="
+                      esCuentaPropia(usuario)
+                        ? 'No puedes desactivar tu propia cuenta'
+                        : null
+                    "
+                    [attr.aria-label]="
+                      (usuario.active ? 'Desactivar a ' : 'Activar a ') +
+                      usuario.name
+                    "
+                    (click)="alternarEstado(usuario)"
+                  >
+                    {{ usuario.active ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty-row">
+                  No se encontraron usuarios con esos filtros.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</div>
+
+@if (modalOpen) {
+  <app-modal title="Crear cuenta de trabajador" (close)="closeCreate()">
+    <form #form="ngForm" class="create-form" (ngSubmit)="create(form)" novalidate>
+      <p class="modal-note">
+        Solo el personal autorizado puede asignar roles privilegiados.
+      </p>
+
+      @if (formError) {
+        <p class="feedback error" role="alert">{{ formError }}</p>
+      }
+
+      <label class="field">
+        Nombre completo
+
+        <input
+          name="name"
+          [(ngModel)]="draft.name"
+          #nameControl="ngModel"
+          required
+          minlength="3"
+          maxlength="120"
+          pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+([ '\-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*"
+          placeholder="Nombre y apellidos"
+          autocomplete="off"
+          [disabled]="saving"
+        />
+
+        @if (nameControl.invalid && (nameControl.touched || form.submitted)) {
+          <small class="field-error">
+            Ingresa un nombre válido de al menos 3 letras.
+          </small>
+        }
+      </label>
+
+      <label class="field">
+        Rol autorizado
+
+        <select name="role" [(ngModel)]="draft.role" [disabled]="saving">
+          @for (rol of rolesPrivilegiados; track rol.valor) {
+            <option [value]="rol.valor">{{ rol.etiqueta }}</option>
+          }
+        </select>
+      </label>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="saving"
+          (click)="closeCreate()"
+        >
+          Cancelar
+        </button>
+
+        <button type="submit" class="btn btn-primary" [disabled]="saving">
+          {{ saving ? 'Creando…' : 'Crear cuenta' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}

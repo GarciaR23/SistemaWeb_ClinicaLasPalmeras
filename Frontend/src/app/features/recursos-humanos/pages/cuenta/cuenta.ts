@@ -9,6 +9,7 @@ import {
 import { ApiClient } from '../../../../core/services/cliente-api';
 import { PreferencesService } from '../../services/servicio-preferencias';
 import { Icon } from '../../../../shared/components/icono/icono';
+import { iniciales } from '../../../../core/utils/formato';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -38,6 +39,9 @@ export class AccountPage implements OnInit {
   firstName = '';
   lastName = '';
 
+  // Título profesional (Dr., Lic., etc.): se conserva al guardar.
+  private title = '';
+
   draft = {
     name: this.session.user()?.name || '',
     phone: '',
@@ -55,14 +59,7 @@ export class AccountPage implements OnInit {
   }
 
   get initials(): string {
-    return (this.session.user()?.name ?? '')
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0])
-      .join('')
-      .toUpperCase();
+    return iniciales(this.session.user()?.name ?? '');
   }
 
   async ngOnInit(): Promise<void> {
@@ -126,7 +123,7 @@ export class AccountPage implements OnInit {
 
       this.draft = {
         ...this.draft,
-        name: `${firstName} ${lastName}`,
+        name: [this.title, firstName, lastName].filter(Boolean).join(' '),
         phone: this.draft.phone.trim(),
         location: this.cleanText(this.draft.location),
         dni: this.draft.dni.trim(),
@@ -165,7 +162,13 @@ export class AccountPage implements OnInit {
   private splitName(): void {
     // El modelo actual guarda el nombre completo en un solo campo.
     // Esta separación inicial puede corregirse en el formulario.
-    const parts = this.draft.name
+    const match = this.draft.name
+      .trim()
+      .match(/^((?:dr|dra|lic|ing|mg|tec)\.?)\s+(.+)$/i);
+
+    this.title = match ? match[1] : '';
+
+    const parts = (match ? match[2] : this.draft.name)
       .trim()
       .split(/\s+/)
       .filter(Boolean);

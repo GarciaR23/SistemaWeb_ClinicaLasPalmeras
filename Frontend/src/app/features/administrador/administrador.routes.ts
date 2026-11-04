@@ -7,4 +7,29 @@ export const RUTAS: Routes = [
         (m) => m.InicioAdministrador,
       ),
   },
+  {
+    path: 'usuarios',
+    loadComponent: () =>
+      import('./pages/gestion-usuarios/gestion-usuarios').then(
+        (m) => m.GestionUsuarios,
+      ),
+  },
+  {
+    path: 'auditoria',
+    loadComponent: () =>
+      import('./pages/auditoria/auditoria').then((m) => m.Auditoria),
+  },
+  {
+    path: 'cuenta',
+    data: { mode: 'account' },
+    loadComponent: () =>
+      import('../recursos-humanos/pages/cuenta/cuenta').then((m) => m.AccountPage),
+  },
+  {
+    path: 'configuracion',
+    loadComponent: () =>
+      import('../recursos-humanos/pages/configuracion/configuracion').then(
+        (m) => m.Configuracion,
+      ),
+  },
 ];

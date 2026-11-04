@@ -98,6 +98,7 @@ export class HealthService {
     date: string,
     time: string,
     site: string,
+    type?: string,
   ): Promise<void> {
     if (!environment.demoMode) {
       throw new Error(
@@ -143,6 +144,7 @@ export class HealthService {
       date,
       time,
       site,
+      ...(type ? { type } : {}),
     };
 
     const items = [...this.appointments(), appointment];

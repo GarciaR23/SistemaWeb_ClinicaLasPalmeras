@@ -40,8 +40,18 @@ export const ROLE_NAV: Record<
   admin: [
     {
       page: 'administrador',
-      label: 'Administrador',
+      label: 'Dashboard',
       icon: 'grid',
+    },
+    {
+      page: 'administrador/usuarios',
+      label: 'Gestión de usuarios',
+      icon: 'user',
+    },
+    {
+      page: 'administrador/auditoria',
+      label: 'Auditoría',
+      icon: 'file',
     },
   ],
 
@@ -57,8 +67,23 @@ export const ROLE_NAV: Record<
   health: [
     {
       page: 'salud-ocupacional',
-      label: 'Salud Ocupacional',
+      label: 'Dashboard',
       icon: 'grid',
+    },
+    {
+      page: 'salud-ocupacional/solicitudes',
+      label: 'Solicitudes recibidas',
+      icon: 'file',
+    },
+    {
+      page: 'salud-ocupacional/agenda',
+      label: 'Agenda de exámenes',
+      icon: 'calendar',
+    },
+    {
+      page: 'salud-ocupacional/resultados',
+      label: 'Resultados de aptitud',
+      icon: 'medical',
     },
   ],
 };

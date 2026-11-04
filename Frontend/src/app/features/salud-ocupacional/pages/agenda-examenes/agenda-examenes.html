@@ -1,0 +1,73 @@
+<div class="page-stack">
+  <header class="page-heading">
+    <div>
+      <span class="eyebrow">Programación por sede</span>
+      <h1>Agenda de exámenes</h1>
+    </div>
+  </header>
+
+  @if (error) {
+    <p class="feedback error" role="alert">{{ error }}</p>
+  }
+
+  @if (loading) {
+    <p class="card empty" role="status">Cargando agenda…</p>
+  } @else {
+    <section class="site-grid" aria-label="Cupos disponibles por sede">
+      @for (sede of servicio.sedes; track sede.name) {
+        <article class="card site-card">
+          <span class="site-icon" aria-hidden="true">
+            <app-icon name="pin" [size]="22" />
+          </span>
+
+          <div class="site-copy">
+            <strong>Sede {{ sede.name }}</strong>
+            <small>{{ sede.opening }} – {{ sede.closing }}</small>
+          </div>
+
+          <span class="site-slots" [class.site-slots--none]="!cupos(sede.name)">
+            {{ etiquetaCupos(sede.name) }}
+          </span>
+        </article>
+      }
+    </section>
+
+    <section class="card" aria-labelledby="titulo-dia">
+      <header class="day-heading">
+        <div>
+          <h2 id="titulo-dia">{{ titulo }}</h2>
+          <p>Evaluaciones programadas</p>
+        </div>
+
+        <label class="field day-picker">
+          Fecha
+          <input type="date" name="fecha" [(ngModel)]="fecha" />
+        </label>
+      </header>
+
+      <ul class="appointment-list">
+        @for (cita of citas; track cita.id) {
+          <li>
+            <strong class="appointment-time">{{ cita.hora }}</strong>
+
+            <span class="person-avatar" aria-hidden="true">
+              {{ iniciales(cita.nombre) }}
+            </span>
+
+            <div class="appointment-person">
+              <strong>{{ cita.nombre }}</strong>
+              <small>{{ cita.puesto }}</small>
+            </div>
+
+            <span class="appointment-meta">
+              <span>Sede {{ cita.sede }}</span>
+              <small>{{ cita.tipo }}</small>
+            </span>
+          </li>
+        } @empty {
+          <li class="empty-row">No hay evaluaciones programadas para este día.</li>
+        }
+      </ul>
+    </section>
+  }
+</div>
