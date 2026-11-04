@@ -15,6 +15,13 @@ export const RUTAS: Routes = [
       ),
   },
   {
+    path: 'agenda',
+    loadComponent: () =>
+      import('./pages/agenda-examenes/agenda-examenes').then(
+        (m) => m.AgendaExamenes,
+      ),
+  },
+  {
     path: 'cuenta',
     data: { mode: 'account' },
     loadComponent: () =>

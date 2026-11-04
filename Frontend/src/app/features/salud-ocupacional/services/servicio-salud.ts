@@ -4,6 +4,7 @@ import { ApiClient } from '../../../core/services/cliente-api';
 import { ApplicantsService } from '../../recursos-humanos/services/servicio-postulantes';
 import { HealthService } from '../../recursos-humanos/services/servicio-resultados-medicos';
 import { environment } from '../../../../environments/environment';
+import { CitaAgenda } from '../models/cita-agenda';
 import {
   ProgramacionExamen,
   SolicitudExamen,
@@ -38,6 +39,33 @@ export class ServicioSaludOcupacional {
         estado: candidato.status,
       })),
   );
+
+  /** Evaluaciones de un día (AAAA-MM-DD), ordenadas por hora. */
+  agendaDelDia(fecha: string): CitaAgenda[] {
+    const candidatos = this.applicants.candidates();
+
+    return this.citas()
+      .filter((cita) => cita.date === fecha)
+      .map((cita) => {
+        const candidato = candidatos.find(
+          (item) => item.id === cita.applicationId,
+        );
+
+        return {
+          id: cita.id,
+          hora: cita.time,
+          sede: cita.site ?? cita.place ?? '—',
+          tipo: cita.type ?? 'Evaluación ocupacional',
+          nombre: candidato?.name ?? 'Postulante no disponible',
+          puesto: candidato?.role ?? '',
+        };
+      })
+      .sort((a, b) => a.hora.localeCompare(b.hora));
+  }
+
+  cuposDisponibles(sede: string, fecha: string): number {
+    return this.horariosDisponibles(sede, fecha).length;
+  }
 
   async cargar(): Promise<void> {
     await this.applicants.load();

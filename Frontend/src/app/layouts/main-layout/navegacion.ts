@@ -75,5 +75,10 @@ export const ROLE_NAV: Record<
       label: 'Solicitudes recibidas',
       icon: 'file',
     },
+    {
+      page: 'salud-ocupacional/agenda',
+      label: 'Agenda de exámenes',
+      icon: 'calendar',
+    },
   ],
 };
