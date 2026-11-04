@@ -80,5 +80,10 @@ export const ROLE_NAV: Record<
       label: 'Agenda de exámenes',
       icon: 'calendar',
     },
+    {
+      page: 'salud-ocupacional/resultados',
+      label: 'Resultados de aptitud',
+      icon: 'medical',
+    },
   ],
 };

@@ -22,6 +22,13 @@ export const RUTAS: Routes = [
       ),
   },
   {
+    path: 'resultados',
+    loadComponent: () =>
+      import('./pages/resultados-aptitud/resultados-aptitud').then(
+        (m) => m.ResultadosAptitud,
+      ),
+  },
+  {
     path: 'cuenta',
     data: { mode: 'account' },
     loadComponent: () =>

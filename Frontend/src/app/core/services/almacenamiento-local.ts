@@ -18,8 +18,9 @@ export class LocalStore {
             return structuredClone(fallback);
         }
     }
-    write<T>(key: string, value: T): void {
+    write<T>(key: string, value: T, audit = true): void {
         localStorage.setItem('palmeras.login-rrhh.' + key, JSON.stringify(value));
+        if (!audit) return;
         const names: Record<string, { action: string; module: string }> = {
             accounts: { action: 'Actualización de usuarios', module: 'Seguridad' },
             candidates: { action: 'Actualización de postulaciones', module: 'Postulaciones' },
