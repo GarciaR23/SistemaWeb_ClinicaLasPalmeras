@@ -10,6 +10,7 @@ import { ApplicantsService } from '../../recursos-humanos/services/servicio-post
 import { HealthService } from '../../recursos-humanos/services/servicio-resultados-medicos';
 import { environment } from '../../../../environments/environment';
 import { CitaAgenda } from '../models/cita-agenda';
+import { IndicadorSalud, TrabajoPendiente } from '../models/resumen-salud';
 import {
   CONCLUSIONES,
   FilaAptitud,
@@ -126,6 +127,77 @@ export class ServicioSaludOcupacional {
   cuposDisponibles(sede: string, fecha: string): number {
     return this.horariosDisponibles(sede, fecha).length;
   }
+
+  /** Evaluaciones con cita y sin resultado, indicando si la cita ya ocurrió. */
+  private readonly sinResultado = computed(() => {
+    const registrados = new Set(
+      this.aptitudes().map((item) => item.applicationId),
+    );
+
+    return this.applicants
+      .candidates()
+      .filter(
+        (candidato) =>
+          candidato.status === 'Examen médico' && !registrados.has(candidato.id),
+      )
+      .flatMap((candidato) => {
+        const cita = this.ultimaCita(candidato.id);
+
+        return cita
+          ? [
+              {
+                candidato,
+                vencida:
+                  new Date(`${cita.date}T${cita.time}:00`).getTime() <=
+                  Date.now(),
+              },
+            ]
+          : [];
+      });
+  });
+
+  readonly indicadores = computed<IndicadorSalud[]>(() => [
+    {
+      titulo: 'Solicitudes pendientes',
+      valor: this.solicitudes().length,
+      icono: 'file',
+    },
+    {
+      titulo: 'Exámenes programados',
+      valor: this.sinResultado().filter((item) => !item.vencida).length,
+      icono: 'calendar',
+    },
+    {
+      titulo: 'Evaluaciones realizadas',
+      valor: this.aptitudes().length,
+      icono: 'medical',
+    },
+    {
+      titulo: 'Resultados pendientes',
+      valor: this.sinResultado().filter((item) => item.vencida).length,
+      icono: 'clock',
+    },
+  ]);
+
+  /** Solicitudes por programar y evaluaciones realizadas sin conclusión. */
+  readonly trabajoPendiente = computed<TrabajoPendiente[]>(() => [
+    ...this.solicitudes().map((solicitud) => ({
+      id: solicitud.id,
+      nombre: solicitud.nombre,
+      puesto: solicitud.puesto,
+      estado: solicitud.estado,
+      ruta: '/salud-ocupacional/solicitudes',
+    })),
+    ...this.sinResultado()
+      .filter((item) => item.vencida)
+      .map(({ candidato }) => ({
+        id: candidato.id,
+        nombre: candidato.name,
+        puesto: candidato.role,
+        estado: candidato.status,
+        ruta: '/salud-ocupacional/resultados',
+      })),
+  ]);
 
   async cargar(): Promise<void> {
     await this.applicants.load();

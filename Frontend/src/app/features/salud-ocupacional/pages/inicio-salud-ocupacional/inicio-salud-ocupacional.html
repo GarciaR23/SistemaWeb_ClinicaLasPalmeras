@@ -1,4 +1,58 @@
-<section class="espacio-trabajo">
-  <h1>Salud Ocupacional</h1>
-  <p>Espacio de trabajo reservado para el equipo responsable de este módulo.</p>
-</section>
+<div class="dashboard">
+  <header class="dashboard-heading">
+    <span class="eyebrow">Salud Ocupacional</span>
+    <h1>Dashboard</h1>
+  </header>
+
+  @if (error) {
+    <p class="feedback error" role="alert">{{ error }}</p>
+  }
+
+  @if (loading) {
+    <p class="card empty" role="status">Cargando resumen…</p>
+  } @else {
+    <section class="indicators-grid" aria-label="Indicadores de Salud Ocupacional">
+      @for (indicador of servicio.indicadores(); track indicador.titulo) {
+        <article class="card indicator-card">
+          <span class="indicator-icon" aria-hidden="true">
+            <app-icon [name]="indicador.icono" [size]="21" />
+          </span>
+
+          <div class="indicator-content">
+            <span class="indicator-title">{{ indicador.titulo }}</span>
+            <strong class="indicator-value">{{ indicador.valor }}</strong>
+            <small class="indicator-note">Actualizado ahora</small>
+          </div>
+        </article>
+      }
+    </section>
+
+    <section class="card" aria-labelledby="titulo-pendiente">
+      <header class="card-heading">
+        <h2 id="titulo-pendiente">Trabajo pendiente</h2>
+        <p>Solicitudes y evaluaciones que requieren atención</p>
+      </header>
+
+      <ul class="pending-list">
+        @for (item of servicio.trabajoPendiente(); track item.ruta + item.id) {
+          <li>
+            <a class="pending-link" [routerLink]="item.ruta">
+              <span class="person-avatar" aria-hidden="true">
+                {{ iniciales(item.nombre) }}
+              </span>
+
+              <span class="pending-person">
+                <strong>{{ item.nombre }}</strong>
+                <small>{{ item.puesto }}</small>
+              </span>
+
+              <app-badge [status]="item.estado" />
+            </a>
+          </li>
+        } @empty {
+          <li class="empty-row">No hay trabajo pendiente.</li>
+        }
+      </ul>
+    </section>
+  }
+</div>
