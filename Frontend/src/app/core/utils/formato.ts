@@ -39,9 +39,16 @@ export function formatearFechaHora(valor: string | number | null | undefined): s
   return `${dia} · ${hora}`;
 }
 
+const TITULO = /^(dr|dra|lic|ing|mg|tec)\.?\s+/i;
+
+/** Primer nombre sin el título profesional ("Dr. Luis Paredes" → "Luis"). */
+export function primerNombre(nombre: string): string {
+  return nombre.trim().replace(TITULO, '').split(/\s+/)[0] ?? '';
+}
+
 export function iniciales(nombre: string): string {
   return nombre
-    .replace(/^(dr|dra)\.?\s+/i, '')
+    .replace(TITULO, '')
     .trim()
     .split(/\s+/)
     .filter(Boolean)

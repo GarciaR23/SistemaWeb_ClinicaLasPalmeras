@@ -18,6 +18,7 @@ import { Session, ROLE_LABELS } from '../../core/services/sesion';
 import { ROLE_HOME, UserRole } from '../../core/services/modelos-sesion';
 import { PreferencesService } from '../../features/recursos-humanos/services/servicio-preferencias';
 import { Icon } from '../../shared/components/icono/icono';
+import { iniciales } from '../../core/utils/formato';
 import { Asistente } from '../../shared/components/asistente/asistente';
 import { ROLE_NAV } from './navegacion';
 
@@ -93,16 +94,7 @@ export class LayoutPrincipal implements OnInit {
   }
 
   get initials(): string {
-    return (
-      this.session
-        .user()
-        ?.name.trim()
-        .split(/\s+/)
-        .map((part) => part[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase() || ''
-    );
+    return iniciales(this.session.user()?.name ?? '');
   }
 
   async ngOnInit(): Promise<void> {
