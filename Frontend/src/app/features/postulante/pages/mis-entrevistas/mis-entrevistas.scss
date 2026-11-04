@@ -1,0 +1,4 @@
+@use '../estilos' as e;
+@include e.pagina-base;
+
+.entrevista { margin-bottom: 12px; h2 { margin: 0 0 8px; font-size: 17px; font-weight: 500; } p { margin: 4px 0 0; font-size: 13px; color: e.$texto-suave; } }

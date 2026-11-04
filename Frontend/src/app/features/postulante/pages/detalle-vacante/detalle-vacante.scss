@@ -1,0 +1,10 @@
+@use '../estilos' as e;
+@include e.pagina-base;
+@include e.botones;
+
+.volver { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; font-size: 13px; color: e.$texto-suave; text-decoration: none; }
+.volver__icono { display: inline-flex; transform: rotate(180deg); }
+.detalle { max-width: 760px; h2 { margin: 24px 0 8px; font-size: 16px; font-weight: 600; } p, li { font-size: 14px; line-height: 1.6; } ul { padding-left: 20px; } .boton { margin-top: 24px; } }
+.detalle__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 0; font-size: 13px; color: e.$texto-suave;
+  span { display: inline-flex; align-items: center; gap: 6px; } }
+.detalle__modalidad { padding: 3px 10px; border-radius: 999px; background: e.$azul-claro; font-size: 11px; }

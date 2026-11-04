@@ -1,0 +1,11 @@
+@use '../../pages/estilos' as e;
+
+:host { display: block; }
+.vacio {
+  @include e.tarjeta;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 190px; padding: 40px 20px; text-align: center; color: e.$azul-oscuro;
+}
+.vacio__icono { color: e.$texto-suave; margin-bottom: 12px; }
+.vacio__titulo { margin: 0; font-size: 15px; font-weight: 600; }
+.vacio__descripcion { margin: 6px 0 0; font-size: 13px; color: e.$texto-suave; }

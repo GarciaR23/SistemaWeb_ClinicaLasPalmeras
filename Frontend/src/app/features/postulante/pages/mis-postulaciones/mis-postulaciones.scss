@@ -1,0 +1,10 @@
+@use '../estilos' as e;
+@include e.pagina-base;
+
+.postulacion { margin-bottom: 16px; padding: 20px 20px 24px; }
+.postulacion__cabecera { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+.postulacion__area { margin: 0 0 6px; font-size: 11px; color: e.$texto-suave; }
+.postulacion__puesto { margin: 0 0 8px; font-size: 18px; font-weight: 400; }
+.postulacion__fecha { margin: 0; font-size: 11px; color: e.$texto-suave; }
+.postulacion__estado { height: fit-content; padding: 8px 12px; border-radius: 6px; background: e.$azul-claro; font-size: 11px; font-weight: 600; }
+.enlace { display: inline-block; margin-top: 16px; font-size: 14px; color: e.$azul; }

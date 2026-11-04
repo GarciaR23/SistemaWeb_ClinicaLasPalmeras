@@ -1,0 +1,23 @@
+@use '../../pages/estilos' as e;
+
+:host { display: block; }
+.linea { display: flex; list-style: none; margin: 0; padding: 0; }
+.paso {
+  position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 11px; color: e.$texto-suave; text-align: center;
+  &:not(:last-child)::after {
+    content: ''; position: absolute; top: 14px; left: calc(50% + 18px); right: calc(-50% + 18px);
+    height: 2px; background: e.$borde;
+  }
+}
+.paso--hecho:not(:last-child)::after { background: e.$verde; }
+.paso__marca {
+  width: 28px; height: 28px; border-radius: 50%; border: 2px solid e.$borde; background: e.$blanco;
+  display: grid; place-items: center; font-size: 11px;
+}
+.paso--hecho .paso__marca { background: e.$verde; border-color: e.$verde; color: e.$blanco; }
+.paso--actual .paso__etiqueta { color: e.$azul-oscuro; font-weight: 600; }
+@media (max-width: 720px) {
+  .linea { flex-direction: column; gap: 14px; }
+  .paso { flex-direction: row; gap: 12px; &::after { display: none; } }
+}

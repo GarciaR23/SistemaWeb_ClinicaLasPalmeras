@@ -1,0 +1,27 @@
+<div class="pagina">
+  <p class="pagina__eyebrow">Avisos de tus procesos</p>
+  <div class="encabezado">
+    <h1 class="pagina__titulo">Notificaciones</h1>
+    @if (servicio.hayNoLeidas()) {
+      <button type="button" class="enlace" (click)="servicio.marcarTodas()">Marcar todas como leídas</button>
+    }
+  </div>
+
+  <ul class="lista">
+    @for (n of servicio.lista(); track n.id) {
+      <li class="tarjeta aviso" [class.aviso--nuevo]="!n.leida">
+        <span class="aviso__icono"><app-icono nombre="campana" [tamano]="18" /></span>
+        <div class="aviso__texto">
+          <strong>{{ n.titulo }}</strong>
+          <p>{{ n.mensaje }}</p>
+          <small>{{ n.fecha | date: 'dd/MM/yyyy' }}</small>
+        </div>
+        @if (!n.leida) {
+          <button type="button" class="enlace" (click)="servicio.marcarLeida(n.id)">Marcar como leída</button>
+        }
+      </li>
+    } @empty {
+      <app-estado-vacio icono="campana" titulo="No tienes notificaciones" />
+    }
+  </ul>
+</div>

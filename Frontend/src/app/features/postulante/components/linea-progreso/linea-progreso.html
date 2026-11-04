@@ -1,0 +1,11 @@
+<ol class="linea" aria-label="Progreso de la postulación">
+  @for (etapa of etapas(); track etapa; let i = $index) {
+    <li class="paso" [class.paso--hecho]="i <= etapaActual()" [class.paso--actual]="i === etapaActual()"
+        [attr.aria-current]="i === etapaActual() ? 'step' : null">
+      <span class="paso__marca">
+        @if (i <= etapaActual()) { <app-icono nombre="check" [tamano]="14" /> } @else { {{ i + 1 }} }
+      </span>
+      <span class="paso__etiqueta">{{ etapa }}</span>
+    </li>
+  }
+</ol>

@@ -1,0 +1,7 @@
+<div class="vacio">
+  <span class="vacio__icono"><app-icono [nombre]="icono()" [tamano]="22" /></span>
+  <p class="vacio__titulo">{{ titulo() }}</p>
+  @if (descripcion()) {
+    <p class="vacio__descripcion">{{ descripcion() }}</p>
+  }
+</div>

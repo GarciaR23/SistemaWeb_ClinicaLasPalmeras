@@ -1,0 +1,9 @@
+@use '../estilos' as e;
+@include e.pagina-base;
+
+.evaluacion { margin-bottom: 12px; h2 { margin: 0 0 8px; font-size: 17px; font-weight: 500; } p { margin: 4px 0 0; font-size: 13px; color: e.$texto-suave; } }
+.aviso {
+  @include e.tarjeta;
+  display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 16px; padding: 16px 20px;
+  border-top: 3px solid e.$azul; font-size: 11px; color: e.$azul;
+}

@@ -1,0 +1,14 @@
+<div class="pagina">
+  <p class="pagina__eyebrow">Tu agenda</p>
+  <h1 class="pagina__titulo">Mis entrevistas</h1>
+
+  @for (e of entrevistas(); track e.id) {
+    <article class="tarjeta entrevista">
+      <h2>{{ e.puesto }}</h2>
+      <p>{{ e.fecha | date: 'dd/MM/yyyy' }} · {{ e.hora }}</p>
+      <p>{{ e.modalidad }} · {{ e.lugar }}</p>
+    </article>
+  } @empty {
+    <app-estado-vacio icono="calendario" titulo="No tienes entrevistas próximas" />
+  }
+</div>

@@ -1,0 +1,23 @@
+<article class="vacante">
+  <header class="vacante__cabecera">
+    <span class="vacante__icono"><app-icono nombre="maletin" /></span>
+    <span class="vacante__modalidad">{{ vacante().modalidad }}</span>
+  </header>
+
+  <h3 class="vacante__titulo">{{ vacante().titulo }}</h3>
+  <p class="vacante__area">{{ vacante().area }}</p>
+
+  <p class="vacante__meta">
+    <span><app-icono nombre="ubicacion" [tamano]="14" /> {{ vacante().sede }}</span>
+    <span><app-icono nombre="calendario" [tamano]="14" /> {{ vacante().fechaPublicacion | date: 'dd/MM/yyyy' }}</span>
+  </p>
+
+  <p class="vacante__descripcion">{{ vacante().descripcion }}</p>
+
+  <footer class="vacante__acciones">
+    <a class="boton" [routerLink]="['/postulante/vacantes', vacante().id]">Ver detalle</a>
+    <button type="button" class="boton boton--primario" [disabled]="yaPostulado()" (click)="postular.emit(vacante())">
+      {{ yaPostulado() ? 'Ya postulaste' : 'Postular' }}
+    </button>
+  </footer>
+</article>
