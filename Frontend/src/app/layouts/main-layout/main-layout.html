@@ -10,6 +10,18 @@
     hasPortalTools && preferences.preferences().highContrast
   "
 >
+  @if (bienvenidaVisible) {
+    <div class="welcome-overlay" role="status" aria-live="polite">
+      <div class="welcome-message">
+        <span class="welcome-icon"><app-icon name="check" [size]="26" /></span>
+        <div>
+          <strong>¡Acceso correcto!</strong>
+          <p>{{ bienvenidaTexto }}</p>
+        </div>
+      </div>
+    </div>
+  }
+
   @if (sidebarOpen) {
     <button
       type="button"
@@ -219,6 +231,15 @@
             Aquí se mostrarán las alertas cuando conectemos
             el servicio de notificaciones.
           </p>
+          @if (session.role() === 'applicant') {
+            <a
+              class="notifications-link"
+              routerLink="/postulante/notificaciones"
+              (click)="closePanels()"
+            >
+              Ver todas las notificaciones
+            </a>
+          }
         </section>
       }
     </header>

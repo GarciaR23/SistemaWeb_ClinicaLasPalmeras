@@ -54,6 +54,54 @@ a:focus-visible {
   font-size: 14px;
 }
 
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: start center;
+  padding-top: 24px;
+  pointer-events: none;
+  animation: welcome-fade 3.2s both;
+}
+
+.welcome-message {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: min(440px, calc(100vw - 32px));
+  padding: 16px 18px;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 14px;
+  background: #122c47;
+  color: #ffffff;
+  box-shadow: 0 16px 40px rgb(18 44 71 / 25%);
+  animation: welcome-enter .45s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.welcome-message strong { display: block; font-size: 15px; }
+.welcome-message p { margin: 3px 0 0; color: #dce8f1; font-size: 13px; }
+.welcome-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #38a169;
+}
+
+@keyframes welcome-enter {
+  from { opacity: 0; transform: translateY(-18px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes welcome-fade {
+  0%, 82% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* Menú lateral */
 
 .sidebar {
@@ -401,6 +449,14 @@ a:focus-visible {
     font-size: 12px;
     line-height: 1.7;
   }
+
+  .notifications-link {
+    display: inline-flex;
+    margin-top: 14px;
+    color: var(--navy);
+    font-size: 12px;
+    font-weight: 600;
+  }
 }
 
 /* Preferencias del layout */
@@ -417,19 +473,6 @@ a:focus-visible {
   --yellow-bg: #4d3d1d;
   --red-bg: #4b2829;
   --shadow: 0 7px 26px rgb(0 0 0 / 20%);
-}
-
-.app-shell.text-large {
-  .sidebar-nav a,
-  .profile-dropdown a strong,
-  .logout-button {
-    font-size: 14px;
-  }
-
-  .demo-label,
-  .profile-information strong {
-    font-size: 12px;
-  }
 }
 
 .app-shell.high-contrast {

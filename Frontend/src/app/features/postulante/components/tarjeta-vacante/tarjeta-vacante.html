@@ -15,7 +15,7 @@
   <p class="vacante__descripcion">{{ vacante().descripcion }}</p>
 
   <footer class="vacante__acciones">
-    <a class="boton" [routerLink]="['/postulante/vacantes', vacante().id]">Ver detalle</a>
+    <button type="button" class="boton" (click)="verDetalle.emit(vacante())">Ver detalle</button>
     <button type="button" class="boton boton--primario" [disabled]="yaPostulado()" (click)="postular.emit(vacante())">
       {{ yaPostulado() ? 'Ya postulaste' : 'Postular' }}
     </button>

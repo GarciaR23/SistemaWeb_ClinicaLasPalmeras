@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { DashboardService } from '../../services/servicio-dashboard';
 import { Icon } from '../../../../shared/components/icono/icono';
@@ -8,7 +7,6 @@ import { Icon } from '../../../../shared/components/icono/icono';
   selector: 'app-inicio-recursos-humanos',
   standalone: true,
   imports: [
-    RouterLink,
     Icon,
   ],
   templateUrl: './inicio-recursos-humanos.html',

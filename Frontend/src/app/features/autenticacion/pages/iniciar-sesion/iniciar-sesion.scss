@@ -115,7 +115,10 @@ a:focus-visible {
 .auth-visual {
     position: relative;
     min-height: 100vh;
-    background: url('https://images.unsplash.com/photo-1758653500534-a47f6cd8abb0?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&q=85&w=1200') center/cover;
+    background-image: url('/images/login-background.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     display: grid;
     place-items: center;
     overflow: hidden;

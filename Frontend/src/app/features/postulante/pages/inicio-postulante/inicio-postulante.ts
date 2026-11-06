@@ -27,7 +27,6 @@ export class InicioPostulante {
       { etiqueta: 'Postulaciones activas', valor: r.postulacionesActivas, icono: 'documento', ruta: '/postulante/mis-postulaciones' },
       { etiqueta: 'Próximos eventos', valor: r.proximosEventos, icono: 'calendario', ruta: '/postulante/mis-entrevistas' },
       { etiqueta: 'Vacantes disponibles', valor: r.vacantesDisponibles, icono: 'maletin', ruta: '/postulante/vacantes' },
-      { etiqueta: 'Notificaciones', valor: r.notificaciones, icono: 'campana', ruta: '/postulante/notificaciones' },
     ];
   }
 }

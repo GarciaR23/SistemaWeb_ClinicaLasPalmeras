@@ -1,7 +1,32 @@
 @use '../estilos' as e;
 @include e.pagina-base;
 
-.evaluacion { margin-bottom: 12px; h2 { margin: 0 0 8px; font-size: 17px; font-weight: 500; } p { margin: 4px 0 0; font-size: 13px; color: e.$texto-suave; } }
+.evaluacion {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  margin-bottom: 16px;
+  padding: 22px;
+  border: 1px solid e.$borde;
+  border-radius: 12px;
+  background: e.$blanco;
+  box-shadow: 0 5px 18px rgb(15 42 74 / 6%);
+}
+.evaluacion__icono { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 10px; background: e.$azul-claro; color: e.$azul; }
+.evaluacion__contenido { min-width: 0; }
+.evaluacion__encabezado { display: flex; justify-content: space-between; gap: 16px; }
+.evaluacion__etiqueta { color: e.$texto-suave; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+.evaluacion__encabezado h2 { margin: 4px 0 0; font-size: 18px; font-weight: 600; }
+.evaluacion__estado { align-self: flex-start; padding: 6px 12px; border-radius: 999px; background: #eaf7f1; color: e.$verde; font-size: 12px; font-weight: 600; }
+.evaluacion__datos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 20px; padding-top: 16px; border-top: 1px solid e.$borde; }
+.evaluacion__datos span { display: flex; align-items: center; gap: 7px; color: e.$texto-suave; font-size: 13px; }
+.evaluacion__indicaciones { margin: 16px 0 0; padding: 12px 14px; border-left: 3px solid e.$azul; border-radius: 4px; background: #f7fafc; color: e.$texto-suave; font-size: 13px; line-height: 1.5; }
+
+@media (max-width: 760px) {
+  .evaluacion { grid-template-columns: 1fr; }
+  .evaluacion__encabezado { flex-direction: column; }
+  .evaluacion__datos { grid-template-columns: 1fr; }
+}
 .aviso {
   @include e.tarjeta;
   display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 16px; padding: 16px 20px;

@@ -3,10 +3,25 @@
   <h1 class="pagina__titulo">Mis evaluaciones ocupacionales</h1>
 
   @for (ev of evaluaciones(); track ev.id) {
-    <article class="tarjeta evaluacion">
-      <h2>{{ ev.tipo }}</h2>
-      <p>{{ ev.fecha | date: 'dd/MM/yyyy' }} · {{ ev.hora }} · {{ ev.sede }}</p>
-      <p>{{ ev.indicaciones }}</p>
+    <article class="evaluacion">
+      <div class="evaluacion__icono">
+        <app-icono nombre="estetoscopio" [tamano]="24" />
+      </div>
+      <div class="evaluacion__contenido">
+        <div class="evaluacion__encabezado">
+          <div>
+            <span class="evaluacion__etiqueta">Evaluación ocupacional</span>
+            <h2>{{ ev.tipo }}</h2>
+          </div>
+          <span class="evaluacion__estado">Programada</span>
+        </div>
+        <div class="evaluacion__datos">
+          <span><app-icono nombre="calendario" [tamano]="16" /> {{ ev.fecha | date: 'dd/MM/yyyy' }}</span>
+          <span><app-icono nombre="grafico" [tamano]="16" /> {{ ev.hora }}</span>
+          <span><app-icono nombre="ubicacion" [tamano]="16" /> {{ ev.sede }}</span>
+        </div>
+        <p class="evaluacion__indicaciones">{{ ev.indicaciones }}</p>
+      </div>
     </article>
   } @empty {
     <app-estado-vacio icono="estetoscopio" titulo="No tienes evaluaciones programadas" />

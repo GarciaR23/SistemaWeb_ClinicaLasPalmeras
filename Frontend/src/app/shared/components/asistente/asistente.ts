@@ -36,7 +36,7 @@ interface Mensaje {
 export class Asistente implements OnInit {
   private readonly session = inject(Session);
 
-  readonly perfil = input<'rrhh' | 'admin' | 'salud'>('rrhh');
+  readonly perfil = input<'rrhh' | 'admin' | 'salud' | 'postulante'>('rrhh');
   readonly botonAbrir =
     viewChild<ElementRef<HTMLButtonElement>>('botonAbrir');
 
@@ -69,10 +69,25 @@ export class Asistente implements OnInit {
         return ASISTENTE_ADMINISTRADOR;
       case 'salud':
         return ASISTENTE_SALUD;
+      case 'postulante':
+        return this.configuracionPostulante;
       default:
         return this.configuracionRrhh;
     }
   });
+
+  private readonly configuracionPostulante: ConfiguracionAsistente = {
+    titulo: 'Asistente Las Palmeras',
+    subtitulo: 'Ayuda para postulantes',
+    bienvenida: () =>
+      'Hola. Soy el asistente del portal de postulantes. ' +
+      'Puedo ayudarte con vacantes, postulaciones, entrevistas y documentos.',
+    sugerencias: [
+      '¿Cómo postulo a una vacante?',
+      '¿Dónde veo mis entrevistas?',
+      '¿Cómo cargo mis documentos?',
+    ],
+  };
 
   mensajes: Mensaje[] = [];
 
@@ -154,6 +169,29 @@ export class Asistente implements OnInit {
   private obtenerRespuesta(pregunta: string): string {
     if (this.perfil() === 'admin') return responderAdministrador(pregunta);
     if (this.perfil() === 'salud') return responderSalud(pregunta);
+    if (this.perfil() === 'postulante') {
+      const texto = pregunta
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+      if (texto.includes('vacant')) {
+        return 'Abre Vacantes en el menú lateral. Puedes consultar los detalles de cada oferta y seleccionar Postularme.';
+      }
+      if (texto.includes('entrevist')) {
+        return 'Consulta tus próximas entrevistas en Mis entrevistas desde el menú lateral.';
+      }
+      if (texto.includes('document')) {
+        return 'Abre Mis documentos para revisar, cargar o actualizar tus archivos requeridos.';
+      }
+      if (texto.includes('postul')) {
+        return 'En Mis postulaciones puedes revisar el estado y el avance de cada proceso.';
+      }
+      if (texto.includes('notific')) {
+        return 'Consulta tus novedades desde el icono de campana junto al avatar, o abre Notificaciones.';
+      }
+      return 'Puedo ayudarte con vacantes, postulaciones, entrevistas, documentos y notificaciones.';
+    }
 
     const texto = pregunta
       .toLowerCase()

@@ -3,24 +3,8 @@ body {
   font-family: Arial, sans-serif;
 }
 
-.app-shell.text-large :is(
-  h1,
-  h2,
-  h3,
-  h4,
-  p,
-  button,
-  input,
-  select,
-  textarea,
-  label,
-  summary,
-  th,
-  td,
-  small,
-  strong
-) {
-  font-size: calc(1em + 2px);
+.app-shell.text-large {
+  zoom: 1.12;
 }
 
 .app-shell.theme-dark .choice-button:hover:not(:disabled),
@@ -43,6 +27,85 @@ body {
   color: var(--navy);
 }
 
+.app-shell.high-contrast :is(
+  .modal,
+  .modal-content,
+  .modal-body,
+  .card,
+  .panel,
+  .dropdown,
+  .header-panel,
+  .notification-panel,
+  .field,
+  .form-section,
+  section[class],
+  article[class]
+) {
+  border-color: #000000;
+  color: #000000;
+}
+
+.app-shell.high-contrast :is(
+  input,
+  select,
+  textarea,
+  button
+) {
+  border: 2px solid #000000 !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.app-shell.high-contrast :is(
+  .modal-overlay,
+  .panel-overlay
+) {
+  background: rgb(0 0 0 / 72%) !important;
+}
+
+.app-shell.high-contrast :is(
+  a,
+  label,
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  small,
+  strong,
+  span,
+  th,
+  td
+) {
+  color: #000000 !important;
+}
+
+.app-shell.high-contrast .modal,
+.app-shell.high-contrast .card,
+.app-shell.high-contrast .dashboard-card,
+.app-shell.high-contrast .header-panel,
+.app-shell.high-contrast section[class],
+.app-shell.high-contrast article[class] {
+  background-color: #ffffff !important;
+}
+
+.app-shell.high-contrast .dashboard-card {
+  border: 2px solid #000000;
+  box-shadow: none;
+}
+
+.app-shell.high-contrast .sidebar,
+.app-shell.high-contrast .sidebar :is(a, span, strong, small, app-icon),
+.app-shell.high-contrast .header-avatar {
+  color: #ffffff !important;
+}
+
+.app-shell.high-contrast .sidebar-nav a.active {
+  border: 2px solid #ffffff;
+  background-color: #000000;
+  color: #ffffff !important;
+}
+
 .app-shell.theme-dark.high-contrast {
   --navy: #ffffff;
   --slate: #ffffff;
@@ -57,4 +120,48 @@ body {
 .app-shell.theme-dark.high-contrast .header-avatar {
   background: #000000;
   color: #ffffff;
+}
+
+.app-shell.theme-dark.high-contrast :is(
+  .modal,
+  .modal-content,
+  .modal-body,
+  .card,
+  .panel,
+  .dropdown,
+  .header-panel,
+  section[class],
+  article[class]
+) {
+  background-color: #000000 !important;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.app-shell.theme-dark.high-contrast :is(
+  input,
+  select,
+  textarea,
+  button
+) {
+  border-color: #ffffff !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.app-shell.theme-dark.high-contrast :is(
+  a,
+  label,
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  small,
+  strong,
+  span,
+  th,
+  td
+) {
+  color: #ffffff !important;
 }

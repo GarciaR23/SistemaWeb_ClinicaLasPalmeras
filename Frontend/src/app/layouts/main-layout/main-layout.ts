@@ -18,7 +18,7 @@ import { Session, ROLE_LABELS } from '../../core/services/sesion';
 import { ROLE_HOME, UserRole } from '../../core/services/modelos-sesion';
 import { PreferencesService } from '../../features/recursos-humanos/services/servicio-preferencias';
 import { Icon } from '../../shared/components/icono/icono';
-import { iniciales } from '../../core/utils/formato';
+import { iniciales, primerNombre } from '../../core/utils/formato';
 import { Asistente } from '../../shared/components/asistente/asistente';
 import { ROLE_NAV } from './navegacion';
 
@@ -56,9 +56,11 @@ export class LayoutPrincipal implements OnInit {
   sidebarOpen = false;
   profileOpen = false;
   notificationsOpen = false;
+  bienvenidaVisible = false;
+  bienvenidaTexto = '';
 
   /** Perfiles que cuentan con cuenta, configuración, notificaciones y asistente. */
-  private readonly perfilesConHerramientas: UserRole[] = ['rrhh', 'admin', 'health'];
+  private readonly perfilesConHerramientas: UserRole[] = ['rrhh', 'admin', 'health', 'applicant'];
 
   get isRrhh(): boolean {
     return this.session.role() === 'rrhh';
@@ -77,10 +79,11 @@ export class LayoutPrincipal implements OnInit {
     return role ? ROLE_HOME[role] : '';
   }
 
-  get assistantProfile(): 'rrhh' | 'admin' | 'salud' {
+  get assistantProfile(): 'rrhh' | 'admin' | 'salud' | 'postulante' {
     const role = this.session.role();
 
     if (role === 'admin') return 'admin';
+    if (role === 'applicant') return 'postulante';
 
     return role === 'health' ? 'salud' : 'rrhh';
   }
@@ -104,11 +107,29 @@ export class LayoutPrincipal implements OnInit {
   async ngOnInit(): Promise<void> {
     if (!this.hasPortalTools) return;
 
+    if (sessionStorage.getItem('mostrar-bienvenida') === 'true') {
+      sessionStorage.removeItem('mostrar-bienvenida');
+      this.mostrarBienvenida();
+    }
+
     try {
       await this.preferences.load();
     } catch {
       // Se conservan las preferencias predeterminadas.
     }
+  }
+
+  private mostrarBienvenida(): void {
+    const nombre = primerNombre(this.session.user()?.name ?? '');
+    const rol = this.roleLabel;
+    this.bienvenidaTexto = nombre
+      ? `Bienvenido, ${nombre}. Has ingresado como ${rol}.`
+      : `Bienvenido al portal de ${rol}.`;
+    this.bienvenidaVisible = true;
+
+    window.setTimeout(() => {
+      this.bienvenidaVisible = false;
+    }, 3200);
   }
 
   openSidebar(): void {
