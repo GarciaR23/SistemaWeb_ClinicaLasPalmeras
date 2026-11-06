@@ -11,9 +11,114 @@
   @if (vacantes().length) {
     <div class="rejilla">
       @for (v of vacantes(); track v.id) {
-        <app-tarjeta-vacante [vacante]="v" [yaPostulado]="yaPostulo(v.id)" (postular)="postular($event)" />
+        <app-tarjeta-vacante
+          [vacante]="v"
+          [yaPostulado]="yaPostulo(v.id)"
+          (verDetalle)="verDetalle($event)"
+          (postular)="abrirFormulario($event)"
+        />
       }
     </div>
+
+    @if (vacanteSeleccionada(); as vacante) {
+      <app-modal [title]="'Detalle de vacante'" [wide]="true" [closable]="false" (close)="cerrarDetalle()">
+        <div class="detalle-vacante">
+          <div class="detalle-vacante__titulo">
+            <span>{{ vacante.titulo }}</span>
+          </div>
+          <div class="detalle-vacante__encabezado">
+            <span>{{ vacante.area }}</span>
+            <strong>{{ vacante.modalidad }}</strong>
+          </div>
+
+          <div class="detalle-vacante__meta">
+            <span><app-icono nombre="ubicacion" [tamano]="17" /> {{ vacante.sede }}</span>
+            <span>
+              <app-icono nombre="calendario" [tamano]="17" />
+              Publicada el {{ vacante.fechaPublicacion | date: 'dd/MM/yyyy' }}
+            </span>
+          </div>
+
+          <div class="detalle-vacante__contenido">
+            <section>
+              <h3>Descripción</h3>
+              <p>{{ vacante.descripcion }}</p>
+            </section>
+
+            <section>
+              <h3>Requisitos</h3>
+              <ul>
+                @for (requisito of vacante.requisitos; track requisito) {
+                  <li>{{ requisito }}</li>
+                }
+              </ul>
+            </section>
+          </div>
+
+          <div class="detalle-vacante__acciones">
+            <button
+              type="button"
+              class="boton boton--primario"
+              [disabled]="yaPostulo(vacante.id)"
+              (click)="postularDesdeDetalle()"
+            >
+              {{ yaPostulo(vacante.id) ? 'Postulación activa' : 'Postularme' }}
+            </button>
+          </div>
+        </div>
+      </app-modal>
+    }
+
+    @if (formularioPostulacion()) {
+      <app-modal title="Completa tu postulación" [wide]="true" [closable]="false" (close)="formularioPostulacion.set(false)">
+        <form #postulacionForm="ngForm" class="postulacion-form" (ngSubmit)="enviarPostulacion(postulacionForm)">
+          <p class="postulacion-form__intro">Confirma tus datos para enviar tu postulación.</p>
+          <div class="postulacion-form__grid">
+            <label>
+              Nombre completo *
+              <input name="nombre" [(ngModel)]="datosPostulacion.nombre" required minlength="3" autocomplete="name" />
+            </label>
+            <label>
+              Correo electrónico *
+              <input name="correo" type="email" [(ngModel)]="datosPostulacion.correo" required email autocomplete="email" />
+            </label>
+            <label>
+              DNI *
+              <input name="dni" [(ngModel)]="datosPostulacion.dni" required pattern="[0-9]{8}" maxlength="8" inputmode="numeric" />
+            </label>
+            <label>
+              Teléfono *
+              <input name="telefono" type="tel" [(ngModel)]="datosPostulacion.telefono" required pattern="[+0-9 ()-]{9,16}" autocomplete="tel" />
+            </label>
+            <label>
+              Experiencia
+              <input name="experiencia" [(ngModel)]="datosPostulacion.experiencia" placeholder="Ej. 3 años" />
+            </label>
+            <label>
+              Ubicación
+              <input name="ubicacion" [(ngModel)]="datosPostulacion.ubicacion" autocomplete="address-level2" />
+            </label>
+            <label>
+              Vacante *
+              <select name="vacante" [ngModel]="vacantePendiente()?.id" required disabled>
+                @if (vacantePendiente(); as vacantePendiente) {
+                  <option [ngValue]="vacantePendiente.id">{{ vacantePendiente.titulo }}</option>
+                }
+              </select>
+            </label>
+          </div>
+          <div class="postulacion-form__acciones">
+            <button
+              type="submit"
+              class="boton boton--primario"
+              [disabled]="postulacionForm.invalid || postulacionForm.submitted"
+            >
+              {{ postulacionForm.submitted ? 'Enviando...' : 'Enviar postulación' }}
+            </button>
+          </div>
+        </form>
+      </app-modal>
+    }
   } @else {
     <app-estado-vacio icono="buscar" titulo="No encontramos vacantes"
                       descripcion="Prueba con otro puesto o área." />

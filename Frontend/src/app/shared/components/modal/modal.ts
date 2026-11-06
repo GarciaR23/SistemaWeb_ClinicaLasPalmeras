@@ -26,9 +26,11 @@ import { Icon } from '../icono/icono';
     >
       <div class="modal-head">
         <h2>{{ title() }}</h2>
-        <button type="button" class="icon-btn" aria-label="Cerrar diálogo" (click)="close.emit()">
-          <app-icon name="close" />
-        </button>
+        @if (closable()) {
+          <button type="button" class="icon-btn" aria-label="Cerrar diálogo" (click)="close.emit()">
+            <app-icon name="close" />
+          </button>
+        }
       </div>
       <div class="modal-body"><ng-content /></div>
     </section>
@@ -37,6 +39,7 @@ import { Icon } from '../icono/icono';
 export class Modal implements AfterViewInit, OnDestroy {
     title = input('');
     wide = input(false);
+    closable = input(true);
     close = output();
     panel = viewChild.required<ElementRef<HTMLElement>>('panel');
     private previous = document.activeElement as HTMLElement | null;

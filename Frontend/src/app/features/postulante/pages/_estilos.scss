@@ -15,10 +15,19 @@ $blanco: #fff;
 
 @mixin pagina-base {
   :host { display: block; }
-  .pagina { max-width: 1316px; margin: 0 auto; padding: 24px 0 48px; color: $azul-oscuro; }
+  .pagina { max-width: 1316px; margin: 0 auto; padding: 24px 0 48px; color: $azul-oscuro; animation: postulante-entrada .38s ease-out both; }
   .pagina__eyebrow { margin: 0 0 6px; font-size: 13px; color: $texto-suave; }
   .pagina__titulo { margin: 0 0 24px; font-size: 28px; font-weight: 400; }
   .tarjeta { @include tarjeta; padding: 20px; }
+
+  a, button, .tarjeta { transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease, color 160ms ease; }
+  button:not(:disabled):active, a:active { transform: scale(.97); }
+  .tarjeta:hover, .boton:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(15, 42, 74, .12); }
+
+  @keyframes postulante-entrada {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
 @mixin botones {

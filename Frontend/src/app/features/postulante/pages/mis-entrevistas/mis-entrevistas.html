@@ -3,10 +3,26 @@
   <h1 class="pagina__titulo">Mis entrevistas</h1>
 
   @for (e of entrevistas(); track e.id) {
-    <article class="tarjeta entrevista">
-      <h2>{{ e.puesto }}</h2>
-      <p>{{ e.fecha | date: 'dd/MM/yyyy' }} · {{ e.hora }}</p>
-      <p>{{ e.modalidad }} · {{ e.lugar }}</p>
+    <article class="entrevista">
+      <div class="entrevista__icono">
+        <app-icono nombre="calendario" [tamano]="24" />
+      </div>
+
+      <div class="entrevista__contenido">
+        <div class="entrevista__encabezado">
+          <div>
+            <span class="entrevista__etiqueta">Entrevista programada</span>
+            <h2>{{ e.puesto }}</h2>
+          </div>
+          <span class="entrevista__estado">{{ e.modalidad }}</span>
+        </div>
+
+        <div class="entrevista__datos">
+          <span><app-icono nombre="calendario" [tamano]="16" /> {{ e.fecha | date: 'dd/MM/yyyy' }}</span>
+          <span><app-icono nombre="grafico" [tamano]="16" /> {{ e.hora }}</span>
+          <span><app-icono nombre="ubicacion" [tamano]="16" /> {{ e.lugar }}</span>
+        </div>
+      </div>
     </article>
   } @empty {
     <app-estado-vacio icono="calendario" titulo="No tienes entrevistas próximas" />

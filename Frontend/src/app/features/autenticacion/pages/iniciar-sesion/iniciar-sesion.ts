@@ -159,6 +159,7 @@ export class IniciarSesion {
               this.password,
             );
 
+      sessionStorage.setItem('mostrar-bienvenida', 'true');
       await this.router.navigateByUrl(destino);
     } catch (error) {
       this.error =
