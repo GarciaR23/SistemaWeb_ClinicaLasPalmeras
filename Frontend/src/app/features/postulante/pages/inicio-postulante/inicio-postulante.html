@@ -1,21 +1,38 @@
 <div class="pagina">
   <section class="hero">
-    <div>
-      <p class="hero__eyebrow">Portal del postulante</p>
-      <h1 class="hero__titulo">Hola, {{ nombre }}</h1>
-      <p class="hero__texto">Revisa tus procesos y descubre nuevas oportunidades en Clínica Las Palmeras.</p>
+    <div class="hero__contenido">
+      <p class="hero__eyebrow">PORTAL DEL POSTULANTE</p>
+      <h1 class="hero__titulo">Hola, {{ nombre() }}. Tu próximo paso empieza aquí.</h1>
+      <p class="hero__texto">
+        Descubre oportunidades, sigue tu postulación y consulta cada actualización de tu proceso.
+      </p>
+      <a class="hero__boton" routerLink="/postulante/vacantes">
+        <span>Ver vacantes</span>
+        <app-icono nombre="chevron" [tamano]="15" />
+      </a>
     </div>
-    <span class="hero__icono"><app-icono nombre="cruz" [tamano]="34" /></span>
+
+    <div class="hero__marco">
+      <img
+        src="images/postulante/doctor-hero.jpg"
+        alt="Doctora de Clínica Las Palmeras"
+        class="hero__imagen"
+      />
+    </div>
   </section>
 
   <section class="resumen">
     @for (t of tarjetas(); track t.etiqueta) {
       <article class="tarjeta resumen__item">
-        <span class="resumen__icono"><app-icono [nombre]="t.icono" /></span>
-        <div>
+        <span class="resumen__icono">
+          <app-icono [nombre]="t.icono" [tamano]="22" />
+        </span>
+        <div class="resumen__datos">
           <p class="resumen__etiqueta">{{ t.etiqueta }}</p>
           <p class="resumen__valor">{{ t.valor }}</p>
-          <a class="resumen__enlace" [routerLink]="t.ruta">Ver información</a>
+          <a class="resumen__enlace" [routerLink]="t.ruta">
+            <span>Ver información</span>
+          </a>
         </div>
       </article>
     }
@@ -26,24 +43,29 @@
       <header class="panel__cabecera">
         <div>
           <h2 class="panel__titulo">Tu proceso actual</h2>
-          @if (proceso(); as p) { <p class="panel__subtitulo">{{ p.puesto }}</p> }
+          @if (proceso(); as p) {
+            <p class="panel__subtitulo">{{ p.puesto }}</p>
+          }
         </div>
         <a class="panel__enlace" routerLink="/postulante/mis-postulaciones">
-          Ver progreso <app-icono nombre="chevron" [tamano]="16" />
+          <span>Ver progreso</span>
+          <app-icono nombre="chevron" [tamano]="15" />
         </a>
       </header>
 
       @if (proceso(); as p) {
         <div class="estado">
-          <span class="estado__icono"><app-icono nombre="grafico" /></span>
-          <div>
+          <span class="estado__icono">
+            <app-icono nombre="grafico" [tamano]="22" />
+          </span>
+          <div class="estado__datos">
             <p class="estado__etiqueta">Estado actual</p>
             <p class="estado__valor">{{ etapas[p.etapaActual] }}</p>
             <p class="estado__nota">Te notificaremos cuando haya una actualización.</p>
           </div>
         </div>
       } @else {
-        <p class="panel__vacio">Aún no tienes postulaciones. Explora las vacantes disponibles.</p>
+        <p class="panel__vacio">Aún no tienes postulaciones activas. Explora las vacantes disponibles.</p>
       }
     </article>
 
@@ -54,7 +76,8 @@
           <p class="panel__subtitulo">Según tu perfil profesional</p>
         </div>
         <a class="panel__enlace" routerLink="/postulante/vacantes">
-          Ver todas <app-icono nombre="chevron" [tamano]="16" />
+          <span>Ver todas</span>
+          <app-icono nombre="chevron" [tamano]="15" />
         </a>
       </header>
 
@@ -62,12 +85,16 @@
         @for (v of recomendadas(); track v.id) {
           <li>
             <a class="lista__item" [routerLink]="['/postulante/vacantes', v.id]">
-              <span class="lista__icono"><app-icono nombre="maletin" [tamano]="18" /></span>
+              <span class="lista__icono">
+                <app-icono nombre="maletin" [tamano]="18" />
+              </span>
               <span class="lista__texto">
                 <strong>{{ v.titulo }}</strong>
                 <small>{{ v.sede }} · {{ v.modalidad }}</small>
               </span>
-              <app-icono nombre="chevron" [tamano]="18" />
+              <span class="lista__flecha">
+                <app-icono nombre="chevron" [tamano]="16" />
+              </span>
             </a>
           </li>
         }

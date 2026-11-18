@@ -9,4 +9,5 @@ export interface Vacante {
   modalidad: Modalidad;
   descripcion: string;
   requisitos: string[];
+  imagen?: string;
 }

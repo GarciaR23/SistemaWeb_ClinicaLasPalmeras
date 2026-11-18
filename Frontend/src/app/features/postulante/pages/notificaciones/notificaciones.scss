@@ -1,9 +1,213 @@
 @use '../estilos' as e;
 @include e.pagina-base;
+@include e.botones;
 
-.encabezado { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-.enlace { border: 0; background: none; padding: 4px; font: inherit; font-size: 12px; color: e.$azul; cursor: pointer; text-decoration: underline; &:focus-visible { outline: 2px solid e.$azul; } }
-.lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.aviso { display: flex; align-items: center; gap: 16px; &--nuevo { border-left: 3px solid e.$azul; } }
-.aviso__icono { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 8px; background: e.$azul-claro; }
-.aviso__texto { flex: 1; font-size: 14px; p { margin: 4px 0; font-size: 13px; } small { font-size: 11px; color: e.$texto-suave; } }
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  &__titulo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .pagina__titulo {
+      margin: 0;
+    }
+  }
+}
+
+.badge-alerta {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid #fecaca;
+}
+
+.btn-marcar-todas {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #d8e2eb;
+  background: #ffffff;
+  color: #15467e;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+
+  &:hover {
+    background: #eaf3fb;
+    border-color: #cbd5e1;
+  }
+}
+
+/* Filtros */
+
+.filtros {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.filtro-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid #dce4ed;
+  background: #ffffff;
+  color: e.$texto-suave;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+
+  &:hover {
+    background: #f1f5f9;
+    color: e.$azul-oscuro;
+  }
+
+  &--activo {
+    background: #0c2340;
+    border-color: #0c2340;
+    color: #ffffff;
+
+    &:hover {
+      background: #153e6b;
+      color: #ffffff;
+    }
+  }
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 24px;
+  border-radius: 14px;
+  border: 1px solid #e8eef5;
+  background: #ffffff;
+  transition: all 200ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(12, 35, 64, 0.06);
+  }
+
+  &--nuevo {
+    border-left: 4px solid #15467e;
+    background: #fcfdff;
+    box-shadow: 0 4px 16px rgba(21, 70, 126, 0.05);
+  }
+}
+
+.aviso__icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: #64748b;
+  transition: all 180ms ease;
+
+  &--nuevo {
+    background: #e0f2fe;
+    color: #0284c7;
+  }
+}
+
+.aviso__texto {
+  flex: 1;
+  min-width: 0;
+
+  p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #475569;
+  }
+}
+
+.aviso__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+
+  strong {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: e.$azul-oscuro;
+  }
+}
+
+.aviso__fecha {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.btn-marcar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid #d8e2eb;
+  background: #ffffff;
+  color: #15467e;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 180ms ease;
+
+  &:hover {
+    background: #eaf3fb;
+    border-color: #cbd5e1;
+  }
+}
+
+.aviso__leida-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .encabezado {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .aviso {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-marcar {
+    width: 100%;
+    justify-content: center;
+  }
+}

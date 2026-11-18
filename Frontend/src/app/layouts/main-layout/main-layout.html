@@ -126,13 +126,18 @@
           <button
             #notificationsButton
             type="button"
-            class="icon-btn"
+            class="icon-btn notif-toggle"
             aria-label="Notificaciones"
             aria-controls="panel-notificaciones"
             [attr.aria-expanded]="notificationsOpen"
             (click)="toggleNotifications()"
           >
             <app-icon name="bell" [size]="22" />
+            @if (session.role() === 'applicant' && notificacionesService.hayNoLeidas()) {
+              <span class="notif-badge" aria-label="Notificaciones no leídas">
+                {{ notificacionesService.noLeidas() }}
+              </span>
+            }
           </button>
         }
 
@@ -226,19 +231,72 @@
           class="header-panel notifications-panel"
           aria-label="Notificaciones"
         >
-          <h2>Notificaciones</h2>
-          <p>
-            Aquí se mostrarán las alertas cuando conectemos
-            el servicio de notificaciones.
-          </p>
+          <div class="notifications-panel__header">
+            <div class="notifications-panel__title-box">
+              <h2>Notificaciones</h2>
+              @if (session.role() === 'applicant' && notificacionesService.hayNoLeidas()) {
+                <span class="badge-unread">{{ notificacionesService.noLeidas() }} nuevas</span>
+              }
+            </div>
+            @if (session.role() === 'applicant' && notificacionesService.hayNoLeidas()) {
+              <button
+                type="button"
+                class="mark-all-btn"
+                (click)="notificacionesService.marcarTodas()"
+              >
+                Marcar leídas
+              </button>
+            }
+          </div>
+
           @if (session.role() === 'applicant') {
-            <a
-              class="notifications-link"
-              routerLink="/postulante/notificaciones"
-              (click)="closePanels()"
-            >
-              Ver todas las notificaciones
-            </a>
+            <div class="notifications-panel__body">
+              @for (n of notificacionesService.lista(); track n.id) {
+                <div
+                  class="notification-item"
+                  [class.notification-item--unread]="!n.leida"
+                  (click)="onNotificationClick(n)"
+                  role="button"
+                  tabindex="0"
+                  (keydown.enter)="onNotificationClick(n)"
+                >
+                  <span class="notification-item__icon" [class.unread]="!n.leida">
+                    <app-icon [name]="n.leida ? 'check' : 'bell'" [size]="16" />
+                  </span>
+                  <div class="notification-item__content">
+                    <strong class="notification-item__title">{{ n.titulo }}</strong>
+                    <p class="notification-item__desc">{{ n.mensaje }}</p>
+                    <span class="notification-item__time">{{ n.fecha | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+                  @if (!n.leida) {
+                    <span class="notification-item__dot" title="No leída"></span>
+                  }
+                </div>
+              } @empty {
+                <div class="notifications-panel__empty">
+                  <app-icon name="bell" [size]="28" />
+                  <p>No tienes notificaciones pendientes.</p>
+                </div>
+              }
+            </div>
+
+            <footer class="notifications-panel__footer">
+              <a
+                class="notifications-link"
+                routerLink="/postulante/notificaciones"
+                (click)="closePanels()"
+              >
+                <span>Ver todas las notificaciones</span>
+                <app-icon name="arrow" [size]="14" />
+              </a>
+            </footer>
+          } @else {
+            <div class="notifications-panel__placeholder">
+              <p>
+                Aquí se mostrarán las alertas cuando conectemos
+                el servicio de notificaciones.
+              </p>
+            </div>
           }
         </section>
       }

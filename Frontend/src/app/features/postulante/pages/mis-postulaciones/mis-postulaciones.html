@@ -1,22 +1,58 @@
 <div class="pagina">
   <p class="pagina__eyebrow">Seguimiento personal</p>
-  <h1 class="pagina__titulo">Mis postulaciones</h1>
+  <div class="encabezado">
+    <h1 class="pagina__titulo">Mis postulaciones</h1>
+    <span class="contador-badge">{{ postulaciones().length }} activas</span>
+  </div>
 
   @for (p of postulaciones(); track p.id) {
     <article class="tarjeta postulacion">
       <header class="postulacion__cabecera">
-        <div>
-          <p class="postulacion__area">{{ p.area }}</p>
+        <div class="postulacion__info">
+          <div class="postulacion__tags">
+            <span class="tag-area">{{ p.area }}</span>
+            <span class="tag-id">#POS-00{{ p.id }}</span>
+          </div>
           <h2 class="postulacion__puesto">{{ p.puesto }}</h2>
-          <p class="postulacion__fecha">Postulación enviada el {{ p.fechaEnvio | date: 'dd/MM/yyyy' }}</p>
+          <p class="postulacion__fecha">
+            <app-icono nombre="calendario" [tamano]="14" />
+            Postulación enviada el {{ p.fechaEnvio | date: 'dd/MM/yyyy' }}
+          </p>
         </div>
-        <span class="postulacion__estado">{{ etapas[p.etapaActual] }}</span>
+        <div class="postulacion__estado-box">
+          <span class="estado-label">Estado actual</span>
+          <span class="postulacion__estado">{{ etapas[p.etapaActual] }}</span>
+        </div>
       </header>
-      <app-linea-progreso [etapas]="etapas" [etapaActual]="p.etapaActual" />
+
+      <div class="postulacion__timeline">
+        <app-linea-progreso [etapas]="etapas" [etapaActual]="p.etapaActual" />
+      </div>
+
+      <div class="postulacion__detalle-etapa">
+        <div class="detalle-etapa__icono">
+          <app-icono nombre="grafico" [tamano]="18" />
+        </div>
+        <div class="detalle-etapa__texto">
+          <strong>Fase en curso: {{ etapas[p.etapaActual] }}</strong>
+          <p>
+            Tu postulación se encuentra siendo revisada por el equipo de selección de Clínica Las Palmeras. Te notificaremos inmediatamente cualquier actualización o citación a entrevista.
+          </p>
+        </div>
+        <a class="enlace-vacante" [routerLink]="['/postulante/vacantes', p.vacanteId]">
+          <span>Ver vacante</span>
+          <app-icono nombre="chevron" [tamano]="14" />
+        </a>
+      </div>
     </article>
   } @empty {
-    <app-estado-vacio icono="grafico" titulo="Aún no te has postulado a ninguna vacante"
-                      descripcion="Cuando te postules, verás aquí el avance de cada proceso." />
-    <a class="enlace" routerLink="/postulante/vacantes">Ver vacantes disponibles</a>
+    <app-estado-vacio
+      icono="grafico"
+      titulo="Aún no te has postulado a ninguna vacante"
+      descripcion="Cuando te postules, verás aquí el avance en tiempo real de cada fase de tu proceso de selección."
+    />
+    <div class="accion-vacia">
+      <a class="boton boton--primario" routerLink="/postulante/vacantes">Ver vacantes disponibles</a>
+    </div>
   }
 </div>
