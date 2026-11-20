@@ -1,34 +1,89 @@
 <div class="pagina">
   <p class="pagina__eyebrow">Información administrativa</p>
-  <h1 class="pagina__titulo">Mis evaluaciones ocupacionales</h1>
+  <div class="encabezado">
+    <h1 class="pagina__titulo">Mis evaluaciones ocupacionales</h1>
+    <span class="contador-badge">{{ evaluaciones().length }} programadas</span>
+  </div>
 
   @for (ev of evaluaciones(); track ev.id) {
-    <article class="evaluacion">
-      <div class="evaluacion__icono">
-        <app-icono nombre="estetoscopio" [tamano]="24" />
-      </div>
-      <div class="evaluacion__contenido">
-        <div class="evaluacion__encabezado">
-          <div>
-            <span class="evaluacion__etiqueta">Evaluación ocupacional</span>
-            <h2>{{ ev.tipo }}</h2>
+    <article class="tarjeta evaluacion">
+      <div class="evaluacion__cabecera-principal">
+        <div class="evaluacion__icono">
+          <app-icono nombre="estetoscopio" [tamano]="24" />
+        </div>
+
+        <div class="evaluacion__titulos">
+          <div class="evaluacion__etiqueta-row">
+            <span class="evaluacion__etiqueta">EVALUACIÓN MÉDICA OCUPACIONAL</span>
+            <span class="evaluacion__estado">Programada</span>
           </div>
-          <span class="evaluacion__estado">Programada</span>
+          <h2>{{ ev.tipo }}</h2>
         </div>
-        <div class="evaluacion__datos">
-          <span><app-icono nombre="calendario" [tamano]="16" /> {{ ev.fecha | date: 'dd/MM/yyyy' }}</span>
-          <span><app-icono nombre="grafico" [tamano]="16" /> {{ ev.hora }}</span>
-          <span><app-icono nombre="ubicacion" [tamano]="16" /> {{ ev.sede }}</span>
-        </div>
-        <p class="evaluacion__indicaciones">{{ ev.indicaciones }}</p>
       </div>
+
+      <div class="evaluacion__datos">
+        <div class="dato-chip">
+          <span class="dato-chip__icono"><app-icono nombre="calendario" [tamano]="16" /></span>
+          <div>
+            <small>Fecha</small>
+            <strong>{{ ev.fecha | date: 'EEEE, d \'de\' MMMM' }}</strong>
+          </div>
+        </div>
+
+        <div class="dato-chip">
+          <span class="dato-chip__icono"><app-icono nombre="grafico" [tamano]="16" /></span>
+          <div>
+            <small>Horario</small>
+            <strong>{{ ev.hora }} hrs</strong>
+          </div>
+        </div>
+
+        <div class="dato-chip dato-chip--sede">
+          <span class="dato-chip__icono"><app-icono nombre="ubicacion" [tamano]="16" /></span>
+          <div>
+            <small>Sede y Consultorio</small>
+            <strong>{{ ev.sede }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="evaluacion__indicaciones">
+        <div class="indicaciones__cabecera">
+          <app-icono nombre="check" [tamano]="16" />
+          <strong>Indicaciones y preparación del postulante</strong>
+        </div>
+        <p>{{ ev.indicaciones }}</p>
+      </div>
+
+      <footer class="evaluacion__acciones">
+        <button
+          type="button"
+          class="btn-orden"
+          [disabled]="descargandoId() === ev.id"
+          (click)="descargarOrden(ev)"
+        >
+          <app-icono [nombre]="descargandoId() === ev.id ? 'check' : 'documento'" [tamano]="15" />
+          <span>{{ descargandoId() === ev.id ? 'Descargando orden médica...' : 'Descargar orden médica autorizada' }}</span>
+        </button>
+      </footer>
     </article>
   } @empty {
-    <app-estado-vacio icono="estetoscopio" titulo="No tienes evaluaciones programadas" />
+    <app-estado-vacio
+      icono="estetoscopio"
+      titulo="No tienes evaluaciones programadas"
+      descripcion="Las citas de salud ocupacional aparecerán aquí una vez coordinadas por el área de Recursos Humanos."
+    />
   }
 
-  <aside class="aviso">
-    <app-icono nombre="estetoscopio" [tamano]="18" />
-    <span>Este portal muestra únicamente programación e indicaciones administrativas autorizadas.</span>
+  <aside class="tarjeta aviso-seguridad">
+    <div class="aviso-seguridad__icono">
+      <app-icono nombre="estetoscopio" [tamano]="20" />
+    </div>
+    <div class="aviso-seguridad__texto">
+      <strong>Confidencialidad Médica y Protocolo Ocupacional</strong>
+      <p>
+        Este portal muestra únicamente fechas de programación e indicaciones autorizadas según la Ley General de Salud. Los resultados clínicos de aptitud médica se emiten bajo estricta reserva y conformidad por el Servicio de Salud Ocupacional.
+      </p>
+    </div>
   </aside>
 </div>

@@ -1,23 +1,46 @@
 <article class="vacante">
-  <header class="vacante__cabecera">
-    <span class="vacante__icono"><app-icono nombre="maletin" /></span>
-    <span class="vacante__modalidad">{{ vacante().modalidad }}</span>
-  </header>
+  <div class="vacante__media">
+    <img
+      [src]="vacante().imagen || 'images/postulante/vacante-enfermeria.jpg'"
+      [alt]="vacante().titulo"
+      class="vacante__imagen"
+    />
+    <div class="vacante__media-overlay">
+      <span class="vacante__tag-area">Oportunidad en {{ vacante().area }}</span>
+    </div>
+  </div>
 
-  <h3 class="vacante__titulo">{{ vacante().titulo }}</h3>
-  <p class="vacante__area">{{ vacante().area }}</p>
+  <div class="vacante__cuerpo">
+    <header class="vacante__cabecera">
+      <span class="vacante__icono">
+        <app-icono nombre="maletin" [tamano]="19" />
+      </span>
+      <span class="vacante__modalidad">{{ vacante().modalidad }}</span>
+    </header>
 
-  <p class="vacante__meta">
-    <span><app-icono nombre="ubicacion" [tamano]="14" /> {{ vacante().sede }}</span>
-    <span><app-icono nombre="calendario" [tamano]="14" /> {{ vacante().fechaPublicacion | date: 'dd/MM/yyyy' }}</span>
-  </p>
+    <h3 class="vacante__titulo">{{ vacante().titulo }}</h3>
+    <p class="vacante__area">{{ vacante().area }}</p>
 
-  <p class="vacante__descripcion">{{ vacante().descripcion }}</p>
+    <p class="vacante__meta">
+      <span><app-icono nombre="ubicacion" [tamano]="14" /> {{ vacante().sede }}</span>
+      <span><app-icono nombre="calendario" [tamano]="14" /> {{ vacante().fechaPublicacion | date: 'dd/MM/yyyy' }}</span>
+    </p>
 
-  <footer class="vacante__acciones">
-    <button type="button" class="boton" (click)="verDetalle.emit(vacante())">Ver detalle</button>
-    <button type="button" class="boton boton--primario" [disabled]="yaPostulado()" (click)="postular.emit(vacante())">
-      {{ yaPostulado() ? 'Ya postulaste' : 'Postular' }}
-    </button>
-  </footer>
+    <p class="vacante__descripcion">{{ vacante().descripcion }}</p>
+
+    <footer class="vacante__acciones">
+      <button type="button" class="boton-detalle" (click)="verDetalle.emit(vacante())">
+        Ver detalle
+      </button>
+      <button
+        type="button"
+        class="boton-postular"
+        [class.boton-postular--postulado]="yaPostulado()"
+        [disabled]="yaPostulado()"
+        (click)="postular.emit(vacante())"
+      >
+        {{ yaPostulado() ? 'Ya postulaste' : 'Postular' }}
+      </button>
+    </footer>
+  </div>
 </article>

@@ -13,10 +13,12 @@ import {
   RouterLink,
   RouterLinkActive,
 } from '@angular/router';
+import { DatePipe } from '@angular/common';
 
 import { Session, ROLE_LABELS } from '../../core/services/sesion';
 import { ROLE_HOME, UserRole } from '../../core/services/modelos-sesion';
 import { PreferencesService } from '../../features/recursos-humanos/services/servicio-preferencias';
+import { ServicioNotificaciones } from '../../features/postulante/services/servicio-notificaciones';
 import { Icon } from '../../shared/components/icono/icono';
 import { iniciales, primerNombre } from '../../core/utils/formato';
 import { Asistente } from '../../shared/components/asistente/asistente';
@@ -31,6 +33,7 @@ import { ROLE_NAV } from './navegacion';
     RouterLinkActive,
     Icon,
     Asistente,
+    DatePipe,
   ],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss',
@@ -38,6 +41,7 @@ import { ROLE_NAV } from './navegacion';
 export class LayoutPrincipal implements OnInit {
   readonly session = inject(Session);
   readonly preferences = inject(PreferencesService);
+  readonly notificacionesService = inject(ServicioNotificaciones);
 
   private readonly router = inject(Router);
 
@@ -153,6 +157,12 @@ export class LayoutPrincipal implements OnInit {
   toggleNotifications(): void {
     this.profileOpen = false;
     this.notificationsOpen = !this.notificationsOpen;
+  }
+
+  onNotificationClick(notif: { id: number }): void {
+    this.notificacionesService.marcarLeida(notif.id);
+    this.closePanels();
+    void this.router.navigateByUrl('/postulante/notificaciones');
   }
 
   closePanels(): void {

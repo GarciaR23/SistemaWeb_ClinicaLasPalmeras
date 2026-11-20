@@ -1,11 +1,16 @@
 <div class="pagina">
   <p class="pagina__eyebrow">Tu agenda</p>
-  <h1 class="pagina__titulo">Mis entrevistas</h1>
+  <div class="encabezado">
+    <h1 class="pagina__titulo">Mis entrevistas</h1>
+    <span class="contador-badge">{{ entrevistas().length }} programadas</span>
+  </div>
 
   @for (e of entrevistas(); track e.id) {
-    <article class="entrevista">
-      <div class="entrevista__icono">
-        <app-icono nombre="calendario" [tamano]="24" />
+    <article class="tarjeta entrevista">
+      <!-- Bloque fecha calendario -->
+      <div class="entrevista__calendario-badge">
+        <span class="cal-mes">{{ obtenerMes(e.fecha) }}</span>
+        <span class="cal-dia">{{ obtenerDia(e.fecha) }}</span>
       </div>
 
       <div class="entrevista__contenido">
@@ -14,17 +19,69 @@
             <span class="entrevista__etiqueta">Entrevista programada</span>
             <h2>{{ e.puesto }}</h2>
           </div>
-          <span class="entrevista__estado">{{ e.modalidad }}</span>
+          <span
+            class="entrevista__modalidad-badge"
+            [class.virtual]="e.modalidad.toLowerCase().includes('virtual')"
+          >
+            {{ e.modalidad }}
+          </span>
         </div>
 
         <div class="entrevista__datos">
-          <span><app-icono nombre="calendario" [tamano]="16" /> {{ e.fecha | date: 'dd/MM/yyyy' }}</span>
-          <span><app-icono nombre="grafico" [tamano]="16" /> {{ e.hora }}</span>
-          <span><app-icono nombre="ubicacion" [tamano]="16" /> {{ e.lugar }}</span>
+          <div class="dato-chip">
+            <span class="dato-chip__icono"><app-icono nombre="calendario" [tamano]="16" /></span>
+            <div>
+              <small>Fecha</small>
+              <strong>{{ e.fecha | date: 'EEEE, d \'de\' MMMM' }}</strong>
+            </div>
+          </div>
+
+          <div class="dato-chip">
+            <span class="dato-chip__icono"><app-icono nombre="grafico" [tamano]="16" /></span>
+            <div>
+              <small>Hora de citación</small>
+              <strong>{{ e.hora }} hrs</strong>
+            </div>
+          </div>
+
+          <div class="dato-chip dato-chip--lugar">
+            <span class="dato-chip__icono"><app-icono nombre="ubicacion" [tamano]="16" /></span>
+            <div>
+              <small>Ubicación / Medio</small>
+              <strong>{{ e.lugar }}</strong>
+            </div>
+          </div>
         </div>
+
+        <footer class="entrevista__acciones">
+          <button type="button" class="btn-accion" (click)="agendarGoogle(e)">
+            <app-icono nombre="calendario" [tamano]="15" />
+            <span>Añadir a Google Calendar</span>
+          </button>
+          <button type="button" class="btn-accion btn-accion--secundario" (click)="copiarLugar(e)">
+            <app-icono [nombre]="copiadoId() === e.id ? 'check' : 'documento'" [tamano]="15" />
+            <span>{{ copiadoId() === e.id ? '¡Copiado al portapapeles!' : 'Copiar información' }}</span>
+          </button>
+        </footer>
       </div>
     </article>
   } @empty {
-    <app-estado-vacio icono="calendario" titulo="No tienes entrevistas próximas" />
+    <app-estado-vacio
+      icono="calendario"
+      titulo="No tienes entrevistas próximas"
+      descripcion="Cuando tu postulación pase a la etapa de entrevista, te asignaremos un horario y lo verás aquí."
+    />
   }
+
+  <section class="tarjeta aviso-consejos">
+    <div class="aviso-consejos__icono">
+      <app-icono nombre="check" [tamano]="20" />
+    </div>
+    <div class="aviso-consejos__texto">
+      <strong>Recomendaciones para tus entrevistas</strong>
+      <p>
+        Para entrevistas presenciales, te sugerimos llegar con 10 minutos de anticipación portando tu DNI físico. Si es virtual, asegúrate de contar con buena conexión a internet y un ambiente iluminado.
+      </p>
+    </div>
+  </section>
 </div>

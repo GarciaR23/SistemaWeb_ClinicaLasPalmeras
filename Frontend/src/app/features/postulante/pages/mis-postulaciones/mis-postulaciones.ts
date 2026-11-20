@@ -3,12 +3,13 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { EstadoVacio } from '../../components/estado-vacio/estado-vacio';
 import { LineaProgreso } from '../../components/linea-progreso/linea-progreso';
+import { Icono } from '../../components/icono/icono';
 import { ETAPAS_POSTULACION } from '../../models/postulacion';
 import { ServicioPostulaciones } from '../../services/servicio-postulaciones';
 
 @Component({
   selector: 'app-mis-postulaciones',
-  imports: [DatePipe, RouterLink, EstadoVacio, LineaProgreso],
+  imports: [DatePipe, RouterLink, EstadoVacio, LineaProgreso, Icono],
   templateUrl: './mis-postulaciones.html',
   styleUrl: './mis-postulaciones.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
