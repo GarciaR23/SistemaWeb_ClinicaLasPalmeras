@@ -29,6 +29,9 @@ export class InicioAdministrador implements OnInit {
   /** Primer nombre de la cuenta en sesión para el saludo del banner. */
   readonly nombre = primerNombre(this.session.user()?.name ?? '');
 
+  /** Un color de icono por tarjeta y por acceso (mismas familias que Postulante). */
+  readonly tonos = ['azul', 'celeste', 'verde', 'violeta'] as const;
+
   /** Usa la foto si existe; si no, la ilustración incluida. */
   imagen = FOTO_BANNER;
 

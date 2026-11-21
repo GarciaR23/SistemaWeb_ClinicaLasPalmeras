@@ -35,68 +35,99 @@
   }
 
   @if (loading) {
-    <p class="card empty" role="status">Cargando resumen…</p>
+    <p class="tarjeta empty" role="status">Cargando resumen…</p>
   } @else if (resumen) {
-    <section class="indicators-grid" aria-label="Indicadores de la plataforma">
+    <section class="resumen" aria-label="Indicadores de la plataforma">
       @for (indicador of resumen.indicadores; track indicador.titulo) {
-        <article class="card indicator-card">
-          <span class="indicator-icon" aria-hidden="true">
-            <app-icon [name]="indicador.icono" [size]="21" />
+        <article
+          class="tarjeta resumen__item"
+          [attr.data-tono]="tonos[$index % tonos.length]"
+          [style.--i]="$index"
+        >
+          <span class="resumen__icono" aria-hidden="true">
+            <app-icon [name]="indicador.icono" [size]="22" />
           </span>
 
-          <div class="indicator-content">
-            <span class="indicator-title">{{ indicador.titulo }}</span>
-            <strong class="indicator-value">{{ indicador.valor }}</strong>
-            <small class="indicator-note">Actualizado ahora</small>
+          <div class="resumen__datos">
+            <p class="resumen__etiqueta">{{ indicador.titulo }}</p>
+            <p class="resumen__valor">{{ indicador.valor }}</p>
+            <p class="resumen__nota">
+              <span class="resumen__punto" aria-hidden="true"></span>
+              Actualizado ahora
+            </p>
           </div>
         </article>
       }
     </section>
 
-    <div class="dashboard-panels">
-      <section class="card" aria-labelledby="titulo-accesos">
-        <header class="card-heading">
-          <h2 id="titulo-accesos">Administración rápida</h2>
-          <p>Accesos de gestión y control</p>
+    <div class="paneles">
+      <section
+        class="tarjeta panel"
+        aria-labelledby="titulo-accesos"
+        [style.--i]="4"
+      >
+        <header class="panel__cabecera">
+          <div>
+            <h2 id="titulo-accesos" class="panel__titulo">Administración rápida</h2>
+            <p class="panel__subtitulo">Accesos de gestión y control</p>
+          </div>
         </header>
 
-        <nav class="quick-list" aria-label="Accesos rápidos">
-          @for (acceso of accesos; track acceso.ruta) {
-            <a class="quick-link" [routerLink]="acceso.ruta">
-              <app-icon [name]="acceso.icono" [size]="22" />
+        <nav aria-label="Accesos rápidos">
+          <ul class="lista">
+            @for (acceso of accesos; track acceso.ruta) {
+              <li>
+                <a
+                  class="lista__item"
+                  [routerLink]="acceso.ruta"
+                  [attr.data-tono]="tonos[$index % tonos.length]"
+                >
+                  <span class="lista__icono" aria-hidden="true">
+                    <app-icon [name]="acceso.icono" [size]="18" />
+                  </span>
 
-              <span class="quick-copy">
-                <strong>{{ acceso.titulo }}</strong>
-                <small>{{ acceso.descripcion }}</small>
-              </span>
+                  <span class="lista__texto">
+                    <strong>{{ acceso.titulo }}</strong>
+                    <small>{{ acceso.descripcion }}</small>
+                  </span>
 
-              <app-icon name="arrow" [size]="18" />
-            </a>
-          }
+                  <span class="lista__flecha" aria-hidden="true">
+                    <app-icon name="arrow" [size]="16" />
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
         </nav>
       </section>
 
-      <section class="card" aria-labelledby="titulo-estado">
-        <header class="card-heading">
-          <h2 id="titulo-estado">Estado del sistema</h2>
-          <p>{{ origenServicios }}</p>
+      <section
+        class="tarjeta panel"
+        aria-labelledby="titulo-estado"
+        [style.--i]="5"
+      >
+        <header class="panel__cabecera">
+          <div>
+            <h2 id="titulo-estado" class="panel__titulo">Estado del sistema</h2>
+            <p class="panel__subtitulo">{{ origenServicios }}</p>
+          </div>
         </header>
 
-        <ul class="service-list">
+        <ul class="lista">
           @for (servicio of resumen.servicios; track servicio.nombre) {
-            <li>
-              <span class="service-name">
+            <li class="lista__servicio">
+              <span class="lista__nombre">
                 <span
-                  class="dot"
-                  [class.dot--fail]="servicio.estado !== 'Operativo'"
+                  class="punto"
+                  [class.punto--fallo]="servicio.estado !== 'Operativo'"
                   aria-hidden="true"
                 ></span>
                 {{ servicio.nombre }}
               </span>
 
               <strong
-                class="service-status"
-                [class.service-status--fail]="servicio.estado !== 'Operativo'"
+                class="etiqueta"
+                [attr.data-tono]="servicio.estado === 'Operativo' ? 'verde' : 'rojo'"
               >
                 {{ servicio.estado }}
               </strong>
