@@ -1,0 +1,215 @@
+@use 'sass:list';
+@use 'sass:map';
+
+// Estilos base del módulo Administrador.
+//
+// Usa los MISMOS valores que features/postulante/pages/_estilos.scss (colores,
+// tarjetas, hover, botones, transiciones y animación de entrada) para que todo
+// el sistema se vea y se sienta igual en cada perfil. Si Postulante cambia un
+// valor, hay que cambiarlo también aquí.
+
+// ---------- Colores ----------
+$azul-oscuro: #0c2340;
+$azul-marca: #15467e;
+$azul-claro: #eaf3fb;
+$borde: #e2e8f0;
+$borde-suave: #edf2f7;
+$texto-suave: #64748b;
+$blanco: #ffffff;
+
+// Etiquetas de color: familias que ya usa Postulante (azul, celeste, verde,
+// violeta, rojo y gris). Cada tono es (texto, fondo, borde).
+$tonos: (
+  'azul': (#15467e, #eaf3fb, #d4e4f2),
+  'celeste': (#0369a1, #e0f2fe, #bae6fd),
+  'verde': (#065f46, #d1fae5, #a7f3d0),
+  'violeta': (#6d28d9, #f3e8ff, #e9d5ff),
+  'rojo': (#b91c1c, #fee2e2, #fecaca),
+  'gris': (#475569, #f1f5f9, #e2e8f0),
+);
+
+// ---------- Tiempos ----------
+$transicion: 180ms ease; // botones, enlaces y tarjetas
+$transicion-tarjeta: 220ms ease; // tarjetas que se elevan
+$entrada-pagina: 350ms; // aparición de la pantalla
+$curva: cubic-bezier(0.16, 1, 0.3, 1);
+
+// ---------- Animaciones ----------
+@keyframes admin-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes admin-aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ---------- Mixins ----------
+
+/// Aparición suave de la pantalla (igual que `.pagina` de Postulante).
+@mixin pagina-animada {
+  animation: admin-entrada $entrada-pagina $curva both;
+}
+
+/// Mensajes de éxito o error (igual que `fadeIn` de Postulante).
+@mixin aparecer {
+  animation: admin-aparecer 300ms ease;
+}
+
+/// Entrada escalonada de tarjetas y filas. Cada elemento define --i (0, 1, 2…).
+/// Usa `backwards` para no bloquear el hover una vez terminada.
+@mixin entrada-progresiva($paso: 60ms) {
+  animation: admin-entrada $entrada-pagina $curva backwards;
+  animation-delay: calc(min(var(--i, 0), 10) * #{$paso});
+}
+
+/// Tarjeta del sistema.
+@mixin tarjeta {
+  border: 1px solid #e8eef5;
+  border-radius: 16px;
+  background: var(--white, #{$blanco});
+  box-shadow: 0 2px 10px rgb(12 35 64 / 4%);
+}
+
+/// Transición común de botones, enlaces y tarjetas.
+@mixin transiciones($duracion: 180ms) {
+  transition:
+    transform $duracion ease,
+    box-shadow $duracion ease,
+    border-color $duracion ease,
+    background-color $duracion ease,
+    color $duracion ease;
+}
+
+/// Elevación al pasar el cursor (2 px en tarjetas, 3 px en indicadores).
+@mixin elevar($alto: 2px, $duracion: 180ms) {
+  @include transiciones($duracion);
+
+  &:hover {
+    transform: translateY(-$alto);
+    box-shadow: 0 10px 26px rgb(12 35 64 / 8%);
+    border-color: #cbdbe8;
+  }
+}
+
+/// Efecto al presionar un botón o enlace.
+@mixin presionar {
+  &:not(:disabled):active {
+    transform: scale(0.98);
+  }
+}
+
+/// Anillo de foco del sistema.
+@mixin foco {
+  &:focus-visible {
+    outline: 2px solid $azul-marca;
+    outline-offset: 2px;
+  }
+}
+
+/// Fila de lista o tabla con resaltado al pasar el cursor.
+@mixin fila-hover {
+  &:hover {
+    background: rgb(234 243 251 / 60%);
+  }
+}
+
+/// Define los colores de un tono (--tono-fg, --tono-bg, --tono-borde).
+@mixin tono($nombre) {
+  $t: map.get($tonos, $nombre);
+  --tono-fg: #{list.nth($t, 1)};
+  --tono-bg: #{list.nth($t, 2)};
+  --tono-borde: #{list.nth($t, 3)};
+}
+
+/// Genera [data-tono='azul'], [data-tono='verde'], etc. Se incluye una vez por componente.
+@mixin tonos {
+  @each $nombre, $valores in $tonos {
+    [data-tono='#{$nombre}'] {
+      @include tono($nombre);
+    }
+  }
+}
+
+/// Etiqueta redondeada de estado (mismo formato que las etiquetas de Postulante).
+@mixin etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--tono-borde, #{$borde});
+  border-radius: 999px;
+  background: var(--tono-bg, #f1f5f9);
+  color: var(--tono-fg, #475569);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/// Botón del sistema (misma forma que `.boton` de Postulante).
+@mixin boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid $borde;
+  border-radius: 8px;
+  background: var(--white, #{$blanco});
+  color: $azul-oscuro;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  @include transiciones;
+  @include presionar;
+  @include foco;
+
+  &:hover:not(:disabled) {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    box-shadow: 0 3px 10px rgb(12 35 64 / 6%);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+}
+
+@mixin boton-primario {
+  border-color: $azul-oscuro;
+  background: $azul-oscuro;
+  color: $blanco;
+
+  &:hover:not(:disabled) {
+    border-color: #153e6b;
+    background: #153e6b;
+    box-shadow: 0 4px 14px rgb(12 35 64 / 20%);
+  }
+}
+
+/// Respeta a quien pidió reducir el movimiento en su sistema.
+@mixin sin-movimiento {
+  @media (prefers-reduced-motion: reduce) {
+    animation: none !important;
+    transition: none !important;
+  }
+}
