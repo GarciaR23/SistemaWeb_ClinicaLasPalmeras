@@ -17,7 +17,7 @@
     </div>
   }
 
-  <section class="card notice-card" aria-label="Aviso de privacidad">
+  <section class="tarjeta notice-card" aria-label="Aviso de privacidad">
     <app-icon name="medical" [size]="24" />
     <p>
       Solo se muestran los datos necesarios para gestionar la evaluación.
@@ -25,71 +25,218 @@
     </p>
   </section>
 
+  @if (servicio.esDemostracion()) {
+    <p class="aviso-demo" role="note">
+      <app-icon name="help" [size]="18" />
+      <span>
+        <strong>Datos de demostración.</strong>
+        Estas solicitudes son de ejemplo para validar el diseño; se
+        reemplazarán cuando RR. HH. envíe solicitudes reales.
+      </span>
+    </p>
+  }
+
   @if (loading) {
-    <p class="card empty" role="status">Cargando solicitudes…</p>
+    <p class="tarjeta empty" role="status">Cargando solicitudes…</p>
   } @else {
-    <section class="card table-card">
-      <div class="table-scroll">
-        <table>
-          <caption class="sr-only">Solicitudes de evaluación ocupacional</caption>
+    <section class="contadores" aria-label="Solicitudes por estado">
+      @for (contador of contadores; track contador.clave) {
+        <button
+          type="button"
+          class="tarjeta contador"
+          [attr.data-tono]="contador.tono"
+          [class.contador--activo]="estadoFiltro === contador.clave"
+          [attr.aria-pressed]="estadoFiltro === contador.clave"
+          [style.--i]="$index"
+          (click)="filtrarPor(contador.clave)"
+        >
+          <span class="contador__valor">{{ contador.total }}</span>
+          <span class="contador__etiqueta">{{ contador.etiqueta }}</span>
+        </button>
+      }
+    </section>
 
-          <thead>
-            <tr>
-              <th scope="col">Candidato</th>
-              <th scope="col">Puesto</th>
-              <th scope="col">Solicitud</th>
-              <th scope="col">Estado</th>
-              <th scope="col">Acción</th>
-            </tr>
-          </thead>
+    <section class="tarjeta filtros" aria-label="Buscar solicitudes">
+      <label class="field" for="buscar-solicitud">
+        Buscar
+        <span class="search-control">
+          <app-icon name="search" [size]="19" />
+          <input
+            id="buscar-solicitud"
+            type="search"
+            [(ngModel)]="busqueda"
+            placeholder="Nombre, puesto o DNI…"
+            autocomplete="off"
+          />
+        </span>
+      </label>
 
-          <tbody>
-            @for (solicitud of servicio.solicitudes(); track solicitud.id) {
-              <tr>
-                <td data-label="Candidato">
-                  <div class="person-cell">
-                    <span class="person-avatar" aria-hidden="true">
-                      {{ iniciales(solicitud.nombre) }}
-                    </span>
+      <p class="result-count" role="status">
+        <strong>{{ filtradas.length }}</strong>
+        {{ filtradas.length === 1 ? 'solicitud' : 'solicitudes' }}
+      </p>
+    </section>
 
-                    <div>
-                      <strong>{{ solicitud.nombre }}</strong>
-                      <small>DNI {{ solicitud.dni }}</small>
-                    </div>
-                  </div>
-                </td>
+    <section class="solicitudes" aria-label="Solicitudes de evaluación ocupacional">
+      @for (solicitud of filtradas; track solicitud.id) {
+        <article
+          class="tarjeta solicitud"
+          [attr.data-tono]="tono(solicitud.estado)"
+          [style.--i]="$index"
+        >
+          <span class="avatar" aria-hidden="true">
+            {{ iniciales(solicitud.nombre) }}
+          </span>
 
-                <td data-label="Puesto">{{ solicitud.puesto }}</td>
-                <td data-label="Solicitud">{{ solicitud.fecha }}</td>
+          <div class="solicitud__persona">
+            <strong>{{ solicitud.nombre }}</strong>
+            <small>DNI {{ solicitud.dni }} · {{ solicitud.puesto }}</small>
 
-                <td data-label="Estado">
-                  <app-badge [status]="solicitud.estado" />
-                </td>
-
-                <td data-label="Acción">
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    [attr.aria-label]="'Programar evaluación de ' + solicitud.nombre"
-                    (click)="abrir(solicitud)"
-                  >
-                    Programar
-                  </button>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5" class="empty-row">
-                  No hay solicitudes pendientes de programación.
-                </td>
-              </tr>
+            @if (solicitud.demostracion) {
+              <span class="etiqueta etiqueta--demo" data-tono="violeta">
+                Demostración
+              </span>
             }
-          </tbody>
-        </table>
-      </div>
+          </div>
+
+          <dl class="solicitud__datos">
+            <div>
+              <dt>Evaluación</dt>
+              <dd>{{ solicitud.tipo }}</dd>
+            </div>
+
+            <div>
+              <dt>Solicitada</dt>
+              <dd>{{ solicitud.fecha }}</dd>
+            </div>
+          </dl>
+
+          <span class="etiqueta" [attr.data-tono]="tono(solicitud.estado)">
+            {{ solicitud.estado }}
+          </span>
+
+          <div class="solicitud__acciones">
+            @if (solicitud.estado === 'Pendiente') {
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                [disabled]="solicitud.demostracion"
+                [attr.title]="
+                  solicitud.demostracion
+                    ? 'Es un ejemplo de demostración: no se puede programar'
+                    : null
+                "
+                [attr.aria-label]="'Programar evaluación de ' + solicitud.nombre"
+                (click)="abrir(solicitud)"
+              >
+                Programar
+              </button>
+            }
+
+            <button
+              type="button"
+              class="btn btn-sm"
+              [attr.aria-label]="'Ver detalle de ' + solicitud.nombre"
+              (click)="verDetalle(solicitud)"
+            >
+              Ver detalle
+            </button>
+          </div>
+        </article>
+      } @empty {
+        <div class="tarjeta vacio">
+          <img
+            src="images/salud-ocupacional/sin-solicitudes.svg"
+            alt=""
+            width="160"
+            height="113"
+          />
+
+          <p class="vacio__titulo">
+            {{ hayFiltros ? 'No hay solicitudes con esos filtros' : 'Aún no hay solicitudes' }}
+          </p>
+
+          <p class="vacio__descripcion">
+            {{
+              hayFiltros
+                ? 'Prueba con otro estado o con otra búsqueda.'
+                : 'Cuando RR. HH. envíe una solicitud de evaluación aparecerá aquí.'
+            }}
+          </p>
+
+          @if (hayFiltros) {
+            <button type="button" class="btn btn-sm" (click)="limpiarFiltros()">
+              Limpiar filtros
+            </button>
+          }
+        </div>
+      }
     </section>
   }
 </div>
+
+@if (detalle) {
+  <app-modal title="Detalle de la solicitud" (close)="cerrarDetalle()">
+    <div class="detalle">
+      <div class="candidate-summary">
+        <span class="avatar" aria-hidden="true">{{ iniciales(detalle.nombre) }}</span>
+
+        <div>
+          <strong>{{ detalle.nombre }}</strong>
+          <small>{{ detalle.puesto }}</small>
+        </div>
+
+        <span class="etiqueta" [attr.data-tono]="tono(detalle.estado)">
+          {{ detalle.estado }}
+        </span>
+      </div>
+
+      <dl class="detalle__datos">
+        <div>
+          <dt>DNI</dt>
+          <dd>{{ detalle.dni }}</dd>
+        </div>
+
+        <div>
+          <dt>Evaluación solicitada</dt>
+          <dd>{{ detalle.tipo }}</dd>
+        </div>
+
+        <div>
+          <dt>Fecha de solicitud</dt>
+          <dd>{{ detalle.fecha }}</dd>
+        </div>
+
+        <div>
+          <dt>Programación</dt>
+          <dd>{{ detalle.programacion ?? 'Aún sin programar' }}</dd>
+        </div>
+      </dl>
+
+      @if (detalle.demostracion) {
+        <p class="modal-note">
+          Este registro es un ejemplo de demostración y no corresponde a una
+          persona real.
+        </p>
+      } @else {
+        <p class="modal-note">
+          Solo se muestran datos administrativos. La información clínica
+          permanece restringida.
+        </p>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn" (click)="cerrarDetalle()">Cerrar</button>
+
+        @if (detalle.estado === 'Pendiente' && !detalle.demostracion) {
+          <button type="button" class="btn btn-primary" (click)="programarDesdeDetalle()">
+            Programar evaluación
+          </button>
+        }
+      </div>
+    </div>
+  </app-modal>
+}
 
 @if (seleccion) {
   <app-modal title="Programar evaluación ocupacional" (close)="cerrar()">
@@ -99,7 +246,7 @@
       }
 
       <div class="candidate-summary">
-        <span class="person-avatar" aria-hidden="true">
+        <span class="avatar" aria-hidden="true">
           {{ iniciales(seleccion.nombre) }}
         </span>
 
@@ -163,7 +310,7 @@
       </div>
 
       <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" [disabled]="saving" (click)="cerrar()">
+        <button type="button" class="btn" [disabled]="saving" (click)="cerrar()">
           Cancelar
         </button>
 

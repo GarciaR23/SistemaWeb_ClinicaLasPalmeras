@@ -6,19 +6,22 @@ import {
   fechaCorta,
   iniciales,
 } from '../../../../core/utils/formato';
-import { Badge } from '../../../../shared/components/badge/badge';
 import { Icon } from '../../../../shared/components/icono/icono';
 import { Modal } from '../../../../shared/components/modal/modal';
 import {
-  SolicitudExamen,
+  ESTADOS_SOLICITUD,
+  EstadoSolicitud,
+  SolicitudVista,
   TIPOS_EXAMEN,
 } from '../../models/solicitud-examen';
 import { ServicioSaludOcupacional } from '../../services/servicio-salud';
 
+type FiltroEstado = EstadoSolicitud | 'todas';
+
 @Component({
   selector: 'app-solicitudes-recibidas',
   standalone: true,
-  imports: [FormsModule, Badge, Icon, Modal],
+  imports: [FormsModule, Icon, Modal],
   templateUrl: './solicitudes-recibidas.html',
   styleUrl: './solicitudes-recibidas.scss',
 })
@@ -33,12 +36,53 @@ export class SolicitudesRecibidas implements OnInit {
   error = '';
   notice = '';
 
-  seleccion: SolicitudExamen | null = null;
+  busqueda = '';
+  estadoFiltro: FiltroEstado = 'todas';
+
+  /** Solicitud que se está programando. */
+  seleccion: SolicitudVista | null = null;
+  /** Solicitud cuyo detalle se está viendo. */
+  detalle: SolicitudVista | null = null;
+
   formError = '';
   form = { sede: '', fecha: '', hora: '', tipo: TIPOS_EXAMEN[0] as string };
 
   get horarios(): string[] {
     return this.servicio.horariosDisponibles(this.form.sede, this.form.fecha);
+  }
+
+  /** Contadores por estado; también sirven como filtro. */
+  get contadores(): { clave: FiltroEstado; etiqueta: string; total: number; tono: string }[] {
+    const todas = this.servicio.solicitudesVista();
+    const por = (estado: EstadoSolicitud) =>
+      todas.filter((solicitud) => solicitud.estado === estado).length;
+
+    return [
+      { clave: 'todas', etiqueta: 'Todas', total: todas.length, tono: 'azul' },
+      ...ESTADOS_SOLICITUD.map((estado) => ({
+        clave: estado as FiltroEstado,
+        etiqueta: estado === 'Pendiente' ? 'Pendientes' : estado === 'Programada' ? 'Programadas' : 'Realizadas',
+        total: por(estado),
+        tono: this.tono(estado),
+      })),
+    ];
+  }
+
+  get filtradas(): SolicitudVista[] {
+    const texto = this.normalizar(this.busqueda);
+
+    return this.servicio.solicitudesVista().filter(
+      (solicitud) =>
+        (this.estadoFiltro === 'todas' || solicitud.estado === this.estadoFiltro) &&
+        (!texto ||
+          this.normalizar(
+            `${solicitud.nombre} ${solicitud.puesto} ${solicitud.dni} ${solicitud.tipo}`,
+          ).includes(texto)),
+    );
+  }
+
+  get hayFiltros(): boolean {
+    return this.estadoFiltro !== 'todas' || !!this.busqueda.trim();
   }
 
   async ngOnInit(): Promise<void> {
@@ -55,7 +99,41 @@ export class SolicitudesRecibidas implements OnInit {
     return iniciales(nombre);
   }
 
-  abrir(solicitud: SolicitudExamen): void {
+  /** Color de la etiqueta de cada estado (mismas familias que Postulante). */
+  tono(estado: EstadoSolicitud): string {
+    if (estado === 'Pendiente') return 'ambar';
+
+    return estado === 'Programada' ? 'celeste' : 'verde';
+  }
+
+  filtrarPor(clave: FiltroEstado): void {
+    this.estadoFiltro = clave;
+  }
+
+  limpiarFiltros(): void {
+    this.busqueda = '';
+    this.estadoFiltro = 'todas';
+  }
+
+  verDetalle(solicitud: SolicitudVista): void {
+    this.detalle = solicitud;
+  }
+
+  cerrarDetalle(): void {
+    this.detalle = null;
+  }
+
+  programarDesdeDetalle(): void {
+    const solicitud = this.detalle;
+
+    this.detalle = null;
+
+    if (solicitud) this.abrir(solicitud);
+  }
+
+  abrir(solicitud: SolicitudVista): void {
+    if (solicitud.demostracion) return;
+
     const sede = this.servicio.sedes[0]?.name ?? '';
 
     this.seleccion = solicitud;
@@ -131,6 +209,14 @@ export class SolicitudesRecibidas implements OnInit {
     }
 
     return this.hoy;
+  }
+
+  private normalizar(valor: string): string {
+    return valor
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
   }
 
   private mensaje(error: unknown, alternativo: string): string {
