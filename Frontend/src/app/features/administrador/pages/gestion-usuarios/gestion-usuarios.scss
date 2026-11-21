@@ -27,15 +27,7 @@ button {
   cursor: pointer;
 }
 
-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-button:focus-visible {
-  outline: 2px solid estilos.$azul-marca;
-  outline-offset: 2px;
-}
+@include estilos.tonos;
 
 .sr-only {
   position: absolute;
@@ -49,7 +41,8 @@ button:focus-visible {
 .page-stack {
   display: flex;
   flex-direction: column;
-  gap: 24px;  @include estilos.pagina-animada;
+  gap: 24px;
+  @include estilos.pagina-animada;
   @include estilos.sin-movimiento;
 }
 
@@ -74,12 +67,10 @@ button:focus-visible {
   font-weight: 500;
 }
 
-.card {
+.tarjeta {
   min-width: 0;
-  padding: 22px;
-  border-radius: 12px;
-  background: var(--white, #fff);
-  box-shadow: var(--shadow, 0 6px 24px rgb(18 44 71 / 7%));
+  padding: 22px 24px;
+  @include estilos.tarjeta;
 }
 
 .filter-card {
@@ -101,15 +92,25 @@ button:focus-visible {
     width: 100%;
     min-height: 46px;
     padding: 10px 13px;
-    border: 1px solid var(--line, #d8e2eb);
+    border: 1px solid estilos.$borde;
     border-radius: 8px;
     background: var(--white, #fff);
     color: var(--navy, #122c47);
+    transition:
+      border-color estilos.$transicion,
+      box-shadow estilos.$transicion;
+
+    &:hover {
+      border-color: #cbd5e1;
+    }
 
     &:focus {
-      outline: 2px solid #5c91b5;
-      outline-offset: 1px;
+      border-color: estilos.$azul-marca;
+      outline: 2px solid transparent;
+      box-shadow: 0 0 0 3px rgb(21 70 126 / 14%);
     }
+
+    @include estilos.sin-movimiento;
   }
 }
 
@@ -142,7 +143,7 @@ button:focus-visible {
   gap: 6px;
   min-height: 46px;
   border-radius: 8px;
-  background: var(--blue, #e5f3fb);
+  background: estilos.$azul-claro;
   color: var(--slate, #64748b);
   font-size: 13px;
 
@@ -152,37 +153,14 @@ button:focus-visible {
   }
 }
 
+// Botones: misma forma, hover y efecto al presionar que el resto del sistema
 .btn {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 10px 20px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 150ms ease;
+  @include estilos.boton;
+  @include estilos.sin-movimiento;
 }
 
 .btn-primary {
-  background: #122c47;
-  color: #fff;
-
-  &:hover:not(:disabled) {
-    background: #1b4267;
-  }
-}
-
-.btn-secondary {
-  border-color: var(--line, #d8e2eb);
-  background: var(--white, #fff);
-  color: var(--navy, #122c47);
-
-  &:hover:not(:disabled) {
-    background: var(--blue, #e5f3fb);
-  }
+  @include estilos.boton-primario;
 }
 
 .feedback {
@@ -193,6 +171,8 @@ button:focus-visible {
   border-radius: 8px;
   font-size: 13px;
   overflow-wrap: anywhere;
+  @include estilos.aparecer;
+  @include estilos.sin-movimiento;
 
   &.error {
     background: var(--red-bg, #fee4e2);
@@ -240,7 +220,30 @@ th {
 }
 
 tbody tr {
-  border-top: 1px solid var(--line, #d8e2eb);
+  border-top: 1px solid estilos.$borde-suave;
+}
+
+// Filas: entrada progresiva, resaltado al pasar el cursor y transición de estado
+.fila {
+  transition: background-color estilos.$transicion;
+  @include estilos.entrada-progresiva(45ms);
+  @include estilos.fila-hover;
+  @include estilos.sin-movimiento;
+
+  td:not(:last-child) {
+    transition: opacity 300ms ease;
+  }
+
+  // Cuenta desactivada: la fila se atenúa con una transición suave
+  &--inactiva td:not(:last-child) {
+    opacity: 0.6;
+  }
+
+  // Destello breve al activar o desactivar una cuenta
+  &--cambio {
+    background: rgb(21 70 126 / 8%);
+    transition-duration: 300ms;
+  }
 }
 
 .person-cell {
@@ -264,33 +267,36 @@ tbody tr {
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--blue, #e5f3fb);
-  color: var(--navy, #122c47);
+  background: var(--tono-bg);
+  color: var(--tono-fg);
   font-size: 12px;
   font-weight: 700;
+  transition: transform estilos.$transicion;
+
+  .fila:hover & {
+    transform: scale(1.06);
+  }
+
+  @include estilos.sin-movimiento;
 }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--green, #38a169);
-  font-size: 12px;
+.etiqueta {
+  @include estilos.etiqueta;
+  transition:
+    background-color 300ms ease,
+    color 300ms ease,
+    border-color 300ms ease;
+}
 
-  &::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-
-  &--inactive {
-    color: var(--slate, #64748b);
-  }
+.status::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .create-form {
@@ -348,5 +354,19 @@ tbody tr {
 
   .empty-row {
     display: block;
+  }
+}
+
+// Modo de alto contraste de la plataforma
+:host-context(.high-contrast) {
+  .etiqueta,
+  .person-avatar {
+    border: 2px solid #fff;
+    background: transparent;
+    color: #fff;
+  }
+
+  .fila--inactiva td:not(:last-child) {
+    opacity: 1;
   }
 }
