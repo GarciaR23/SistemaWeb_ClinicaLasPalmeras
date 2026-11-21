@@ -4,7 +4,7 @@
     <h1>Auditoría</h1>
   </header>
 
-  <section class="card notice-card" aria-label="Aviso de privacidad">
+  <section class="tarjeta notice-card" aria-label="Aviso de privacidad">
     <app-icon name="file" [size]="22" />
 
     <div>
@@ -18,40 +18,80 @@
   }
 
   @if (loading) {
-    <p class="card empty" role="status">Cargando registros…</p>
+    <p class="tarjeta empty" role="status">Cargando registros…</p>
   } @else {
-    <section class="card table-card">
-      <div class="table-scroll">
-        <table>
-          <caption class="sr-only">Registro de actividad del sistema</caption>
+    @if (registros.length > 0) {
+      <div class="filtros" role="group" aria-label="Filtrar por módulo">
+        <button
+          type="button"
+          class="chip"
+          [class.chip--activo]="moduloActivo === 'todos'"
+          [attr.aria-pressed]="moduloActivo === 'todos'"
+          (click)="filtrarPor('todos')"
+        >
+          Todos
+          <span class="chip-total">{{ registros.length }}</span>
+        </button>
 
-          <thead>
-            <tr>
-              <th scope="col">Responsable</th>
-              <th scope="col">Acción</th>
-              <th scope="col">Fecha</th>
-              <th scope="col">Módulo</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            @for (registro of registros; track registro.id) {
-              <tr>
-                <td data-label="Responsable">{{ registro.responsable }}</td>
-                <td data-label="Acción">{{ registro.accion }}</td>
-                <td data-label="Fecha">{{ fecha(registro) }}</td>
-                <td data-label="Módulo">{{ registro.modulo }}</td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="4" class="empty-row">
-                  Todavía no hay actividad registrada.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+        @for (modulo of modulos; track modulo.clave) {
+          <button
+            type="button"
+            class="chip"
+            [attr.data-tono]="modulo.tono"
+            [class.chip--activo]="moduloActivo === modulo.clave"
+            [attr.aria-pressed]="moduloActivo === modulo.clave"
+            (click)="filtrarPor(modulo.clave)"
+          >
+            <span class="chip-punto" aria-hidden="true"></span>
+            {{ modulo.nombre }}
+            <span class="chip-total">{{ modulo.total }}</span>
+          </button>
+        }
       </div>
+    }
+
+    <section class="tarjeta linea" aria-label="Registro de actividad del sistema">
+      @for (grupo of grupos; track grupo.dia) {
+        <h2 class="dia">{{ grupo.dia }}</h2>
+
+        <ol class="eventos">
+          @for (evento of grupo.eventos; track evento.registro.id) {
+            <li
+              class="evento"
+              [attr.data-tono]="evento.tono"
+              [style.--i]="$index"
+            >
+              <span class="evento-icono" aria-hidden="true">
+                <app-icon [name]="evento.icono" [size]="18" />
+              </span>
+
+              <div class="evento-cuerpo">
+                <p class="evento-accion">{{ evento.registro.accion }}</p>
+
+                <p class="evento-responsable">
+                  <span class="avatar-mini" aria-hidden="true">
+                    {{ evento.iniciales }}
+                  </span>
+                  <span class="sr-only">Responsable: </span>
+                  {{ evento.registro.responsable }}
+                </p>
+              </div>
+
+              <span class="modulo-chip">{{ evento.registro.modulo }}</span>
+
+              <span class="evento-hora">
+                <span class="sr-only">Hora: </span>
+                {{ evento.hora }}
+              </span>
+            </li>
+          }
+        </ol>
+      } @empty {
+        <div class="empty">
+          <app-icon name="file" [size]="30" />
+          <p>Todavía no hay actividad registrada.</p>
+        </div>
+      }
     </section>
   }
 </div>
