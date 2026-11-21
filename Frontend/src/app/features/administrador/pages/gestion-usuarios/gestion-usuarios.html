@@ -27,7 +27,7 @@
     </div>
   }
 
-  <section class="card filter-card" aria-label="Filtros de usuarios">
+  <section class="tarjeta filter-card" aria-label="Filtros de usuarios">
     <label class="field" for="buscar-usuario">
       Buscar
       <span class="search-control">
@@ -59,9 +59,9 @@
   </section>
 
   @if (loading) {
-    <p class="card empty" role="status">Cargando usuarios…</p>
+    <p class="tarjeta empty" role="status">Cargando usuarios…</p>
   } @else {
-    <section class="card table-card">
+    <section class="tarjeta table-card">
       <div class="table-scroll">
         <table>
           <caption class="sr-only">Listado de usuarios</caption>
@@ -78,10 +78,19 @@
 
           <tbody>
             @for (usuario of filtrados; track usuario.id) {
-              <tr>
+              <tr
+                class="fila"
+                [class.fila--inactiva]="!usuario.active"
+                [class.fila--cambio]="usuario.id === cambioId"
+                [style.--i]="$index"
+              >
                 <td data-label="Usuario">
                   <div class="person-cell">
-                    <span class="person-avatar" aria-hidden="true">
+                    <span
+                      class="person-avatar"
+                      [attr.data-tono]="tonoRol(usuario.role)"
+                      aria-hidden="true"
+                    >
                       {{ iniciales(usuario.name) }}
                     </span>
 
@@ -92,13 +101,17 @@
                   </div>
                 </td>
 
-                <td data-label="Rol">{{ etiquetaRol(usuario.role) }}</td>
+                <td data-label="Rol">
+                  <span class="etiqueta" [attr.data-tono]="tonoRol(usuario.role)">
+                    {{ etiquetaRol(usuario.role) }}
+                  </span>
+                </td>
                 <td data-label="Último acceso">{{ ultimoAcceso(usuario) }}</td>
 
                 <td data-label="Estado">
                   <span
-                    class="status"
-                    [class.status--inactive]="!usuario.active"
+                    class="etiqueta status"
+                    [attr.data-tono]="usuario.active ? 'verde' : 'gris'"
                   >
                     {{ usuario.active ? 'Activo' : 'Inactivo' }}
                   </span>
@@ -120,7 +133,13 @@
                     "
                     (click)="alternarEstado(usuario)"
                   >
-                    {{ usuario.active ? 'Desactivar' : 'Activar' }}
+                    {{
+                      busyId === usuario.id
+                        ? 'Guardando…'
+                        : usuario.active
+                          ? 'Desactivar'
+                          : 'Activar'
+                    }}
                   </button>
                 </td>
               </tr>

@@ -1,0 +1,479 @@
+@use 'sass:list';
+@use 'sass:map';
+
+// Estilos base del módulo Salud Ocupacional.
+//
+// Usa los MISMOS valores que features/postulante/pages/_estilos.scss (colores,
+// tarjetas, hover, botones, transiciones y animación de entrada) para que todo
+// el sistema se vea y se sienta igual en cada perfil. Si Postulante cambia un
+// valor, hay que cambiarlo también aquí.
+
+// ---------- Colores ----------
+$azul-oscuro: #0c2340;
+$azul-marca: #15467e;
+$azul-claro: #eaf3fb;
+$borde: #e2e8f0;
+$borde-suave: #edf2f7;
+$texto-suave: #64748b;
+$blanco: #ffffff;
+
+// Etiquetas de color: familias que ya usa Postulante (azul, celeste, verde,
+// violeta, rojo y gris) más ámbar para los estados «Pendiente». Cada tono es (texto, fondo, borde).
+$tonos: (
+  'azul': (#15467e, #eaf3fb, #d4e4f2),
+  'celeste': (#0369a1, #e0f2fe, #bae6fd),
+  'verde': (#065f46, #d1fae5, #a7f3d0),
+  'violeta': (#6d28d9, #f3e8ff, #e9d5ff),
+  'ambar': (#92400e, #fef3c7, #fde68a),
+  'rojo': (#b91c1c, #fee2e2, #fecaca),
+  'gris': (#475569, #f1f5f9, #e2e8f0),
+);
+
+// ---------- Tiempos ----------
+$transicion: 180ms ease; // botones, enlaces y tarjetas
+$transicion-tarjeta: 220ms ease; // tarjetas que se elevan
+$entrada-pagina: 350ms; // aparición de la pantalla
+$curva: cubic-bezier(0.16, 1, 0.3, 1);
+
+// ---------- Animaciones ----------
+@keyframes admin-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes admin-aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ---------- Mixins ----------
+
+/// Aparición suave de la pantalla (igual que `.pagina` de Postulante).
+@mixin pagina-animada {
+  animation: admin-entrada $entrada-pagina $curva both;
+}
+
+/// Mensajes de éxito o error (igual que `fadeIn` de Postulante).
+@mixin aparecer {
+  animation: admin-aparecer 300ms ease;
+}
+
+/// Entrada escalonada de tarjetas y filas. Cada elemento define --i (0, 1, 2…).
+/// Usa `backwards` para no bloquear el hover una vez terminada.
+@mixin entrada-progresiva($paso: 60ms) {
+  animation: admin-entrada $entrada-pagina $curva backwards;
+  animation-delay: calc(min(var(--i, 0), 10) * #{$paso});
+}
+
+/// Tarjeta del sistema.
+@mixin tarjeta {
+  border: 1px solid #e8eef5;
+  border-radius: 16px;
+  background: var(--white, #{$blanco});
+  box-shadow: 0 2px 10px rgb(12 35 64 / 4%);
+}
+
+/// Transición común de botones, enlaces y tarjetas.
+@mixin transiciones($duracion: 180ms) {
+  transition:
+    transform $duracion ease,
+    box-shadow $duracion ease,
+    border-color $duracion ease,
+    background-color $duracion ease,
+    color $duracion ease;
+}
+
+/// Elevación al pasar el cursor (2 px en tarjetas, 3 px en indicadores).
+@mixin elevar($alto: 2px, $duracion: 180ms) {
+  @include transiciones($duracion);
+
+  &:hover {
+    transform: translateY(-$alto);
+    box-shadow: 0 10px 26px rgb(12 35 64 / 8%);
+    border-color: #cbdbe8;
+  }
+}
+
+/// Efecto al presionar un botón o enlace.
+@mixin presionar {
+  &:not(:disabled):active {
+    transform: scale(0.98);
+  }
+}
+
+/// Anillo de foco del sistema.
+@mixin foco {
+  &:focus-visible {
+    outline: 2px solid $azul-marca;
+    outline-offset: 2px;
+  }
+}
+
+/// Fila de lista o tabla con resaltado al pasar el cursor.
+@mixin fila-hover {
+  &:hover {
+    background: rgb(234 243 251 / 60%);
+  }
+}
+
+/// Define los colores de un tono (--tono-fg, --tono-bg, --tono-borde).
+@mixin tono($nombre) {
+  $t: map.get($tonos, $nombre);
+  --tono-fg: #{list.nth($t, 1)};
+  --tono-bg: #{list.nth($t, 2)};
+  --tono-borde: #{list.nth($t, 3)};
+}
+
+/// Genera [data-tono='azul'], [data-tono='verde'], etc. Se incluye una vez por componente.
+@mixin tonos {
+  @each $nombre, $valores in $tonos {
+    [data-tono='#{$nombre}'] {
+      @include tono($nombre);
+    }
+  }
+}
+
+/// Etiqueta redondeada de estado (mismo formato que las etiquetas de Postulante).
+@mixin etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--tono-borde, #{$borde});
+  border-radius: 999px;
+  background: var(--tono-bg, #f1f5f9);
+  color: var(--tono-fg, #475569);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/// Botón del sistema (misma forma que `.boton` de Postulante).
+@mixin boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid $borde;
+  border-radius: 8px;
+  background: var(--white, #{$blanco});
+  color: $azul-oscuro;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  @include transiciones;
+  @include presionar;
+  @include foco;
+
+  &:hover:not(:disabled) {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    box-shadow: 0 3px 10px rgb(12 35 64 / 6%);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+}
+
+@mixin boton-primario {
+  border-color: $azul-oscuro;
+  background: $azul-oscuro;
+  color: $blanco;
+
+  &:hover:not(:disabled) {
+    border-color: #153e6b;
+    background: #153e6b;
+    box-shadow: 0 4px 14px rgb(12 35 64 / 20%);
+  }
+}
+
+/// Respeta a quien pidió reducir el movimiento en su sistema.
+@mixin sin-movimiento {
+  @media (prefers-reduced-motion: reduce) {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/// Base común de las pantallas de Salud Ocupacional (equivale a `pagina-base`
+/// de Postulante): reinicio, página, tarjetas, avisos, botones, formularios y
+/// ventanas emergentes. Cada pantalla la incluye una sola vez.
+@mixin pagina-salud {
+  :host {
+    display: block;
+    color: var(--navy, #122c47);
+    font-size: 14px;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    margin: 0;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  @include tonos;
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .page-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    @include pagina-animada;
+    @include sin-movimiento;
+  }
+
+  .page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+
+    h1 {
+      margin-top: 7px;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+  }
+
+  .eyebrow {
+    color: var(--slate, #64748b);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .tarjeta {
+    min-width: 0;
+    padding: 22px 24px;
+    @include tarjeta;
+  }
+
+  .notice-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-left: 4px solid $azul-marca;
+
+    app-icon {
+      flex: none;
+      color: $azul-marca;
+    }
+
+    p {
+      color: var(--slate, #64748b);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  }
+
+  .feedback {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+    @include aparecer;
+    @include sin-movimiento;
+
+    &.error {
+      background: var(--red-bg, #fee4e2);
+      color: var(--red, #b42318);
+    }
+
+    &.success {
+      background: var(--green-bg, #dcf4e5);
+      color: var(--green, #236c42);
+    }
+  }
+
+  .empty {
+    padding: 28px;
+    color: var(--slate, #64748b);
+    text-align: center;
+  }
+
+  // Botones: misma forma, hover y efecto al presionar que el resto del sistema
+  .btn {
+    @include boton;
+    @include sin-movimiento;
+  }
+
+  .btn-primary {
+    @include boton-primario;
+  }
+
+  .btn-sm {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 12.5px;
+  }
+
+  .etiqueta {
+    @include etiqueta;
+    transition:
+      background-color 300ms ease,
+      color 300ms ease,
+      border-color 300ms ease;
+  }
+
+  .avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--tono-bg, #{$azul-claro});
+    color: var(--tono-fg, #{$azul-marca});
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  // Formularios y ventanas emergentes
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--slate, #64748b);
+    font-size: 13px;
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 13px;
+      border: 1px solid $borde;
+      border-radius: 8px;
+      background: var(--white, #fff);
+      color: var(--navy, #122c47);
+      transition:
+        border-color $transicion,
+        box-shadow $transicion;
+
+      &:hover {
+        border-color: #cbd5e1;
+      }
+
+      &:focus {
+        border-color: $azul-marca;
+        outline: 2px solid transparent;
+        box-shadow: 0 0 0 3px rgb(21 70 126 / 14%);
+      }
+
+      @include sin-movimiento;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+  }
+
+  .schedule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .candidate-summary {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--bg, #f4f7fa);
+
+    strong,
+    small {
+      display: block;
+    }
+
+    small {
+      margin-top: 4px;
+      color: var(--slate, #64748b);
+    }
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .modal-note {
+    color: var(--slate, #64748b);
+    line-height: 1.5;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  @media (max-width: 700px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Modo de alto contraste de la plataforma
+  :host-context(.high-contrast) {
+    .etiqueta,
+    .avatar {
+      border: 2px solid #fff;
+      background: transparent;
+      color: #fff;
+    }
+  }
+}

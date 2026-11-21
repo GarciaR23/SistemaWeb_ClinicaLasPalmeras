@@ -11,63 +11,187 @@
   }
 
   @if (loading) {
-    <p class="card empty" role="status">Cargando agenda…</p>
+    <p class="tarjeta empty" role="status">Cargando agenda…</p>
   } @else {
-    <section class="site-grid" aria-label="Cupos disponibles por sede">
+    <section class="sedes" aria-label="Cupos disponibles por sede">
       @for (sede of servicio.sedes; track sede.name) {
-        <article class="card site-card">
-          <span class="site-icon" aria-hidden="true">
+        <button
+          type="button"
+          class="tarjeta sede"
+          [attr.data-tono]="tonos[$index % tonos.length]"
+          [style.--i]="$index"
+          [attr.aria-label]="'Ver el detalle de la sede ' + sede.name"
+          (click)="verSede(sede)"
+        >
+          <span class="sede__icono" aria-hidden="true">
             <app-icon name="pin" [size]="22" />
           </span>
 
-          <div class="site-copy">
+          <span class="sede__texto">
             <strong>Sede {{ sede.name }}</strong>
             <small>{{ sede.opening }} – {{ sede.closing }}</small>
-          </div>
+          </span>
 
-          <span class="site-slots" [class.site-slots--none]="!cupos(sede.name)">
+          <span
+            class="etiqueta"
+            [attr.data-tono]="cupos(sede.name) ? 'verde' : 'rojo'"
+          >
             {{ etiquetaCupos(sede.name) }}
           </span>
-        </article>
+
+          <span class="sede__flecha" aria-hidden="true">
+            <app-icon name="arrow" [size]="16" />
+          </span>
+        </button>
       }
     </section>
 
-    <section class="card" aria-labelledby="titulo-dia">
-      <header class="day-heading">
+    <section class="tarjeta" aria-labelledby="titulo-dia">
+      <header class="dia__cabecera">
         <div>
-          <h2 id="titulo-dia">{{ titulo }}</h2>
-          <p>Evaluaciones programadas</p>
+          <h2 id="titulo-dia" class="dia__titulo">{{ titulo }}</h2>
+          <p class="dia__subtitulo">Evaluaciones programadas</p>
         </div>
 
-        <label class="field day-picker">
+        <label class="field dia__selector">
           Fecha
           <input type="date" name="fecha" [(ngModel)]="fecha" />
         </label>
       </header>
 
-      <ul class="appointment-list">
+      <ul class="citas">
         @for (cita of citas; track cita.id) {
-          <li>
-            <strong class="appointment-time">{{ cita.hora }}</strong>
+          <li class="cita" [style.--i]="$index">
+            <strong class="cita__hora">{{ cita.hora }}</strong>
 
-            <span class="person-avatar" aria-hidden="true">
+            <span class="avatar" data-tono="azul" aria-hidden="true">
               {{ iniciales(cita.nombre) }}
             </span>
 
-            <div class="appointment-person">
+            <div class="cita__persona">
               <strong>{{ cita.nombre }}</strong>
               <small>{{ cita.puesto }}</small>
             </div>
 
-            <span class="appointment-meta">
+            <span class="cita__meta">
               <span>Sede {{ cita.sede }}</span>
               <small>{{ cita.tipo }}</small>
             </span>
           </li>
         } @empty {
-          <li class="empty-row">No hay evaluaciones programadas para este día.</li>
+          <li class="vacio-dia">
+            <img
+              src="images/salud-ocupacional/agenda-vacia.svg"
+              alt=""
+              width="150"
+              height="106"
+            />
+
+            <p class="vacio-dia__titulo">Sin evaluaciones programadas para este día</p>
+            <p class="vacio-dia__texto">
+              Estos son los cupos disponibles por sede para programar nuevas evaluaciones.
+            </p>
+
+            <ul class="resumen-cupos" aria-label="Cupos disponibles por sede">
+              @for (sede of servicio.sedes; track sede.name) {
+                <li
+                  class="resumen-cupos__item"
+                  [attr.data-tono]="cupos(sede.name) ? 'verde' : 'rojo'"
+                >
+                  <span>Sede {{ sede.name }}</span>
+                  <strong>{{ etiquetaCupos(sede.name) }}</strong>
+                </li>
+              }
+            </ul>
+
+            <div class="vacio-dia__acciones">
+              <a class="btn btn-primary btn-sm" routerLink="/salud-ocupacional/solicitudes">
+                Programar evaluación
+              </a>
+
+              @if (proximaFecha; as proxima) {
+                <button type="button" class="btn btn-sm" (click)="irAFecha(proxima)">
+                  Ver próxima fecha con evaluaciones ({{ etiquetaFecha(proxima) }})
+                </button>
+              }
+            </div>
+          </li>
         }
       </ul>
     </section>
   }
 </div>
+
+@if (sedeSeleccionada; as sede) {
+  <app-modal [title]="'Sede ' + sede.name" (close)="cerrarSede()">
+    <div class="sede-detalle">
+      <div class="candidate-summary">
+        <span class="sede__icono" data-tono="azul" aria-hidden="true">
+          <app-icon name="pin" [size]="22" />
+        </span>
+
+        <div>
+          <strong>Sede {{ sede.name }}</strong>
+          <small>Horario de atención: {{ sede.opening }} – {{ sede.closing }}</small>
+        </div>
+      </div>
+
+      <dl class="cifras">
+        <div class="cifra" data-tono="verde">
+          <dt>Cupos disponibles</dt>
+          <dd>{{ cupos(sede.name) }}</dd>
+        </div>
+
+        <div class="cifra" data-tono="celeste">
+          <dt>Evaluaciones programadas</dt>
+          <dd>{{ citasDeSede(sede.name).length }}</dd>
+        </div>
+      </dl>
+
+      <p class="modal-note">Datos para {{ titulo.toLowerCase() }}.</p>
+
+      <section aria-labelledby="titulo-horarios">
+        <h3 id="titulo-horarios" class="sede-detalle__titulo">Horarios disponibles</h3>
+
+        <ul class="horarios">
+          @for (hora of horarios(sede.name); track hora) {
+            <li class="etiqueta" data-tono="azul">{{ hora }}</li>
+          } @empty {
+            <li class="modal-note">No quedan horarios libres en esta fecha.</li>
+          }
+        </ul>
+      </section>
+
+      <section aria-labelledby="titulo-sede-citas">
+        <h3 id="titulo-sede-citas" class="sede-detalle__titulo">Evaluaciones de este día</h3>
+
+        <ul class="citas citas--modal">
+          @for (cita of citasDeSede(sede.name); track cita.id) {
+            <li class="cita cita--modal">
+              <strong class="cita__hora">{{ cita.hora }}</strong>
+
+              <div class="cita__persona">
+                <strong>{{ cita.nombre }}</strong>
+                <small>{{ cita.tipo }}</small>
+              </div>
+            </li>
+          } @empty {
+            <li class="modal-note">Sin evaluaciones programadas en esta sede.</li>
+          }
+        </ul>
+      </section>
+
+      <div class="modal-actions">
+        <button type="button" class="btn" (click)="cerrarSede()">Cerrar</button>
+
+        <a
+          class="btn btn-primary"
+          routerLink="/salud-ocupacional/solicitudes"
+          (click)="cerrarSede()"
+        >
+          Programar evaluación
+        </a>
+      </div>
+    </div>
+  </app-modal>
+}

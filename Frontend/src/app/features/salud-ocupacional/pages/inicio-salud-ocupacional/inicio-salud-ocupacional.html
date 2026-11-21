@@ -1,56 +1,112 @@
 <div class="dashboard">
-  <header class="dashboard-heading">
-    <span class="eyebrow">Salud Ocupacional</span>
-    <h1>Dashboard</h1>
-  </header>
+  <section class="hero" aria-labelledby="hero-titulo">
+    <div class="hero__contenido">
+      <p class="hero__eyebrow">Salud Ocupacional · Clínica Las Palmeras</p>
+
+      <h1 id="hero-titulo" class="hero__titulo">{{ saludo }}</h1>
+
+      <p class="hero__texto">
+        Coordina solicitudes, agenda evaluaciones y registra resultados de
+        aptitud en un solo lugar.
+      </p>
+
+      <a class="hero__boton" routerLink="/salud-ocupacional/solicitudes">
+        <span>Revisar solicitudes</span>
+        <app-icon name="arrow" [size]="15" />
+      </a>
+    </div>
+
+    <div class="hero__marco">
+      <img
+        class="hero__imagen"
+        [src]="imagen"
+        alt="Evaluación ocupacional en la Clínica Las Palmeras"
+        width="280"
+        height="175"
+        (error)="usarIlustracion()"
+      />
+    </div>
+  </section>
 
   @if (error) {
     <p class="feedback error" role="alert">{{ error }}</p>
   }
 
   @if (loading) {
-    <p class="card empty" role="status">Cargando resumen…</p>
+    <p class="tarjeta empty" role="status">Cargando resumen…</p>
   } @else {
-    <section class="indicators-grid" aria-label="Indicadores de Salud Ocupacional">
+    <section class="resumen" aria-label="Indicadores de Salud Ocupacional">
       @for (indicador of servicio.indicadores(); track indicador.titulo) {
-        <article class="card indicator-card">
-          <span class="indicator-icon" aria-hidden="true">
-            <app-icon [name]="indicador.icono" [size]="21" />
+        <article
+          class="tarjeta resumen__item"
+          [attr.data-tono]="tonos[$index % tonos.length]"
+          [style.--i]="$index"
+        >
+          <span class="resumen__icono" aria-hidden="true">
+            <app-icon [name]="indicador.icono" [size]="22" />
           </span>
 
-          <div class="indicator-content">
-            <span class="indicator-title">{{ indicador.titulo }}</span>
-            <strong class="indicator-value">{{ indicador.valor }}</strong>
-            <small class="indicator-note">Actualizado ahora</small>
+          <div class="resumen__datos">
+            <p class="resumen__etiqueta">{{ indicador.titulo }}</p>
+            <p class="resumen__valor">{{ indicador.valor }}</p>
+            <p class="resumen__nota">
+              <span class="resumen__punto" aria-hidden="true"></span>
+              Actualizado ahora
+            </p>
           </div>
         </article>
       }
     </section>
 
-    <section class="card" aria-labelledby="titulo-pendiente">
-      <header class="card-heading">
-        <h2 id="titulo-pendiente">Trabajo pendiente</h2>
-        <p>Solicitudes y evaluaciones que requieren atención</p>
+    <section
+      class="tarjeta panel"
+      aria-labelledby="titulo-pendiente"
+      [style.--i]="4"
+    >
+      <header class="panel__cabecera">
+        <div>
+          <h2 id="titulo-pendiente" class="panel__titulo">Trabajo pendiente</h2>
+          <p class="panel__subtitulo">
+            Solicitudes y evaluaciones que requieren atención
+          </p>
+        </div>
+
+        <a class="panel__enlace" routerLink="/salud-ocupacional/solicitudes">
+          <span>Ver solicitudes</span>
+          <app-icon name="arrow" [size]="15" />
+        </a>
       </header>
 
-      <ul class="pending-list">
+      <ul class="lista">
         @for (item of servicio.trabajoPendiente(); track item.ruta + item.id) {
           <li>
-            <a class="pending-link" [routerLink]="item.ruta">
-              <span class="person-avatar" aria-hidden="true">
+            <a class="lista__item" [routerLink]="item.ruta">
+              <span class="avatar" data-tono="azul" aria-hidden="true">
                 {{ iniciales(item.nombre) }}
               </span>
 
-              <span class="pending-person">
+              <span class="lista__texto">
                 <strong>{{ item.nombre }}</strong>
                 <small>{{ item.puesto }}</small>
               </span>
 
               <app-badge [status]="item.estado" />
+
+              <span class="lista__flecha" aria-hidden="true">
+                <app-icon name="arrow" [size]="16" />
+              </span>
             </a>
           </li>
         } @empty {
-          <li class="empty-row">No hay trabajo pendiente.</li>
+          <li class="vacio">
+            <span class="vacio__icono" aria-hidden="true">
+              <app-icon name="check" [size]="22" />
+            </span>
+            <p class="vacio__titulo">No hay trabajo pendiente</p>
+            <p class="vacio__descripcion">
+              Las nuevas solicitudes de RR. HH. aparecerán aquí.
+            </p>
+          </li>
         }
       </ul>
     </section>

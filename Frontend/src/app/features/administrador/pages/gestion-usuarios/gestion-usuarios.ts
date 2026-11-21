@@ -38,6 +38,9 @@ export class GestionUsuarios implements OnInit {
 
   loading = true;
   busyId: number | null = null;
+  /** Usuario cuyo estado cambió hace un momento; resalta su fila unos instantes. */
+  cambioId: number | null = null;
+  private temporizadorCambio?: ReturnType<typeof setTimeout>;
   saving = false;
   error = '';
   notice = '';
@@ -132,11 +135,33 @@ export class GestionUsuarios implements OnInit {
 
     try {
       await this.servicio.cambiarEstado(usuario, !usuario.active);
+      this.resaltarCambio(usuario.id);
     } catch (error) {
       this.error = this.mensaje(error, 'No se pudo actualizar la cuenta.');
     } finally {
       this.busyId = null;
     }
+  }
+
+  /** Color de la etiqueta y del avatar según el rol (mismas familias que Postulante). */
+  tonoRol(rol: UserRole): string {
+    const tonos: Record<UserRole, string> = {
+      admin: 'azul',
+      rrhh: 'violeta',
+      applicant: 'celeste',
+      health: 'verde',
+    };
+
+    return tonos[rol] ?? 'gris';
+  }
+
+  private resaltarCambio(id: number): void {
+    clearTimeout(this.temporizadorCambio);
+    this.cambioId = id;
+
+    this.temporizadorCambio = setTimeout(() => {
+      this.cambioId = null;
+    }, 1200);
   }
 
   private normalizar(valor: string): string {
