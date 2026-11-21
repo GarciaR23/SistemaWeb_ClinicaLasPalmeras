@@ -45,6 +45,17 @@ export class AgendaExamenes implements OnInit {
     return this.servicio.agendaDelDia(this.fecha);
   }
 
+  /** Próxima fecha, después de la seleccionada, que tiene evaluaciones programadas. */
+  get proximaFecha(): string | null {
+    const fechas = this.servicio
+      .citas()
+      .map((cita) => cita.date)
+      .filter((fecha) => fecha > this.fecha)
+      .sort();
+
+    return fechas[0] ?? null;
+  }
+
   async ngOnInit(): Promise<void> {
     try {
       await this.servicio.cargar();
@@ -78,6 +89,18 @@ export class AgendaExamenes implements OnInit {
   /** Evaluaciones de la fecha seleccionada en una sede. */
   citasDeSede(sede: string) {
     return this.citas.filter((cita) => cita.sede === sede);
+  }
+
+  etiquetaFecha(fecha: string): string {
+    return new Date(`${fecha}T00:00:00`).toLocaleDateString('es-PE', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    });
+  }
+
+  irAFecha(fecha: string): void {
+    this.fecha = fecha;
   }
 
   verSede(sede: Sede): void {

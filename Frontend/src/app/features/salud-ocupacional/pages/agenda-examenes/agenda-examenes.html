@@ -79,8 +79,42 @@
             </span>
           </li>
         } @empty {
-          <li class="vacio-simple">
-            No hay evaluaciones programadas para este día.
+          <li class="vacio-dia">
+            <img
+              src="images/salud-ocupacional/agenda-vacia.svg"
+              alt=""
+              width="150"
+              height="106"
+            />
+
+            <p class="vacio-dia__titulo">Sin evaluaciones programadas para este día</p>
+            <p class="vacio-dia__texto">
+              Estos son los cupos disponibles por sede para programar nuevas evaluaciones.
+            </p>
+
+            <ul class="resumen-cupos" aria-label="Cupos disponibles por sede">
+              @for (sede of servicio.sedes; track sede.name) {
+                <li
+                  class="resumen-cupos__item"
+                  [attr.data-tono]="cupos(sede.name) ? 'verde' : 'rojo'"
+                >
+                  <span>Sede {{ sede.name }}</span>
+                  <strong>{{ etiquetaCupos(sede.name) }}</strong>
+                </li>
+              }
+            </ul>
+
+            <div class="vacio-dia__acciones">
+              <a class="btn btn-primary btn-sm" routerLink="/salud-ocupacional/solicitudes">
+                Programar evaluación
+              </a>
+
+              @if (proximaFecha; as proxima) {
+                <button type="button" class="btn btn-sm" (click)="irAFecha(proxima)">
+                  Ver próxima fecha con evaluaciones ({{ etiquetaFecha(proxima) }})
+                </button>
+              }
+            </div>
           </li>
         }
       </ul>

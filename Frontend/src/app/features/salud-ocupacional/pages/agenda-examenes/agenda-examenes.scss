@@ -155,10 +155,62 @@
   }
 }
 
-.vacio-simple {
-  padding: 28px;
-  color: var(--slate, #64748b);
+// Día sin evaluaciones: ilustración, cupos por sede y acciones sugeridas
+.vacio-dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 12px 8px;
   text-align: center;
+
+  img {
+    margin-bottom: 8px;
+  }
+}
+
+.vacio-dia__titulo {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.vacio-dia__texto {
+  color: var(--slate, #64748b);
+  font-size: 13px;
+}
+
+.resumen-cupos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 0 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.resumen-cupos__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 1px solid var(--tono-borde);
+  border-radius: 999px;
+  background: var(--tono-bg);
+  color: var(--tono-fg);
+  font-size: 12.5px;
+
+  strong {
+    font-weight: 700;
+  }
+}
+
+.vacio-dia__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 // ---------- Ventana de detalle de sede ----------
