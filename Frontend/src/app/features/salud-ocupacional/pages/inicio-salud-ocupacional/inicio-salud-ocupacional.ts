@@ -25,6 +25,9 @@ export class InicioSaludOcupacional implements OnInit {
   /** «Bienvenido, Dr. Paredes.»: título y apellido de la cuenta en sesión. */
   readonly saludo = this.crearSaludo(this.session.user()?.name ?? '');
 
+  /** Un color de icono por tarjeta (mismas familias que Postulante). */
+  readonly tonos = ['azul', 'celeste', 'verde', 'violeta'] as const;
+
   /** Usa la foto si existe; si no, la ilustración incluida. */
   imagen = FOTO_BANNER;
 
