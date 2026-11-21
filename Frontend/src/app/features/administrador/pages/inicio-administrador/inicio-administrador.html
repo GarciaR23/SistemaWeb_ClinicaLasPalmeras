@@ -1,8 +1,34 @@
 <div class="dashboard">
-  <header class="dashboard-heading">
-    <span class="eyebrow">Control de plataforma</span>
-    <h1>Dashboard administrativo</h1>
-  </header>
+  <section class="hero" aria-labelledby="hero-titulo">
+    <div class="hero__contenido">
+      <p class="hero__eyebrow">Control de plataforma</p>
+
+      <h1 id="hero-titulo" class="hero__titulo">
+        Bienvenido{{ nombre ? ', ' + nombre : '' }}.
+      </h1>
+
+      <p class="hero__texto">
+        Gestiona accesos y supervisa cada etapa del proceso de selección desde
+        un solo lugar.
+      </p>
+
+      <a class="hero__boton" routerLink="/administrador/usuarios">
+        <span>Gestionar accesos</span>
+        <app-icon name="arrow" [size]="15" />
+      </a>
+    </div>
+
+    <div class="hero__marco">
+      <img
+        class="hero__imagen"
+        [src]="imagen"
+        alt="Administración de personal y control de accesos de la clínica"
+        width="280"
+        height="175"
+        (error)="usarIlustracion()"
+      />
+    </div>
+  </section>
 
   @if (error) {
     <p class="feedback error" role="alert">{{ error }}</p>
