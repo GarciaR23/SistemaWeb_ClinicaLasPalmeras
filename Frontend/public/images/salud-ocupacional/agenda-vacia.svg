@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 170" role="img" aria-labelledby="t">
+  <title id="t">Agenda sin evaluaciones</title>
+  <ellipse cx="120" cy="154" rx="84" ry="9" fill="#0c2340" opacity="0.07"/>
+  <rect x="46" y="28" width="148" height="116" rx="16" fill="#ffffff" stroke="#cbdbe8" stroke-width="2"/>
+  <path d="M46 44 a16 16 0 0 1 16 -16 h116 a16 16 0 0 1 16 16 v22 h-148 z" fill="#15467e"/>
+  <rect x="80" y="16" width="10" height="24" rx="5" fill="#0c2340"/>
+  <rect x="150" y="16" width="10" height="24" rx="5" fill="#0c2340"/>
+  <g fill="#cfe0ec">
+    <rect x="62" y="80" width="18" height="14" rx="4"/><rect x="88" y="80" width="18" height="14" rx="4"/><rect x="114" y="80" width="18" height="14" rx="4"/><rect x="140" y="80" width="18" height="14" rx="4"/>
+    <rect x="62" y="102" width="18" height="14" rx="4"/><rect x="88" y="102" width="18" height="14" rx="4"/><rect x="114" y="102" width="18" height="14" rx="4"/>
+    <rect x="62" y="124" width="18" height="10" rx="4"/><rect x="88" y="124" width="18" height="10" rx="4"/>
+  </g>
+  <circle cx="176" cy="116" r="30" fill="#ffffff" stroke="#cbdbe8" stroke-width="2"/>
+  <circle cx="176" cy="116" r="23" fill="#d1fae5"/>
+  <path d="M176 104 v24 M164 116 h24" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
+</svg>

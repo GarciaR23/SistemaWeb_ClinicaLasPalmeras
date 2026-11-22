@@ -53,10 +53,12 @@ export class ResultadosAptitud implements OnInit {
     return fila.fecha ? fechaCorta(fila.fecha) : '—';
   }
 
-  tono(conclusion: string): string {
-    if (conclusion === 'Apto') return 'ok';
+  /** Color de la conclusión (mismas familias que Postulante); sin conclusión es «Pendiente». */
+  tono(conclusion: string | null): string {
+    if (!conclusion) return 'ambar';
+    if (conclusion === 'Apto') return 'verde';
 
-    return conclusion === 'No apto' ? 'bad' : 'warn';
+    return conclusion === 'No apto' ? 'rojo' : 'celeste';
   }
 
   abrir(fila: FilaAptitud): void {

@@ -5,7 +5,7 @@ import {
   LocalStore,
   nextId,
 } from '../../../core/services/almacenamiento-local';
-import { claveFecha } from '../../../core/utils/formato';
+import { claveFecha, fechaCorta } from '../../../core/utils/formato';
 import { ApplicantsService } from '../../recursos-humanos/services/servicio-postulantes';
 import { HealthService } from '../../recursos-humanos/services/servicio-resultados-medicos';
 import { environment } from '../../../../environments/environment';
@@ -17,9 +17,13 @@ import {
   RegistroAptitud,
 } from '../models/resultado-aptitud';
 import {
+  EstadoSolicitud,
   ProgramacionExamen,
   SolicitudExamen,
+  SolicitudVista,
+  TIPOS_EXAMEN,
 } from '../models/solicitud-examen';
+import { solicitudesDemostracion } from '../models/solicitudes-demostracion';
 
 /**
  * Punto único de acceso de Salud Ocupacional. Reutiliza los servicios de
@@ -99,6 +103,51 @@ export class ServicioSaludOcupacional {
         fecha: candidato.date,
         estado: candidato.status,
       })),
+  );
+
+  /** Todas las solicitudes de RR. HH. con su estado actual (pendiente, programada o realizada). */
+  private readonly solicitudesReales = computed<SolicitudVista[]>(() => {
+    const estados: Record<string, EstadoSolicitud> = {
+      'Solicitud médica': 'Pendiente',
+      'Examen médico': 'Programada',
+      Evaluado: 'Realizada',
+      Contratado: 'Realizada',
+    };
+    const orden: EstadoSolicitud[] = ['Pendiente', 'Programada', 'Realizada'];
+
+    return this.applicants
+      .candidates()
+      .filter((candidato) => candidato.status in estados)
+      .map((candidato) => {
+        const cita = this.ultimaCita(candidato.id);
+        const lugar = cita ? (cita.site ?? cita.place ?? '') : '';
+
+        return {
+          id: candidato.id,
+          nombre: candidato.name,
+          puesto: candidato.role,
+          dni: candidato.dni,
+          fecha: candidato.date,
+          tipo: cita?.type ?? TIPOS_EXAMEN[0],
+          estado: estados[candidato.status],
+          programacion: cita
+            ? `${fechaCorta(cita.date)} · ${cita.time}${lugar ? ' · Sede ' + lugar : ''}`
+            : undefined,
+          demostracion: false,
+        };
+      })
+      .sort(
+        (a, b) => orden.indexOf(a.estado) - orden.indexOf(b.estado),
+      );
+  });
+
+  /** Mientras RR. HH. no envíe solicitudes (solo en demostración) se muestran ejemplos marcados. */
+  readonly esDemostracion = computed(
+    () => this.solicitudesReales().length === 0 && environment.demoMode,
+  );
+
+  readonly solicitudesVista = computed<SolicitudVista[]>(() =>
+    this.esDemostracion() ? solicitudesDemostracion() : this.solicitudesReales(),
   );
 
   /** Evaluaciones de un día (AAAA-MM-DD), ordenadas por hora. */

@@ -18,83 +18,76 @@
   }
 
   @if (loading) {
-    <p class="card empty" role="status">Cargando resultados…</p>
+    <p class="tarjeta empty" role="status">Cargando resultados…</p>
   } @else {
-    <section class="card table-card">
-      <div class="table-scroll">
-        <table>
-          <caption class="sr-only">Resultados de aptitud ocupacional</caption>
+    <section class="perfiles" aria-label="Resultados de aptitud ocupacional">
+      @for (fila of servicio.resultados(); track fila.applicationId) {
+        <article
+          class="tarjeta perfil"
+          [attr.data-tono]="tono(fila.conclusion)"
+          [style.--i]="$index"
+        >
+          <header class="perfil__cabecera">
+            <span class="avatar" aria-hidden="true">
+              {{ iniciales(fila.nombre) }}
+            </span>
 
-          <thead>
-            <tr>
-              <th scope="col">Evaluado</th>
-              <th scope="col">Fecha</th>
-              <th scope="col">Sede</th>
-              <th scope="col">Conclusión</th>
-              <th scope="col">Acción</th>
-            </tr>
-          </thead>
+            <div class="perfil__persona">
+              <strong>{{ fila.nombre }}</strong>
+              <small>{{ fila.puesto }}</small>
+            </div>
+          </header>
 
-          <tbody>
-            @for (fila of servicio.resultados(); track fila.applicationId) {
-              <tr>
-                <td data-label="Evaluado">
-                  <div class="person-cell">
-                    <span class="person-avatar" aria-hidden="true">
-                      {{ iniciales(fila.nombre) }}
-                    </span>
+          <dl class="perfil__datos">
+            <div>
+              <dt>Fecha</dt>
+              <dd>{{ fecha(fila) }}</dd>
+            </div>
 
-                    <div>
-                      <strong>{{ fila.nombre }}</strong>
-                      <small>{{ fila.puesto }}</small>
-                    </div>
-                  </div>
-                </td>
+            <div>
+              <dt>Sede</dt>
+              <dd>{{ fila.sede }}</dd>
+            </div>
+          </dl>
 
-                <td data-label="Fecha">{{ fecha(fila) }}</td>
-                <td data-label="Sede">{{ fila.sede }}</td>
+          <div class="perfil__conclusion">
+            <span class="perfil__etiqueta">Conclusión</span>
 
-                <td data-label="Conclusión">
-                  @if (fila.conclusion) {
-                    <span class="conclusion" [class]="'conclusion conclusion--' + tono(fila.conclusion)">
-                      {{ fila.conclusion }}
-                    </span>
-                  } @else {
-                    <span class="conclusion conclusion--pending">Pendiente</span>
-                  }
-                </td>
+            <span class="etiqueta" [attr.data-tono]="tono(fila.conclusion)">
+              {{ fila.conclusion ?? 'Pendiente' }}
+            </span>
+          </div>
 
-                <td data-label="Acción">
-                  @if (fila.conclusion) {
-                    <button type="button" class="btn btn-registered" disabled>
-                      Registrado
-                    </button>
-                  } @else if (fila.puedeRegistrar) {
-                    <button
-                      type="button"
-                      class="btn btn-primary"
-                      [attr.aria-label]="'Registrar aptitud de ' + fila.nombre"
-                      (click)="abrir(fila)"
-                    >
-                      Registrar
-                    </button>
-                  } @else {
-                    <button type="button" class="btn btn-secondary" disabled>
-                      Programado
-                    </button>
-                  }
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5" class="empty-row">
-                  Aún no hay evaluaciones programadas ni resultados registrados.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+          @if (fila.conclusion) {
+            <button type="button" class="btn" disabled>
+              <app-icon name="check" [size]="16" />
+              Registrado
+            </button>
+          } @else if (fila.puedeRegistrar) {
+            <button
+              type="button"
+              class="btn btn-primary"
+              [attr.aria-label]="'Registrar aptitud de ' + fila.nombre"
+              (click)="abrir(fila)"
+            >
+              Registrar
+            </button>
+          } @else {
+            <button type="button" class="btn" disabled>Programado</button>
+          }
+        </article>
+      } @empty {
+        <div class="tarjeta vacio">
+          <span class="vacio__icono" aria-hidden="true">
+            <app-icon name="medical" [size]="22" />
+          </span>
+
+          <p class="vacio__titulo">Aún no hay evaluaciones</p>
+          <p class="vacio__descripcion">
+            Aquí aparecerán las evaluaciones programadas y los resultados registrados.
+          </p>
+        </div>
+      }
     </section>
   }
 </div>
@@ -107,7 +100,7 @@
       }
 
       <div class="candidate-summary">
-        <span class="person-avatar" aria-hidden="true">
+        <span class="avatar" aria-hidden="true">
           {{ iniciales(seleccion.nombre) }}
         </span>
 
@@ -145,7 +138,7 @@
       </label>
 
       <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" [disabled]="saving" (click)="cerrar()">
+        <button type="button" class="btn" [disabled]="saving" (click)="cerrar()">
           Cancelar
         </button>
 
