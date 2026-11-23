@@ -20,10 +20,6 @@
     <p class="form-error" role="alert">{{ error }}</p>
   }
 
-  @if (notice) {
-    <p class="notice" role="status">{{ notice }}</p>
-  }
-
   <section class="card search-card">
     <label class="field" for="buscar-vacante">
       Buscar vacante
@@ -35,7 +31,7 @@
           id="buscar-vacante"
           type="search"
           [(ngModel)]="query"
-          placeholder="Buscar por nombre del puesto o área…"
+          placeholder="Buscar por nombre del puesto o área..."
           autocomplete="off"
         />
       </div>
@@ -44,81 +40,118 @@
 
   <div class="vacancy-grid">
     @for (v of filtered; track v.id) {
-      <article class="card vacancy-card">
-        <div class="vacancy-top">
-          <span class="job-icon">
-            <app-icon name="briefcase" />
-          </span>
-
+      <article class="card vacancy-card" [class.vacancy-card--muted]="v.status !== 'Publicada'">
+        <div class="card-img-container">
+          <img
+            [src]="vacancyImage(v)"
+            [alt]="v.title"
+            class="card-img"
+            [class.card-img--grayscale]="v.status !== 'Publicada'"
+            loading="lazy"
+          />
+          <div class="card-img-overlay"></div>
           <span
             class="vacancy-status"
             [class.vacancy-status-publicada]="v.status === 'Publicada'"
             [class.vacancy-status-pausada]="v.status === 'Pausada'"
             [class.vacancy-status-cerrada]="v.status === 'Cerrada'"
           >
+            @if (v.status === 'Publicada') {
+              <span class="status-pulse" aria-hidden="true"></span>
+            }
             {{ v.status }}
           </span>
         </div>
 
-        <div class="vacancy-heading">
-          <h2>{{ v.title }}</h2>
-          <p>{{ v.area }}</p>
-        </div>
+        <div class="vacancy-body">
+          <div class="vacancy-heading">
+            <h2>{{ v.title }}</h2>
+            <p>{{ v.area }}</p>
+          </div>
 
-        <div class="job-meta">
-          <span>
-            <app-icon name="pin" [size]="16" />
-            {{ v.location }}
-          </span>
-
-          <span>
-            <app-icon name="user" [size]="16" />
-            {{ v.openings }} puesto(s)
-          </span>
-
-          <span>{{ v.modality }}</span>
-        </div>
-
-        <p class="vacancy-description">
-          {{ v.description }}
-        </p>
-
-        <div class="vacancy-actions">
-          @if (v.status !== 'Cerrada') {
-            <button
-              type="button"
-              class="btn"
-              [class.btn-pause]="v.status === 'Publicada'"
-              [class.btn-publish]="v.status === 'Pausada'"
-              [disabled]="busy"
-              [attr.aria-label]="
-                (v.status === 'Publicada' ? 'Pausar ' : 'Publicar ') +
-                v.title
-              "
-              (click)="
-                status(
-                  v,
-                  v.status === 'Publicada' ? 'Pausada' : 'Publicada'
-                )
-              "
-            >
-              {{ v.status === 'Publicada' ? 'Pausar' : 'Publicar' }}
-            </button>
-
-            <button
-              type="button"
-              class="btn btn-close"
-              [disabled]="busy"
-              [attr.aria-label]="'Cerrar vacante ' + v.title"
-              (click)="status(v, 'Cerrada')"
-            >
-              Cerrar
-            </button>
-          } @else {
-            <span class="closed-message">
-              Esta convocatoria está cerrada.
+          <div class="job-meta">
+            <span class="chip chip--blue">
+              <app-icon name="pin" [size]="14" />
+              {{ v.location }}
             </span>
-          }
+
+            <span class="chip chip--purple">
+              <app-icon name="user" [size]="14" />
+              {{ v.openings }} puesto(s)
+            </span>
+
+            <span class="chip chip--orange">{{ v.modality }}</span>
+          </div>
+
+          <p class="vacancy-description">
+            {{ v.description }}
+          </p>
+
+          <div class="vacancy-actions">
+            @switch (v.status) {
+              @case ('Publicada') {
+                <button
+                  type="button"
+                  class="btn btn-pause"
+                  [disabled]="busy"
+                  [attr.aria-label]="'Pausar ' + v.title"
+                  (click)="status(v, 'Pausada')"
+                >
+                  Pausar
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-close"
+                  [disabled]="busy"
+                  [attr.aria-label]="'Cerrar vacante ' + v.title"
+                  (click)="status(v, 'Cerrada')"
+                >
+                  Cerrar
+                </button>
+              }
+
+              @case ('Pausada') {
+                <button
+                  type="button"
+                  class="btn btn-publish"
+                  [disabled]="busy"
+                  [attr.aria-label]="'Publicar ' + v.title"
+                  (click)="status(v, 'Publicada')"
+                >
+                  Publicar
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-close"
+                  [disabled]="busy"
+                  [attr.aria-label]="'Cerrar vacante ' + v.title"
+                  (click)="status(v, 'Cerrada')"
+                >
+                  Cerrar
+                </button>
+              }
+
+              @default {
+                <div class="closed-state">
+                  <span class="closed-message">
+                    Esta convocatoria está cerrada.
+                  </span>
+
+                  <button
+                    type="button"
+                    class="btn btn-reopen"
+                    [disabled]="busy"
+                    [attr.aria-label]="'Reabrir vacante ' + v.title"
+                    (click)="status(v, 'Publicada')"
+                  >
+                    Reabrir convocatoria
+                  </button>
+                </div>
+              }
+            }
+          </div>
         </div>
       </article>
     } @empty {
@@ -142,6 +175,55 @@
       class="vacancy-form"
       (ngSubmit)="!busy && form.valid && create()"
     >
+      <!-- Sección de Imagen de Portada -->
+      <div class="image-picker-section">
+        <div class="image-preview-box">
+          <img [src]="previewImage" alt="Vista previa de la vacante" />
+          <span class="image-preview-badge">Vista previa</span>
+        </div>
+
+        <div class="image-picker-controls">
+          <label class="field" for="vacante-imagen-url">
+            Imagen de la vacante (URL o archivo)
+            <input
+              id="vacante-imagen-url"
+              name="imageUrl"
+              type="url"
+              [(ngModel)]="draft.imageUrl"
+              placeholder="https://... (opcional, se asigna según el puesto)"
+              [disabled]="busy"
+            />
+          </label>
+
+          <div class="image-picker-actions">
+            <label class="upload-pill">
+              <app-icon name="file" [size]="15" />
+              Subir imagen
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                [disabled]="busy"
+                (change)="onImageFileSelected($event)"
+              />
+            </label>
+
+            <div class="preset-pills" aria-label="Imágenes sugeridas">
+              @for (preset of imagePresets; track preset.label) {
+                <button
+                  type="button"
+                  class="preset-pill"
+                  [class.is-active]="draft.imageUrl === preset.url"
+                  (click)="draft.imageUrl = preset.url"
+                >
+                  {{ preset.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="form-grid">
         <label class="field" for="vacante-puesto">
           Nombre del puesto *
@@ -151,6 +233,7 @@
             [(ngModel)]="draft.title"
             required
             minlength="3"
+            placeholder="Ej. Enfermera Jefe"
             [disabled]="busy"
           />
         </label>
@@ -220,6 +303,7 @@
           name="description"
           [(ngModel)]="draft.description"
           required
+          placeholder="Describe brevemente las responsabilidades principales..."
           [disabled]="busy"
         ></textarea>
       </label>

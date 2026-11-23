@@ -1,0 +1,9 @@
+<span class="avatar-photo" tabindex="0" [attr.aria-label]="nombre + (puesto ? ', ' + puesto : '')">
+  <img [src]="foto" [alt]="'Foto de ' + nombre" loading="lazy" (error)="fallback($event)" />
+  <span class="avatar-tooltip" role="tooltip">
+    <strong>{{ nombre }}</strong>
+    @if (puesto) { <span>{{ puesto }}</span> }
+    @if (experiencia) { <small>{{ experiencia }} de experiencia</small> }
+    @if (ubicacion) { <small>{{ ubicacion }}</small> }
+  </span>
+</span>

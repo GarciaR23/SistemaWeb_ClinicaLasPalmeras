@@ -71,30 +71,55 @@ a:focus-visible {
 
 .filter-card {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
-  gap: 18px;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid #e6edf3;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  app-icon {
+    position: absolute;
+    left: 13px;
+    color: var(--slate, #64748b);
+    pointer-events: none;
+  }
+
+  input {
+    padding-left: 38px !important;
+  }
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
   color: var(--slate, #64748b);
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
 
   input,
   select {
     width: 100%;
-    min-height: 46px;
+    min-height: 44px;
     padding: 10px 13px;
-    border: 1px solid var(--line, #d8e2eb);
-    border-radius: 8px;
-    background: var(--white, #fff);
+    border: 1.5px solid #e2eaf1;
+    border-radius: 10px;
+    background: #f8fafc;
     color: var(--navy, #122c47);
+    font-weight: 500;
+    transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 
     &:focus {
-      outline: 2px solid #5c91b5;
-      outline-offset: 1px;
+      outline: none;
+      background: #ffffff;
+      border-color: #267d76;
+      box-shadow: 0 0 0 3px rgba(38, 125, 118, 0.14);
     }
   }
 }
@@ -147,11 +172,15 @@ a:focus-visible {
 
 .table-card {
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .table-scroll {
   overflow-x: auto;
+
+  @media (min-width: 960px) {
+    overflow: visible;
+  }
 }
 
 table {
@@ -288,7 +317,148 @@ tbody tr:last-child td {
 .modal-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
+}
+
+.photo-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--bg, #f8fafc);
+  border: 1px solid var(--line, #e2e8f0);
+}
+
+.photo-preview {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 12px rgb(15 34 63 / 15%);
+  flex-shrink: 0;
+}
+
+.photo-picker-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.photo-picker-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--slate, #64748b);
+}
+
+.photo-picker-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-photo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #0f223f;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.photo-preset-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  overflow: hidden;
+  background: transparent;
+
+  &.is-active {
+    border-color: #00c896;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.location-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.map-toggle-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.location-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.location-chip {
+  padding: 4px 10px;
+  border: 1px solid var(--line, #cbd5e1);
+  border-radius: 99px;
+  background: var(--white, #ffffff);
+  color: var(--slate, #475569);
+  font-size: 11px;
+  cursor: pointer;
+
+  &.is-active,
+  &:hover {
+    border-color: #0d9488;
+    background: #ecfdf5;
+    color: #0f766e;
+  }
+}
+
+.map-embed-box {
+  margin-top: 10px;
+  border: 1px solid var(--line, #d8e2eb);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--white, #ffffff);
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: 180px;
+    border: 0;
+  }
+}
+
+.maps-external-link {
+  display: block;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0d9488;
+  text-align: right;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .form-grid {

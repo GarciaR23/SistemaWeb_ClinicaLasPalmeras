@@ -1,0 +1,39 @@
+@if (feedback.current(); as item) {
+  <div class="feedback-backdrop" (click)="feedback.close()" aria-hidden="true"></div>
+  <section
+    class="feedback-dialog"
+    [class.feedback-dialog--error]="item.kind === 'error'"
+    [class.feedback-dialog--rejection]="item.kind === 'rejection'"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="feedback-title"
+    aria-describedby="feedback-message"
+  >
+    <button class="feedback-close" type="button" aria-label="Cerrar confirmación" (click)="feedback.close()">×</button>
+
+    @if (item.kind === 'success') {
+      <div class="feedback-spinner-wrap" [class.is-ready]="feedback.phase() === 'ready'" aria-hidden="true">
+        <div class="feedback-spinner"></div>
+        <span class="feedback-spinner-check">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </span>
+      </div>
+      @if (feedback.phase() === 'loading') {
+        <p class="feedback-kind">Procesando solicitud</p>
+        <h2 id="feedback-title">Guardando cambios…</h2>
+        <p id="feedback-message">Estamos confirmando la operación en el sistema.</p>
+      } @else {
+        <p class="feedback-kind">Acción completada</p>
+        <h2 id="feedback-title">{{ item.title }}</h2>
+        <p id="feedback-message">{{ item.message }}</p>
+      }
+    } @else {
+      <span class="feedback-symbol" aria-hidden="true"><span>!</span></span>
+      <p class="feedback-kind">{{ item.kind === 'rejection' ? 'Resultado del proceso' : 'No se pudo completar' }}</p>
+      <h2 id="feedback-title">{{ item.title }}</h2>
+      <p id="feedback-message">{{ item.message }}</p>
+    }
+  </section>
+}

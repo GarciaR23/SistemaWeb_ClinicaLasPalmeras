@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import {
   Session,
@@ -11,11 +11,12 @@ import { PreferencesService } from '../../services/servicio-preferencias';
 import { Icon } from '../../../../shared/components/icono/icono';
 import { iniciales } from '../../../../core/utils/formato';
 import { environment } from '../../../../../environments/environment';
+import { Feedback } from '../../../../core/services/feedback';
 
 @Component({
   selector: 'app-account-page',
   standalone: true,
-  imports: [FormsModule, Icon],
+  imports: [FormsModule, Icon, RouterLink],
   templateUrl: './cuenta.html',
   styleUrl: './cuenta.scss',
 })
@@ -26,6 +27,7 @@ export class AccountPage implements OnInit {
   private readonly api = inject(ApiClient);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly feedback = inject(Feedback);
 
   readonly labels = ROLE_LABELS;
 
@@ -141,12 +143,14 @@ export class AccountPage implements OnInit {
       }
 
       this.notice = 'Cambios guardados correctamente.';
+      this.feedback.show('success', 'Cambios guardados', 'Tu perfil y preferencias se actualizaron correctamente.');
       form.form.markAsPristine();
     } catch (error) {
       this.error =
         error instanceof Error
           ? error.message
           : 'No se pudieron guardar los cambios.';
+      this.feedback.show('error', 'No se pudieron guardar los cambios', this.error);
     } finally {
       this.busy = false;
     }
@@ -157,6 +161,25 @@ export class AccountPage implements OnInit {
 
     this.session.logout();
     void this.router.navigateByUrl('/iniciar-sesion');
+  }
+
+  async copyEmail(): Promise<void> {
+    const email = this.session.user()?.email ?? '';
+    if (!email) return;
+    try {
+      await navigator.clipboard.writeText(email);
+      this.feedback.show('success', 'Correo copiado', `${email} se copió al portapapeles.`);
+    } catch {
+      this.feedback.show('error', 'No se pudo copiar', 'Copia el correo manualmente desde el campo.');
+    }
+  }
+
+  get settingsRoute(): string {
+    const role = this.session.role();
+    if (role === 'admin') return '/administrador/configuracion';
+    if (role === 'health') return '/salud-ocupacional/configuracion';
+    if (role === 'applicant') return '/postulante/configuracion';
+    return '/recursos-humanos/configuracion';
   }
 
   private splitName(): void {

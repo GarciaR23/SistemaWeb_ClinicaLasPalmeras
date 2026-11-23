@@ -46,8 +46,9 @@ a:focus-visible,
 .chat-panel {
     display: flex;
     flex-direction: column;
-    width: min(380px, calc(100vw - 32px));
-    height: min(560px, calc(100dvh - 110px));
+    width: min(350px, calc(100vw - 32px));
+    height: min(440px, calc(100dvh - 140px));
+    max-height: calc(100dvh - 140px);
     min-height: 0;
     overflow: hidden;
     border: 1px solid #e2e8f0;
@@ -62,8 +63,8 @@ a:focus-visible,
     align-items: center;
     flex-shrink: 0;
     gap: 11px;
-    min-height: 76px;
-    padding: 16px;
+    min-height: 62px;
+    padding: 12px 14px;
     background: var(--chat-navy);
     color: #ffffff;
 }

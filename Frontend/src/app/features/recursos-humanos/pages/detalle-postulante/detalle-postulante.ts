@@ -10,6 +10,8 @@ import { ScheduleForm } from '../../components/programar-entrevista/programar-en
 import { Badge } from '../../../../shared/components/badge/badge';
 import { Modal } from '../../../../shared/components/modal/modal';
 import { Icon } from '../../../../shared/components/icono/icono';
+import { AvatarPostulante } from '../../../../shared/components/avatar-postulante/avatar-postulante';
+import { Feedback } from '../../../../core/services/feedback';
 
 import {
   CandidateDocument,
@@ -34,6 +36,7 @@ type DetailModal =
     Badge,
     Modal,
     Icon,
+    AvatarPostulante,
   ],
   templateUrl: './detalle-postulante.html',
   styleUrl: './detalle-postulante.scss',
@@ -42,6 +45,7 @@ export class CandidatePage implements OnInit {
   readonly service = inject(ApplicantsService);
   readonly interviews = inject(InterviewsService);
   readonly health = inject(HealthService);
+  private readonly feedback = inject(Feedback);
 
   private readonly route = inject(ActivatedRoute);
   readonly id = Number(this.route.snapshot.paramMap.get('id'));
@@ -207,11 +211,13 @@ export class CandidatePage implements OnInit {
 
       this.modal = '';
       this.notice = 'Estado actualizado correctamente.';
+      this.feedback.show(status === 'Rechazado' ? 'rejection' : 'success', status === 'Rechazado' ? 'Postulación rechazada' : 'Etapa actualizada', `${this.candidate?.name ?? 'El postulante'} ${status === 'Rechazado' ? 'ya no continúa en esta convocatoria.' : `ahora está en ${status.toLowerCase()}.`}`);
     } catch (error) {
       this.error =
         error instanceof Error
           ? error.message
           : 'No se pudo actualizar.';
+      this.feedback.show('error', 'No se pudo actualizar el proceso', this.error);
     } finally {
       this.busy = false;
     }
@@ -244,13 +250,20 @@ export class CandidatePage implements OnInit {
 
       this.modal = '';
       this.notice = 'Evaluación laboral guardada.';
+      this.feedback.show('success', 'Evaluación guardada', `La evaluación laboral de ${this.candidate?.name ?? 'la persona'} se guardó correctamente.`);
     } catch (error) {
       this.error =
         error instanceof Error
           ? error.message
           : 'No se pudo guardar.';
+      this.feedback.show('error', 'No se pudo guardar la evaluación', this.error);
     } finally {
       this.busy = false;
     }
+  }
+
+  entrevistaProgramada(): void {
+    this.modal = '';
+    this.feedback.show('success', 'Entrevista programada', `La cita de ${this.candidate?.name ?? 'el postulante'} se agregó a la agenda.`);
   }
 }

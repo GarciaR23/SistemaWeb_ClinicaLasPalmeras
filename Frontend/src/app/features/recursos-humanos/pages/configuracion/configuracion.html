@@ -10,13 +10,6 @@
     </p>
   }
 
-  @if (notice) {
-    <div class="feedback success" role="status">
-      <app-icon name="check" [size]="19" />
-      <span>{{ notice }}</span>
-    </div>
-  }
-
   @if (loading) {
     <p class="loading-message">
       Cargando configuración…

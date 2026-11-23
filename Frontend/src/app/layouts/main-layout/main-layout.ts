@@ -108,6 +108,17 @@ export class LayoutPrincipal implements OnInit {
     return iniciales(this.session.user()?.name ?? '');
   }
 
+  get bienvenidaImagen(): string {
+    const fotos: Record<UserRole, string> = {
+      rrhh: 'https://images.unsplash.com/photo-1758873268745-dd2cf0d677b5?auto=format&fit=crop&w=1000&q=80',
+      admin: 'https://images.unsplash.com/photo-1778151270886-f227700b0eba?auto=format&fit=crop&w=1000&q=80',
+      health: 'https://images.unsplash.com/photo-1758691462370-cef1774278cd?auto=format&fit=crop&w=1000&q=80',
+      applicant: 'https://images.unsplash.com/photo-1758691462651-611d730c5272?auto=format&fit=crop&w=1000&q=80',
+    };
+    const role = this.session.role();
+    return role ? fotos[role] : fotos.applicant;
+  }
+
   async ngOnInit(): Promise<void> {
     if (!this.hasPortalTools) return;
 
@@ -133,7 +144,7 @@ export class LayoutPrincipal implements OnInit {
 
     window.setTimeout(() => {
       this.bienvenidaVisible = false;
-    }, 3200);
+    }, 2500);
   }
 
   openSidebar(): void {

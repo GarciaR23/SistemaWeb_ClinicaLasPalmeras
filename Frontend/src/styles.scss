@@ -3,8 +3,148 @@ body {
   font-family: Arial, sans-serif;
 }
 
+/* Bienvenida del layout principal (ubicada aquí para respetar el presupuesto CSS de main-layout.scss). */
+.app-shell .welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(8 25 40 / 62%);
+  backdrop-filter: blur(10px);
+  animation: welcome-fade 2.5s both;
+}
+.app-shell .welcome-message {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42% 58%;
+  width: min(720px, calc(100vw - 36px));
+  min-height: 310px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 60%);
+  border-radius: 26px;
+  background: linear-gradient(125deg, #163c56, #122c47 55%, #267d76);
+  color: #ffffff;
+  box-shadow: 0 32px 100px rgb(0 0 0 / 32%);
+  animation: welcome-enter .62s cubic-bezier(.2,.8,.2,1) both;
+}
+.app-shell .welcome-person-wrap { position: relative; overflow: hidden; min-height: 310px; background: #d9e9e9; }
+.app-shell .welcome-person { display: block; width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; animation: welcome-person-rise 1s cubic-bezier(.2,.8,.2,1) both; }
+.app-shell .welcome-person-wrap::after { position: absolute; inset: 0; background: linear-gradient(0deg, rgb(18 44 71 / 35%), transparent 70%); content: ''; }
+.app-shell .welcome-orbit { position: absolute; z-index: 1; top: 18%; left: 8%; width: 54px; height: 54px; border: 1px solid rgb(255 255 255 / 60%); border-radius: 50%; animation: welcome-float 3s ease-in-out infinite alternate; }
+.app-shell .welcome-orbit--two { top: auto; bottom: 16%; left: auto; right: 12%; width: 25px; height: 25px; animation-delay: -.8s; }
+.app-shell .welcome-copy { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 36px 34px; }
+.app-shell .welcome-copy small { margin-top: 20px; color: #98d5c7; font-size: 9px; font-weight: 800; letter-spacing: .13em; }
+.app-shell .welcome-copy strong { display: block; max-width: 320px; margin-top: 11px; font-size: clamp(23px, 3vw, 33px); letter-spacing: -.035em; line-height: 1.12; }
+.app-shell .welcome-copy p { margin: 10px 0 0; color: #dce8f1; font-size: 13px; line-height: 1.6; }
+.app-shell .welcome-check { position: absolute; top: 25px; right: 27px; display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid rgb(255 255 255 / 45%); border-radius: 50%; background: #fff; color: #23845a; animation: welcome-check-pop .5s .32s cubic-bezier(.2,.9,.2,1.2) both; }
+.app-shell .welcome-progress { position: absolute; right: 34px; bottom: 22px; left: 34px; height: 3px; overflow: hidden; border-radius: 4px; background: rgb(255 255 255 / 22%); }
+.app-shell .welcome-progress::after { display: block; width: 100%; height: 100%; border-radius: inherit; background: #7ed3be; transform-origin: left; animation: welcome-progress 2.1s linear both; content: ''; }
+@keyframes welcome-check-pop { from { opacity: 0; transform: scale(.2) rotate(-25deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes welcome-person-rise { from { opacity: .5; transform: scale(1.08) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes welcome-float { to { transform: translate(12px, -9px) rotate(22deg); } }
+@keyframes welcome-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes welcome-enter { from { opacity: 0; transform: translateY(25px) scale(.92); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes welcome-fade { 0%, 72% { opacity: 1; } 100% { opacity: 0; } }
+@media (max-width: 600px) { .app-shell .welcome-message { grid-template-columns: 1fr; grid-template-rows: 185px auto; min-height: 0; } .app-shell .welcome-person-wrap { min-height: 185px; } .app-shell .welcome-copy { min-height: 200px; padding: 22px; } .app-shell .welcome-copy small { margin-top: 2px; } .app-shell .welcome-copy strong { max-width: 100%; font-size: 26px; } .app-shell .welcome-check { top: 18px; right: 20px; } .app-shell .welcome-progress { right: 22px; bottom: 15px; left: 22px; } }
+@media (prefers-reduced-motion: reduce) { .app-shell .welcome-overlay, .app-shell .welcome-message, .app-shell .welcome-person, .app-shell .welcome-check, .app-shell .welcome-orbit, .app-shell .welcome-progress::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+
+/* Interacciones y transiciones comunes a los cuatro perfiles. */
+.content > router-outlet + * { display: block; animation: vista-entrada 240ms ease-out; }
+.portal-hero { position: relative; display: flex; min-height: 230px; align-items: center; justify-content: space-between; gap: 24px; overflow: hidden; padding: clamp(24px, 4vw, 42px); border: 1px solid rgb(255 255 255 / 38%); border-radius: 20px; color: #fff; background: linear-gradient(112deg, #122c47 0%, #245a79 62%, #328c82 120%); isolation: isolate; }
+.portal-hero--rrhh { background: linear-gradient(125deg, #171c2a, #1a435a, #112b3c, #171c2a); background-size: 260% 260%; animation: hero-breathe 14s ease infinite; }
+@keyframes hero-breathe { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+.portal-hero--admin { background: linear-gradient(112deg, #122c47 0%, #315c78 64%, #547f8d 120%); }
+.portal-hero--salud { background: linear-gradient(112deg, #143b48 0%, #267d76 65%, #68a99a 120%); }
+.portal-hero--postulante { background: linear-gradient(112deg, #12294a 0%, #225d8b 67%, #398c94 120%); }
+.portal-hero-copy { position: relative; z-index: 2; max-width: 650px; }
+.portal-hero .dashboard-eyebrow, .portal-hero .eyebrow, .hero__eyebrow { color: rgb(255 255 255 / 77%); font-size: 11px; font-weight: 650; letter-spacing: .1em; text-transform: uppercase; }
+.portal-hero h1 { max-width: 610px; margin: 9px 0 11px; color: #fff; font-size: clamp(27px, 3.2vw, 38px); font-weight: 650; letter-spacing: -.035em; line-height: 1.12; }
+.portal-hero-copy > p:not(.hero__eyebrow) { max-width: 580px; color: rgb(255 255 255 / 86%); font-size: 14px; line-height: 1.7; }
+.portal-hero-art { position: absolute; z-index: 1; right: 4%; top: 10%; width: min(36%, 360px); height: 80%; border: 5px solid rgb(255 255 255 / 24%); border-radius: 24px; object-fit: cover; object-position: center 36%; box-shadow: 0 22px 45px rgb(5 24 39 / 24%); transition: transform 300ms ease, filter 300ms ease; }
+.portal-hero:hover .portal-hero-art { transform: translateY(-5px) scale(1.025); }
+.hero-decoration { position: absolute; z-index: -1; right: 10%; top: -105px; width: 310px; height: 310px; border: 1px solid rgb(255 255 255 / 14%); border-radius: 50%; box-shadow: 0 0 0 35px rgb(255 255 255 / 4%), 0 0 0 70px rgb(255 255 255 / 3%); }
+.hero-action { display: inline-flex; align-items: center; gap: 12px; margin-top: 18px; padding: 11px 15px; border: 1px solid rgb(255 255 255 / 35%); border-radius: 9px; background: rgb(255 255 255 / 12%); color: white; font-size: 12px; font-weight: 700; text-decoration: none; transition: background-color 160ms ease, transform 160ms ease; }
+.hero-action:hover { transform: translateY(-2px); background: rgb(255 255 255 / 22%); }
+.hero-action:focus-visible { outline: 2px solid white; outline-offset: 3px; }
+.app-shell :is(.card, .dashboard-card, .tarjeta, .vacancy-card, .indicator-card) { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+.app-shell :is(button, input, select, textarea) { transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease, transform 160ms ease; }
+.app-shell tbody tr { transition: background-color 160ms ease; }
+.app-shell :is(a, button):focus-visible { outline-color: #328c82; outline-offset: 3px; }
+.app-shell button:not(:disabled):active { transform: scale(.98); }
+@keyframes metric-enter { from { opacity: 0; transform: translateY(7px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.indicator-value, .resumen__valor { animation: metric-enter 480ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes vista-entrada { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (hover: hover) {
+  .app-shell :is(.card, .dashboard-card, .tarjeta, .vacancy-card, .indicator-card):hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgb(18 44 71 / 11%); }
+  .app-shell tbody tr:hover { background-color: #f3f8fb; }
+}
+@media (max-width: 700px) {
+  .portal-hero { min-height: 220px; padding: 24px; }
+  .portal-hero-art { right: -4%; top: 15%; width: 44%; height: 70%; opacity: .42; }
+  .portal-hero-copy { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
 .app-shell.text-large {
-  zoom: 1.12;
+  font-size: 16px;
+
+  :is(p, span, a, label, td, th, input, select, textarea, button, small, strong, li, summary) {
+    font-size: 1.08em;
+  }
+
+  .sidebar {
+    height: 100dvh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .sidebar-nav a {
+    min-height: 38px;
+    padding: 8px 12px;
+  }
+
+  .modal {
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+@media (min-width: 901px) {
+  .interviews-page .table-scroll,
+  .medical-page .table-scroll,
+  .results-page .table-scroll {
+    overflow: visible !important;
+
+    table {
+      min-width: 0 !important;
+      width: 100% !important;
+    }
+
+    th,
+    td {
+      padding-inline: 12px;
+    }
+  }
 }
 
 .app-shell.theme-dark .choice-button:hover:not(:disabled),
@@ -49,11 +189,16 @@ body {
   input,
   select,
   textarea,
-  button
+  button:not(.panel-overlay):not(.mobile-overlay)
 ) {
   border: 2px solid #000000 !important;
   background-color: #ffffff !important;
   color: #000000 !important;
+}
+
+.app-shell.high-contrast .panel-overlay {
+  background: transparent !important;
+  border: 0 !important;
 }
 
 .app-shell.high-contrast :is(
@@ -122,31 +267,319 @@ body {
   color: #ffffff;
 }
 
+/* Modo oscuro para todas las vistas RRHH y tarjetas con fondos fijos */
+.app-shell.theme-dark :is(
+  .app-main,
+  .content,
+  .dashboard,
+  .page-stack,
+  .interviews-page,
+  .medical-page,
+  .results-page,
+  .detail-page,
+  .account-page,
+  .help-page
+) {
+  background: var(--bg) !important;
+  color: var(--navy) !important;
+}
+
+.app-shell.theme-dark .avatar-tooltip {
+  background: #142637 !important;
+  border-color: #355069 !important;
+  color: #e8f1f7 !important;
+
+  strong { color: #ffffff !important; }
+  span, small { color: #cbd5e1 !important; }
+  &::after { border-right-color: #142637 !important; }
+}
+
+.app-shell.theme-dark :is(
+  .card,
+  .dashboard-card,
+  .filter-card,
+  .search-card,
+  .vacancy-card,
+  .table-card,
+  .calendar-card,
+  .site-card,
+  .filters,
+  .filters-card,
+  .candidate-card,
+  .evaluation-card,
+  .settings-card,
+  .personal-card,
+  .profile-card,
+  .help-hero,
+  .help-section,
+  .help-card,
+  .faq-item,
+  .guide-card,
+  .contact-card,
+  details,
+  .modal
+) {
+  background: #142637 !important;
+  border-color: #2b4054 !important;
+  color: #e8f1f7 !important;
+}
+
+.app-shell.theme-dark :is(
+  .authorization-label,
+  .profile-status-box,
+  .profile-avatar,
+  .help-hero-icon,
+  .question-count
+) {
+  background: #182d42 !important;
+  border-color: #355069 !important;
+  color: #e8f1f7 !important;
+}
+
+.app-shell.theme-dark :is(
+  .search-control,
+  .search-input-wrap input,
+  .field input,
+  .field select,
+  .field textarea,
+  .custom-select__trigger,
+  .custom-select__menu
+) {
+  background: #0f1f2e !important;
+  border-color: #2f465c !important;
+  color: #e8f1f7 !important;
+}
+
+.app-shell.theme-dark :is(table, thead, tbody, tr, th, td) {
+  background-color: transparent !important;
+  border-color: #2b4054 !important;
+  color: #e8f1f7 !important;
+}
+
+.app-shell.theme-dark tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.app-shell.theme-dark :is(
+  .indicator-value,
+  .donut-center strong,
+  .page-heading h1,
+  .card-heading h2,
+  .vacancy-heading h2,
+  .selection-item strong,
+  .activity-information strong
+) {
+  color: #e8f1f7 !important;
+}
+
+.app-shell.theme-dark :is(
+  .calendar-day,
+  .activity-item,
+  .chart-tabs,
+  .bar-track,
+  .column-track,
+  .time-chip
+) {
+  background: #0f1f2e !important;
+  border-color: #2b4054 !important;
+  color: #e8f1f7 !important;
+}
+
+.app-shell.theme-dark .calendar-day.selected,
+.app-shell.theme-dark .chart-tabs button.is-active {
+  background: #1d4e6b !important;
+  color: #ffffff !important;
+}
+
+.app-shell.theme-dark .interview-item {
+  border-color: #2b4054 !important;
+}
+
+.app-shell.theme-dark .selection-item:hover,
+.app-shell.theme-dark .selection-item.is-selected,
+.app-shell.theme-dark .activity-item:hover,
+.app-shell.theme-dark .interview-item:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: #3b5870 !important;
+}
+
+.app-shell.theme-dark :is(
+  .btn-secondary,
+  .btn-profile,
+  .clear-button,
+  .quick-action-btn,
+  .date-tabs button,
+  .icon-button,
+  .reminder-button,
+  .pagination button,
+  .preset-pill,
+  .location-chip,
+  .back-link
+) {
+  background: #182d42 !important;
+  border-color: #355069 !important;
+  color: #e8f1f7 !important;
+
+  &:hover:not(:disabled) {
+    background: #23415e !important;
+    border-color: #4f7394 !important;
+    color: #ffffff !important;
+  }
+}
+
+.app-shell.theme-dark .back-link {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.app-shell.theme-dark :is(
+  .btn-primary,
+  .btn-pause,
+  .btn-publish,
+  .btn-reopen,
+  .upload-photo-btn,
+  .upload-pill
+) {
+  background: #1d4e6b !important;
+  border-color: #2b6b8f !important;
+  color: #ffffff !important;
+
+  &:hover:not(:disabled) {
+    background: #26678d !important;
+    border-color: #3888b5 !important;
+  }
+}
+
+.app-shell.theme-dark :is(.btn-close, .btn-reject) {
+  background: rgba(180, 35, 24, 0.2) !important;
+  border-color: #f87171 !important;
+  color: #fecaca !important;
+
+  &:hover:not(:disabled) {
+    background: #b42318 !important;
+    color: #ffffff !important;
+  }
+}
+
+.app-shell.theme-dark :is(
+  .indicator-icon,
+  .site-icon,
+  .activity-icon,
+  .step-icon
+) {
+  background: #182d42 !important;
+  border-color: #355069 !important;
+  color: #7ed3be !important;
+}
+
+.app-shell.theme-dark :is(
+  .search-control app-icon,
+  .search-input-wrap app-icon,
+  .icon-btn,
+  .toggle-password
+) {
+  color: #cbd5e1 !important;
+}
+
+/* Modo oscuro + Alto contraste sin colapsos ni fondos blancos */
+.app-shell.theme-dark.high-contrast,
 .app-shell.theme-dark.high-contrast :is(
+  .app-main,
+  .content,
+  .topbar,
+  .sidebar,
+  .dashboard,
+  .page-stack,
+  .interviews-page,
+  .medical-page,
+  .results-page,
+  .detail-page,
+  .account-page,
+  .portal-hero,
+  .profile-banner,
+  .avatar-tooltip,
+  .card,
+  .dashboard-card,
+  .filter-card,
+  .search-card,
+  .vacancy-card,
+  .table-card,
+  .calendar-card,
+  .site-card,
+  .filters,
+  .filters-card,
+  .candidate-card,
+  .evaluation-card,
+  .settings-card,
+  .personal-card,
+  .profile-card,
+  .help-page,
+  .help-hero,
+  .help-hero-icon,
+  .help-section,
+  .faq-item,
+  .question-count,
+  details,
+  summary,
+  .search-control,
+  .calendar-day,
+  .activity-item,
+  .interview-item,
+  .selection-item,
+  .chart-tabs,
+  .custom-select__trigger,
+  .custom-select__menu,
+  .photo-picker-row,
+  .map-embed-box,
+  .profile-status-box,
+  .vacancy-status,
+  .chip,
+  .time-chip,
+  .badge,
   .modal,
   .modal-content,
   .modal-body,
-  .card,
   .panel,
   .dropdown,
   .header-panel,
+  .feedback-dialog,
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td,
   section[class],
-  article[class]
+  article[class],
+  aside[class]
 ) {
+  background: #000000 !important;
   background-color: #000000 !important;
-  border-color: #ffffff;
-  color: #ffffff;
+  background-image: none !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
 }
 
 .app-shell.theme-dark.high-contrast :is(
   input,
   select,
   textarea,
-  button
+  button:not(.panel-overlay):not(.mobile-overlay),
+  a.btn,
+  .btn,
+  .quick-action-btn,
+  .upload-photo-btn,
+  .upload-pill
 ) {
-  border-color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
+}
+
+.app-shell.theme-dark.high-contrast .panel-overlay {
+  background: transparent !important;
+  border: 0 !important;
 }
 
 .app-shell.theme-dark.high-contrast :is(
@@ -161,7 +594,12 @@ body {
   strong,
   span,
   th,
-  td
+  td,
+  dt,
+  dd,
+  li,
+  summary,
+  app-icon
 ) {
   color: #ffffff !important;
 }

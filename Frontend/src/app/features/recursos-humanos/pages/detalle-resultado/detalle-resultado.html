@@ -16,12 +16,6 @@
       </p>
     }
 
-    @if (notice) {
-      <p class="message success" role="status">
-        {{ notice }}
-      </p>
-    }
-
     @if (candidate; as person) {
       @if (person.status === 'Rechazado') {
         <div class="rejection-message" role="status">
@@ -51,29 +45,34 @@
         </div>
 
         @if (person.status === 'Evaluado') {
-          <button
-            type="button"
-            class="btn btn-primary"
-            [disabled]="busy || !canSubmit"
-            [title]="submitHint"
-            (click)="submitReview()"
-          >
-            {{
-              submittedAt
-                ? 'Enviado a revisión final'
-                : busy
-                  ? 'Guardando…'
-                  : 'Enviar a revisión final'
-            }}
-          </button>
+          <div class="result-actions">
+            <button type="button" class="btn btn-secondary" (click)="printEvaluation()">
+              <app-icon name="file" [size]="16" />
+              Imprimir ficha
+            </button>
+            @if (submittedAt && !editingSubmitted) {
+              <button type="button" class="btn btn-secondary" (click)="startEditing()">Editar resultados</button>
+            }
+            @if (!submittedAt || editingSubmitted) {
+              <button type="button" class="btn btn-primary" [disabled]="busy || !canSubmit" [title]="submitHint" (click)="submitReview()">
+                {{ busy ? 'Guardando…' : editingSubmitted ? 'Guardar cambios' : 'Enviar a revisión final' }}
+              </button>
+            }
+            @if (submittedAt && !editingSubmitted) { <span class="result-save-status">Enviado el {{ submittedAt | date: 'dd/MM/yyyy · HH:mm' }}</span> }
+          </div>
+        } @else {
+          <div class="result-actions">
+            <button type="button" class="btn btn-secondary" (click)="printEvaluation()">
+              <app-icon name="file" [size]="16" />
+              Imprimir ficha
+            </button>
+          </div>
         }
       </header>
 
       <div class="detail-grid">
         <aside class="card candidate-card">
-          <span class="avatar" aria-hidden="true">
-            {{ initials }}
-          </span>
+          <app-avatar-postulante [id]="person.id" [nombre]="person.name" [puesto]="person.role" [experiencia]="person.experience" [ubicacion]="person.location" size="large" />
 
           <h2>{{ person.name }}</h2>
 
@@ -89,12 +88,30 @@
 
             <div>
               <dt>Teléfono</dt>
-              <dd>{{ person.phone }}</dd>
+              <dd>
+                <a
+                  class="contact-action-link"
+                  [href]="whatsappLink(person.phone)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ person.phone }} ↗
+                </a>
+              </dd>
             </div>
 
             <div>
               <dt>Email</dt>
-              <dd>{{ person.email }}</dd>
+              <dd>
+                <a
+                  class="contact-action-link"
+                  [href]="emailLink(person.email)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ person.email }} ↗
+                </a>
+              </dd>
             </div>
           </dl>
 
@@ -124,30 +141,90 @@
         </aside>
 
         <div class="evaluation-stack">
-          <section class="card evaluation-card">
+          <!-- Dictamen Integral destacado en la parte superior -->
+          <section class="card evaluation-card evaluation-card--summary">
+            <div class="summary-head">
+              <div>
+                <span class="summary-eyebrow">Dictamen integral</span>
+                <h2>Resumen y decisión final</h2>
+              </div>
+              <span class="score-badge" [class.score-badge--high]="compatibilityScore >= 85">
+                {{ compatibilityScore }} / 100 pts
+              </span>
+            </div>
+
+            <div class="score-bar-track" aria-hidden="true">
+              <div class="score-bar-fill" [style.width.%]="compatibilityScore"></div>
+            </div>
+
+            <div class="summary-footer-row">
+              <p class="summary-recommendation">
+                <strong>Recomendación:</strong> {{ recommendationLabel }}
+              </p>
+
+              @if (person.status === 'Evaluado') {
+                <div class="decision-actions">
+                  <button
+                    type="button"
+                    class="btn btn-hire"
+                    [disabled]="busy"
+                    (click)="decideCandidate('Contratado')"
+                  >
+                    <app-icon name="check" [size]="16" />
+                    Aprobar contratación
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-reject"
+                    [disabled]="busy"
+                    (click)="decideCandidate('Rechazado')"
+                  >
+                    <app-icon name="close" [size]="16" />
+                    No continuar
+                  </button>
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="card evaluation-card evaluation-card--first">
             <h2>Entrevista laboral</h2>
 
-            <label class="field">
-              Resultado
+            <div class="field">
+              <span>Resultado</span>
 
-              <select
-                [(ngModel)]="result"
-                [disabled]="busy || !editable"
-                (ngModelChange)="onResultChange()"
-              >
-                <option value="" disabled>
-                  Selecciona un resultado
-                </option>
+              <div class="custom-select" [class.is-disabled]="busy || !editable">
+                <button
+                  type="button"
+                  class="custom-select__trigger"
+                  [disabled]="busy || !editable"
+                  [attr.aria-expanded]="interviewDropdownOpen"
+                  (click)="interviewDropdownOpen = !interviewDropdownOpen; medicalDropdownOpen = false"
+                >
+                  @if (result === 'APROBADO') {
+                    <span class="positive-chip">Aprobado</span>
+                  } @else {
+                    <span [class.placeholder]="!result">{{ interviewLabel }}</span>
+                  }
+                  <span class="custom-select__chevron" aria-hidden="true">▾</span>
+                </button>
 
-                <option value="APROBADO">
-                  Aprobado
-                </option>
-
-                <option value="DESAPROBADO">
-                  Desaprobado
-                </option>
-              </select>
-            </label>
+                @if (interviewDropdownOpen && editable && !busy) {
+                  <ul class="custom-select__menu" role="listbox">
+                    @for (opt of interviewOptions; track opt.value) {
+                      <li
+                        role="option"
+                        [attr.aria-selected]="result === opt.value"
+                        [class.is-selected]="result === opt.value"
+                        (click)="selectInterviewResult(opt.value)"
+                      >
+                        {{ opt.label }}
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            </div>
 
             <label class="field">
               Comentarios
@@ -161,45 +238,46 @@
             </label>
           </section>
 
-          <section class="card evaluation-card">
+          <section class="card evaluation-card evaluation-card--second">
             <h2>Examen médico ocupacional</h2>
 
-            <label class="field">
-              Resultado
+            <div class="field">
+              <span>Resultado</span>
 
-              <select
-                [(ngModel)]="medicalResult"
-                [disabled]="busy || !editable"
-                (ngModelChange)="onResultChange()"
-              >
-                <option value="" disabled>
-                  Selecciona un resultado
-                </option>
+              <div class="custom-select" [class.is-disabled]="busy || !editable">
+                <button
+                  type="button"
+                  class="custom-select__trigger"
+                  [disabled]="busy || !editable"
+                  [attr.aria-expanded]="medicalDropdownOpen"
+                  (click)="medicalDropdownOpen = !medicalDropdownOpen; interviewDropdownOpen = false"
+                >
+                  @if (medicalResult === 'Apto') {
+                    <span class="positive-chip">Apto</span>
+                  } @else {
+                    <span [class.placeholder]="!medicalResult">
+                      {{ medicalResult || 'Selecciona un resultado' }}
+                    </span>
+                  }
+                  <span class="custom-select__chevron" aria-hidden="true">▾</span>
+                </button>
 
-                <option value="Apto">
-                  Apto
-                </option>
-
-                <option value="Apto con restricciones">
-                  Apto con restricciones
-                </option>
-
-                <option value="No apto">
-                  No apto
-                </option>
-
-                @if (
-                  medicalResult &&
-                  medicalResult !== 'Apto' &&
-                  medicalResult !== 'Apto con restricciones' &&
-                  medicalResult !== 'No apto'
-                ) {
-                  <option [value]="medicalResult">
-                    {{ medicalResult }}
-                  </option>
+                @if (medicalDropdownOpen && editable && !busy) {
+                  <ul class="custom-select__menu" role="listbox">
+                    @for (opt of medicalOptions; track opt.value) {
+                      <li
+                        role="option"
+                        [attr.aria-selected]="medicalResult === opt.value"
+                        [class.is-selected]="medicalResult === opt.value"
+                        (click)="selectMedicalResult(opt.value)"
+                      >
+                        {{ opt.label }}
+                      </li>
+                    }
+                  </ul>
                 }
-              </select>
-            </label>
+              </div>
+            </div>
 
             <label class="field">
               Comentarios
@@ -208,7 +286,7 @@
                 [(ngModel)]="medicalNotes"
                 [disabled]="busy || !editable"
                 placeholder="Escribe los comentarios del examen médico"
-                rows="1"
+                rows="3"
               ></textarea>
             </label>
           </section>

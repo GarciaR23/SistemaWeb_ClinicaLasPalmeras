@@ -8,6 +8,7 @@ import {
 import { LocalStore } from '../../../../core/services/almacenamiento-local';
 import { Icon } from '../../../../shared/components/icono/icono';
 import { environment } from '../../../../../environments/environment';
+import { Feedback } from '../../../../core/services/feedback';
 
 interface Institution {
   name: string;
@@ -27,6 +28,7 @@ export class Configuracion implements OnInit, OnDestroy {
   readonly preferences = inject(PreferencesService);
 
   private readonly store = inject(LocalStore);
+  private readonly feedback = inject(Feedback);
   private savedAppearance: Preferences = {
     ...this.preferences.preferences(),
   };
@@ -152,12 +154,14 @@ export class Configuracion implements OnInit, OnDestroy {
       }
 
       this.notice = 'Configuración guardada correctamente.';
+      this.feedback.show('success', 'Configuración guardada', 'Tus preferencias y los datos institucionales se actualizaron.');
       form.form.markAsPristine();
     } catch (error) {
       this.error =
         error instanceof Error
           ? error.message
           : 'No se pudo guardar la configuración.';
+      this.feedback.show('error', 'No se pudo guardar la configuración', this.error);
     } finally {
       this.busy = false;
     }

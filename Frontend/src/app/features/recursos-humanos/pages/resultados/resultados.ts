@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { ApplicantsService } from '../../services/servicio-postulantes';
 import { Badge } from '../../../../shared/components/badge/badge';
 import { Icon } from '../../../../shared/components/icono/icono';
+import { AvatarPostulante } from '../../../../shared/components/avatar-postulante/avatar-postulante';
 
 @Component({
   selector: 'app-results-page',
   standalone: true,
-  imports: [RouterLink, FormsModule, Badge, Icon],
+  imports: [RouterLink, FormsModule, Badge, Icon, AvatarPostulante],
   templateUrl: './resultados.html',
   styleUrl: './resultados.scss',
 })

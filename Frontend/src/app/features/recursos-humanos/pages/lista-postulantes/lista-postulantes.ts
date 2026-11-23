@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import {
   ActivatedRoute,
   Router,
@@ -13,6 +14,8 @@ import { Status } from '../../models/postulante';
 import { Icon } from '../../../../shared/components/icono/icono';
 import { Badge } from '../../../../shared/components/badge/badge';
 import { Modal } from '../../../../shared/components/modal/modal';
+import { Feedback } from '../../../../core/services/feedback';
+import { AvatarPostulante } from '../../../../shared/components/avatar-postulante/avatar-postulante';
 
 @Component({
   selector: 'app-applicants-page',
@@ -23,6 +26,7 @@ import { Modal } from '../../../../shared/components/modal/modal';
     Icon,
     Badge,
     Modal,
+    AvatarPostulante,
   ],
   templateUrl: './lista-postulantes.html',
   styleUrl: './lista-postulantes.scss',
@@ -30,9 +34,35 @@ import { Modal } from '../../../../shared/components/modal/modal';
 export class ApplicantsPage implements OnInit {
   readonly service = inject(ApplicantsService);
   readonly vacancies = inject(VacanciesService);
+  private readonly feedback = inject(Feedback);
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
+
+  readonly experienceRanges = [
+    'Sin experiencia',
+    'Menos de 1 año',
+    '1 a 2 años',
+    '3 a 5 años',
+    'Más de 5 años',
+  ];
+
+  readonly locationSuggestions = [
+    'Miraflores, Lima',
+    'San Isidro, Lima',
+    'Santiago de Surco, Lima',
+    'La Molina, Lima',
+  ];
+
+  readonly photoPresets = [
+    'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=240&q=80',
+    'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=240&q=80',
+    'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=240&q=80',
+    'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=240&q=80',
+  ];
+
+  showMapPicker = false;
 
   search = '';
   position = 'Todos';
@@ -96,10 +126,7 @@ export class ApplicantsPage implements OnInit {
           this.position === 'Todos' ||
           candidate.role === this.position
         ) &&
-        (
-          this.status === 'Todos' ||
-          candidate.status === this.status
-        )
+        this.coincideEstado(candidate.status)
       );
     });
   }
@@ -131,6 +158,11 @@ export class ApplicantsPage implements OnInit {
         this.vacancies.load(),
       ]);
 
+      const estadoInicial = this.route.snapshot.queryParamMap.get('estado');
+      if (estadoInicial && ['En revisión', 'Preseleccionado', 'Entrevista', 'Examen médico', 'Evaluado'].includes(estadoInicial)) {
+        this.status = estadoInicial as Status;
+      }
+
       if (
         this.route.snapshot.queryParamMap.get('nuevo') === '1'
       ) {
@@ -158,10 +190,85 @@ export class ApplicantsPage implements OnInit {
       email: '',
       phone: '',
       dni: '',
-      experience: '',
-      location: '',
+      experience: 'Sin experiencia',
+      location: 'Miraflores, Lima',
+      photoUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=240&q=80',
       vacancyId: 0,
     };
+  }
+
+  onNumericKeydown(event: KeyboardEvent): void {
+    const allowed = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+    if (event.ctrlKey || event.metaKey || allowed.includes(event.key)) return;
+    if (!/^[0-9]$/.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  onNumericInput(event: Event, field: 'dni' | 'phone', maxLen: number): void {
+    const input = event.target as HTMLInputElement;
+    const clean = input.value.replace(/\D/g, '').slice(0, maxLen);
+    input.value = clean;
+    this.draft[field] = clean;
+  }
+
+  onNameKeydown(event: KeyboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    if (/^[0-9]$/.test(event.key)) {
+      event.preventDefault();
+      return;
+    }
+    if (event.key === ' ' && (!input.value.trim() || input.value.endsWith(' '))) {
+      event.preventDefault();
+    }
+  }
+
+  onNameInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const clean = input.value
+      .replace(/[0-9]/g, '')
+      .replace(/^\s+/, '')
+      .replace(/\s{2,}/g, ' ');
+    input.value = clean;
+    this.draft.name = clean;
+  }
+
+  onEmailKeydown(event: KeyboardEvent): void {
+    if (event.key === ' ') {
+      event.preventDefault();
+    }
+  }
+
+  onEmailInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const clean = input.value.replace(/\s+/g, '');
+    input.value = clean;
+    this.draft.email = clean;
+  }
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        this.draft.photoUrl = reader.result;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  get googleMapsEmbedUrl(): SafeResourceUrl {
+    const query = encodeURIComponent(this.draft.location.trim() || 'Lima, Peru');
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `https://maps.google.com/maps?q=${query}&t=&z=14&ie=UTF8&iwloc=&output=embed`,
+    );
+  }
+
+  get googleMapsExternalUrl(): string {
+    const query = encodeURIComponent(this.draft.location.trim() || 'Lima, Peru');
+    return `https://www.google.com/maps/search/?api=1&query=${query}`;
   }
 
   openCreate(): void {
@@ -182,6 +289,13 @@ export class ApplicantsPage implements OnInit {
       1,
       Math.min(page, this.pages),
     );
+  }
+
+  private coincideEstado(actual: Status): boolean {
+    if (this.status === 'Todos') return true;
+    if (this.status === 'Examen médico') return actual === 'Examen médico' || actual === 'Solicitud médica';
+    if (this.status === 'Evaluado') return actual === 'Evaluado' || actual === 'Contratado';
+    return actual === this.status;
   }
 
   async create(form: NgForm): Promise<void> {
@@ -234,11 +348,13 @@ export class ApplicantsPage implements OnInit {
       this.page = 1;
 
       this.notice = 'Postulante registrado correctamente.';
+      this.feedback.show('success', 'Postulante registrado', 'El perfil ya está disponible en la lista de selección.');
     } catch (error) {
       this.formError =
         error instanceof Error
           ? error.message
           : 'No se pudo guardar.';
+      this.feedback.show('error', 'No se pudo registrar el perfil', this.formError);
     } finally {
       this.busy = false;
     }
