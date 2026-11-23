@@ -74,9 +74,7 @@
                     <tr>
                         <td>
                             <div class="person">
-                                <span class="avatar" aria-hidden="true">
-                                    {{ initials(candidate.name) }}
-                                </span>
+                                <app-avatar-postulante [id]="candidate.id" [nombre]="candidate.name" [puesto]="candidate.role" [experiencia]="candidate.experience" [ubicacion]="candidate.location" size="small" />
 
                                 <div>
                                     <strong>{{ candidate.name }}</strong>

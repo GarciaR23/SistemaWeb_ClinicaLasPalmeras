@@ -20,20 +20,19 @@
     <p class="form-error" role="alert">{{ error }}</p>
   }
 
-  @if (notice) {
-    <p class="notice" role="status">{{ notice }}</p>
-  }
-
   <section class="card filter-card" aria-label="Filtros de postulantes">
-    <label class="field" for="buscar-postulante">
+    <label class="field field-search" for="buscar-postulante">
       Buscar
-      <input
-        id="buscar-postulante"
-        type="search"
-        [(ngModel)]="search"
-        (ngModelChange)="page = 1"
-        placeholder="Nombre, correo o DNI"
-      />
+      <div class="search-input-wrap">
+        <app-icon name="search" [size]="17" />
+        <input
+          id="buscar-postulante"
+          type="search"
+          [(ngModel)]="search"
+          (ngModelChange)="page = 1"
+          placeholder="Nombre, correo o DNI"
+        />
+      </div>
     </label>
 
     <label class="field" for="filtrar-puesto">
@@ -88,9 +87,7 @@
               <tr>
                 <td data-label="Nombre">
                   <div class="person-cell">
-                    <span class="person-avatar" aria-hidden="true">
-                      {{ candidate.name.slice(0, 2).toUpperCase() }}
-                    </span>
+                    <app-avatar-postulante [id]="candidate.id" [nombre]="candidate.name" [puesto]="candidate.role" [experiencia]="candidate.experience" [ubicacion]="candidate.location" size="small" />
 
                     <div>
                       <strong>{{ candidate.name }}</strong>
@@ -171,6 +168,31 @@
       class="modal-form"
       (ngSubmit)="create(form)"
     >
+      <div class="photo-picker-row">
+        <img class="photo-preview" [src]="draft.photoUrl" alt="Foto seleccionada del postulante" />
+        <div class="photo-picker-controls">
+          <span class="photo-picker-label">Foto de perfil</span>
+          <div class="photo-picker-options">
+            <label class="upload-photo-btn">
+              <app-icon name="file" [size]="14" />
+              Subir foto
+              <input type="file" accept="image/*" hidden [disabled]="busy" (change)="onPhotoSelected($event)" />
+            </label>
+            @for (preset of photoPresets; track preset) {
+              <button
+                type="button"
+                class="photo-preset-btn"
+                [class.is-active]="draft.photoUrl === preset"
+                (click)="draft.photoUrl = preset"
+                aria-label="Seleccionar foto predeterminada"
+              >
+                <img [src]="preset" alt="" />
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
       <div class="form-grid">
         <label class="field" for="postulante-nombre">
           Nombre completo *
@@ -178,9 +200,12 @@
             id="postulante-nombre"
             name="name"
             [(ngModel)]="draft.name"
+            (keydown)="onNameKeydown($event)"
+            (input)="onNameInput($event)"
             required
             minlength="3"
             maxlength="120"
+            pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]+"
             autocomplete="name"
             [disabled]="busy"
           />
@@ -193,36 +218,47 @@
             name="email"
             type="email"
             [(ngModel)]="draft.email"
+            (keydown)="onEmailKeydown($event)"
+            (input)="onEmailInput($event)"
             required
             email
+            pattern="^[^\s]+$"
             autocomplete="email"
             [disabled]="busy"
           />
         </label>
 
         <label class="field" for="postulante-dni">
-          DNI *
+          DNI (8 dígitos) *
           <input
             id="postulante-dni"
             name="dni"
             [(ngModel)]="draft.dni"
+            (keydown)="onNumericKeydown($event)"
+            (input)="onNumericInput($event, 'dni', 8)"
             required
             pattern="[0-9]{8}"
             maxlength="8"
             inputmode="numeric"
+            placeholder="Solo 8 números"
             [disabled]="busy"
           />
         </label>
 
         <label class="field" for="postulante-telefono">
-          Teléfono *
+          Teléfono (9 dígitos) *
           <input
             id="postulante-telefono"
             name="phone"
             type="tel"
             [(ngModel)]="draft.phone"
+            (keydown)="onNumericKeydown($event)"
+            (input)="onNumericInput($event, 'phone', 9)"
             required
-            pattern="[+0-9 ()-]{9,16}"
+            pattern="[0-9]{9}"
+            maxlength="9"
+            inputmode="numeric"
+            placeholder="Ej. 987654321"
             autocomplete="tel"
             [disabled]="busy"
           />
@@ -250,24 +286,69 @@
 
         <label class="field" for="postulante-experiencia">
           Experiencia
-          <input
+          <select
             id="postulante-experiencia"
             name="experience"
             [(ngModel)]="draft.experience"
-            placeholder="Ej. 3 años"
             [disabled]="busy"
-          />
+          >
+            @for (range of experienceRanges; track range) {
+              <option [value]="range">{{ range }}</option>
+            }
+          </select>
         </label>
 
-        <label class="field" for="postulante-ubicacion">
-          Ubicación
-          <input
-            id="postulante-ubicacion"
-            name="location"
-            [(ngModel)]="draft.location"
-            [disabled]="busy"
-          />
-        </label>
+        <div class="field full-width">
+          <label for="postulante-ubicacion">Ubicación</label>
+          <div class="location-input-row">
+            <input
+              id="postulante-ubicacion"
+              name="location"
+              [(ngModel)]="draft.location"
+              placeholder="Distrito o dirección en Lima"
+              [disabled]="busy"
+            />
+            <button
+              type="button"
+              class="btn btn-secondary map-toggle-btn"
+              (click)="showMapPicker = !showMapPicker"
+            >
+              <app-icon name="pin" [size]="16" />
+              {{ showMapPicker ? 'Ocultar mapa' : 'Mapa Google Maps' }}
+            </button>
+          </div>
+
+          <div class="location-chips">
+            @for (dist of locationSuggestions; track dist) {
+              <button
+                type="button"
+                class="location-chip"
+                [class.is-active]="draft.location === dist"
+                (click)="draft.location = dist"
+              >
+                {{ dist }}
+              </button>
+            }
+          </div>
+
+          @if (showMapPicker) {
+            <div class="map-embed-box">
+              <iframe
+                [src]="googleMapsEmbedUrl"
+                title="Mapa de ubicación en Google Maps"
+                loading="lazy"
+              ></iframe>
+              <a
+                class="maps-external-link"
+                [href]="googleMapsExternalUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Abrir selector en Google Maps ↗
+              </a>
+            </div>
+          }
+        </div>
       </div>
 
       @if (!publishedVacancies.length) {

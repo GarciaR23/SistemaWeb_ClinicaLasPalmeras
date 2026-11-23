@@ -11,10 +11,6 @@
     <p class="form-error" role="alert">{{ error }}</p>
   }
 
-  @if (notice) {
-    <p class="notice" role="status">{{ notice }}</p>
-  }
-
   @if (loading) {
     <section class="card empty" role="status">
       Cargando perfil…
@@ -31,9 +27,7 @@
 
     <div class="detail-grid">
       <section class="card candidate-summary">
-        <div class="large-avatar" aria-hidden="true">
-          {{ initials }}
-        </div>
+        <app-avatar-postulante [id]="c.id" [nombre]="c.name" [puesto]="c.role" [experiencia]="c.experience" [ubicacion]="c.location" size="large" />
 
         <h2>{{ c.name }}</h2>
         <p class="candidate-position">{{ c.role }}</p>
@@ -352,7 +346,7 @@
         [id]="c.id"
         [name]="c.name"
         (close)="closeModal()"
-        (saved)="modal = ''; notice = 'Entrevista programada.'"
+        (saved)="entrevistaProgramada()"
       />
     }
 

@@ -149,12 +149,26 @@ h1 {
 }
 
 .site-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 13px;
   min-height: 82px;
   padding: 18px;
+  border: 1px solid #e3ebf0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  &:hover { transform: translateY(-3px); border-color: #91b9c5; box-shadow: 0 10px 22px rgb(18 44 71 / 10%); }
+  &:focus-visible { outline: 2px solid #328c82; outline-offset: 3px; }
 }
+.site-map-hint { position: absolute; bottom: 5px; right: 12px; color: #328c82; font-size: 9px; font-weight: 700; }
+.site-map-modal { display: grid; gap: 14px; }
+.site-map-modal p { color: var(--medical-muted); font-size: 12px; line-height: 1.6; }
+.site-map-modal iframe { display: block; width: 100%; height: min(52vh, 430px); min-height: 260px; border: 0; border-radius: 13px; background: #e8f0f3; }
+.site-map-modal .btn { justify-self: start; text-decoration: none; }
 
 .site-icon {
   display: inline-flex;
@@ -564,6 +578,47 @@ tbody tr {
 
   &:hover {
     background: rgb(0 0 0 / 5%);
+  }
+}
+
+.apto-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 8px;
+  border-radius: 99px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 13px;
+  line-height: 1;
+
+  strong {
+    font-weight: 700;
+  }
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #166534;
+    color: #ffffff;
+  }
+}
+
+.clear-button {
+  min-height: 46px;
+  border: 1.5px solid #0f223f;
+  background: #eef4f9;
+  color: #0f223f;
+  font-weight: 600;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+
+  &:hover:not(:disabled) {
+    background: #0f223f;
+    color: #ffffff;
+    transform: translateY(-1px);
   }
 }
 

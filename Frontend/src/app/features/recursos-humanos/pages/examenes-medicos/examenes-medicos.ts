@@ -1,22 +1,27 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { HealthService } from '../../services/servicio-resultados-medicos';
+import { HealthService, MedicalSite } from '../../services/servicio-resultados-medicos';
 import { ApplicantsService } from '../../services/servicio-postulantes';
 import { Badge } from '../../../../shared/components/badge/badge';
 import { Icon } from '../../../../shared/components/icono/icono';
 import { Modal } from '../../../../shared/components/modal/modal';
+import { AvatarPostulante } from '../../../../shared/components/avatar-postulante/avatar-postulante';
+import { Feedback } from '../../../../core/services/feedback';
 
 @Component({
   selector: 'app-examenes-medicos',
   standalone: true,
-  imports: [FormsModule, Badge, Icon, Modal],
+  imports: [FormsModule, Badge, Icon, Modal, AvatarPostulante],
   templateUrl: './examenes-medicos.html',
   styleUrl: './examenes-medicos.scss',
 })
 export class ExamenesMedicos implements OnInit {
   readonly service = inject(HealthService);
   readonly applicants = inject(ApplicantsService);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly feedback = inject(Feedback);
 
   query = '';
 
@@ -30,6 +35,9 @@ export class ExamenesMedicos implements OnInit {
   error = '';
   formError = '';
   notice = '';
+  selectedSite: MedicalSite | null = null;
+  private cachedMapSite = '';
+  private cachedMapUrl: SafeResourceUrl | null = null;
 
   draft = this.emptyDraft();
 
@@ -121,6 +129,22 @@ export class ExamenesMedicos implements OnInit {
       this.draft.site,
       this.draft.date,
     );
+  }
+
+  openSite(site: MedicalSite): void { this.selectedSite = site; }
+
+  get mapEmbedUrl(): SafeResourceUrl | null {
+    if (!this.selectedSite) return null;
+    if (this.cachedMapSite !== this.selectedSite.name) {
+      const query = encodeURIComponent(`Clínica Las Palmeras ${this.selectedSite.name} Lima Perú`);
+      this.cachedMapUrl = this.sanitizer.bypassSecurityTrustResourceUrl(`https://maps.google.com/maps?q=${query}&output=embed`);
+      this.cachedMapSite = this.selectedSite.name;
+    }
+    return this.cachedMapUrl;
+  }
+
+  mapsLink(site: string): string {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Clínica Las Palmeras ${site} Lima Perú`)}`;
   }
 
   async ngOnInit(): Promise<void> {
@@ -246,12 +270,14 @@ export class ExamenesMedicos implements OnInit {
       this.clearFilters();
       this.open = false;
       this.notice = 'Examen médico programado correctamente.';
+      this.feedback.show('success', 'Examen programado', 'La cita quedó agregada a la agenda de Salud Ocupacional.');
       this.draft = this.emptyDraft();
     } catch (error) {
       this.formError =
         error instanceof Error
           ? error.message
           : 'No se pudo programar el examen.';
+      this.feedback.show('error', 'No se pudo programar el examen', this.formError);
     } finally {
       this.busy = false;
     }

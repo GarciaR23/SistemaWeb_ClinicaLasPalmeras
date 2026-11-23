@@ -14,6 +14,8 @@ import { ApplicantsService } from '../../services/servicio-postulantes';
 import { InterviewsService } from '../../services/servicio-entrevistas';
 import { ScheduleForm } from '../../components/programar-entrevista/programar-entrevista';
 import { Icon } from '../../../../shared/components/icono/icono';
+import { AvatarPostulante } from '../../../../shared/components/avatar-postulante/avatar-postulante';
+import { Feedback } from '../../../../core/services/feedback';
 
 type AgendaFilter = 'all' | 'today' | 'tomorrow';
 
@@ -39,6 +41,7 @@ interface ReminderAppointment {
     RouterLink,
     ScheduleForm,
     Icon,
+    AvatarPostulante,
   ],
   templateUrl: './entrevistas.html',
   styleUrl: './entrevistas.scss',
@@ -49,6 +52,7 @@ export class InterviewsPage implements OnInit, OnDestroy {
   readonly session = inject(Session);
 
   private readonly notifications = inject(Notifications);
+  private readonly feedback = inject(Feedback);
 
   readonly weekdays = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
@@ -328,9 +332,11 @@ export class InterviewsPage implements OnInit, OnDestroy {
 
       this.notice =
         'Entrevista actualizada correctamente.';
+      this.feedback.show('success', 'Entrevista actualizada', 'La agenda y el proceso del postulante ya reflejan los cambios.');
     } catch {
       this.error =
         'La entrevista se guardó, pero no se pudo actualizar la agenda.';
+      this.feedback.show('error', 'No se pudo actualizar la agenda', this.error);
     }
   }
 
@@ -394,14 +400,40 @@ remind(appointment: ReminderAppointment): void {
       this.reminderKey(appointment),
     );
 
-    this.showReminder(
-      `Recordatorio registrado para ${candidate.name}`,
+    this.playBellSound();
+    this.feedback.show(
+      'success',
+      'Recordatorio enviado',
+      `Se notificó a ${candidate.name} sobre su entrevista del ${this.formatDate(appointment.date)} a las ${appointment.time}.`,
     );
   } catch {
     this.error =
       'No se pudo registrar el recordatorio.';
   }
 }
+
+  private playBellSound(): void {
+    try {
+      const ctx = new AudioContext();
+      const notes = [880, 1174.66];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = ctx.currentTime + idx * 0.14;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.36, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.36);
+      });
+      window.setTimeout(() => void ctx.close(), 900);
+    } catch {
+      // Omitido si el navegador bloquea AudioContext.
+    }
+  }
 
   private showReminder(message: string): void {
     this.clearReminderTimer();
