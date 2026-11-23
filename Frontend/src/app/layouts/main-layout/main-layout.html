@@ -13,10 +13,17 @@
   @if (bienvenidaVisible) {
     <div class="welcome-overlay" role="status" aria-live="polite">
       <div class="welcome-message">
-        <span class="welcome-icon"><app-icon name="check" [size]="26" /></span>
-        <div>
-          <strong>¡Acceso correcto!</strong>
+        <div class="welcome-person-wrap">
+          <img class="welcome-person" [src]="bienvenidaImagen" alt="" />
+          <span class="welcome-orbit welcome-orbit--one"></span>
+          <span class="welcome-orbit welcome-orbit--two"></span>
+        </div>
+        <div class="welcome-copy">
+          <span class="welcome-check"><app-icon name="check" [size]="24" /></span>
+          <small>ACCESO SEGURO · {{ roleLabel }}</small>
+          <strong>¡Qué gusto tenerte aquí!</strong>
           <p>{{ bienvenidaTexto }}</p>
+          <span class="welcome-progress" aria-hidden="true"></span>
         </div>
       </div>
     </div>
